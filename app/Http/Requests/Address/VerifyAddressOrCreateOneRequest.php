@@ -31,7 +31,7 @@ class VerifyAddressOrCreateOneRequest extends FormRequest
 
             'city' => ['string'],
             'region' => ['string'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
         ];
     }
 }

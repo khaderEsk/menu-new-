@@ -213,6 +213,7 @@ class UserController extends Controller
                 }
 
                 $data = [
+                    'address' => $address->id,
                     'delivery_price' => round($deliveryPrice),
                 ];
                 return $this->successResponse($data, trans('locale.created'), 200);

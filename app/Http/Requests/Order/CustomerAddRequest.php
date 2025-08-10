@@ -72,7 +72,7 @@ class CustomerAddRequest extends FormRequest
             'url' => ['nullable'],
             'longitude' => ['nullable'],
             'latitude' => ['nullable'],
-            'address_id' => ['nullable', Rule::exists('addresses', 'id')->whereNull('deleted_at')],
+            'address' => ['nullable', Rule::exists('addresses', 'id')->whereNull('deleted_at')],
             'friend_address' => ['nullable'],
             'code' => [
                 'nullable',

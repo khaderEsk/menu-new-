@@ -170,6 +170,7 @@ class OrderController extends Controller
     // Add order
     public function create(CustomerAddRequest $request)
     {
+        Log::info($request->validated());
         try {
             $customer = auth()->user();
             if ($customer->hasRole('customer')) {
@@ -302,7 +303,7 @@ class OrderController extends Controller
             } elseif ($customer->hasRole('takeout')) {
                 $customer_id = $customer->id;
                 $data = $request->validated();
-                if ((!$request->has('longitude') && !$request->has('latitude')) && !$request->has('address_id') && !$request->has('friend_address'))
+                if ((!$request->has('longitude') && !$request->has('latitude')) && !$request->has('address') && !$request->has('friend_address'))
                     return $this->messageErrorResponse(trans('locale.pleaseEnterAnAddress'), 400);
 
                 $restaurant = Restaurant::whereId($customer->restaurant_id)->first();
@@ -450,12 +451,15 @@ class OrderController extends Controller
                     }
                     $n = Invoice::where('restaurant_id', $customer->restaurant_id)->max('num') ?? 0;
                     $num = $n + 1;
+
+                    // dd($request->delivery_price);
                     $invoice = Invoice::create([
                         'status' => InvoiceStatus::WAITING->value,
                         'restaurant_id' => $customer->restaurant_id,
                         'is_delivery' => $request->is_delivery ?? 0,
                         'user_id' => $customer->id,
                         'num' => $num,
+                        'delivery_price' => $request->delivery_price,
                     ]);
                     $restaurant = Restaurant::whereId($customer->restaurant_id)->first();
                     $consumer_spending = $sum * $restaurant->consumer_spending / 100;
@@ -503,14 +507,14 @@ class OrderController extends Controller
                             $r = implode(' - ', $addressParts);
 
                             // $r = $city .' - '. $street .' - '. $neighborhood;
-                            $address = Address::create([
-                                'city' => $region ?? null,
-                                'region' => $r ?? null,
-                                'url' => $data['url'] ?? null,
-                                'user_id' => $customer->id,
-                                'latitude' => $request->latitude,
-                                'longitude' => $request->longitude,
-                            ]);
+                            // $address = Address::create([
+                            //     'city' => $region ?? null,
+                            //     'region' => $r ?? null,
+                            //     'url' => $data['url'] ?? null,
+                            //     'user_id' => $customer->id,
+                            //     'latitude' => $request->latitude,
+                            //     'longitude' => $request->longitude,
+                            // ]);
                         } else
                             return response()->json(['error' => 'لا يمكن العثور على الموقع'], 404);
 
@@ -524,8 +528,8 @@ class OrderController extends Controller
                         if ($request->has('friend_address') && $request->friend_address !== null)
                             $address = Address::whereRegion($data['friend_address'])->first();
 
-                        elseif ($request->has('address_id') && $request->address_id !== null)
-                            $address = Address::whereId($data['address_id'])->first();
+                        elseif ($request->has('address') && $request->address !== null)
+                            $address = Address::whereId($data['address'])->first();
 
                         elseif ($request->has('isDelivery') && $request->isDelivery == false)
                             $address = Address::create();
@@ -571,6 +575,7 @@ class OrderController extends Controller
                     } else {
                         //$p = $p + $request->delivery_price;
                         $t = $t + $request->delivery_price;
+
                         $invoice->update([
                             'status' => InvoiceStatus::WAITING->value,
                             'price' => round($p, 0),
@@ -582,7 +587,6 @@ class OrderController extends Controller
                             'address_id' => $address->id,
                         ]);
                     }
-
 
                     foreach ($orders as $order) {
                         $order->update([
@@ -800,7 +804,6 @@ class OrderController extends Controller
         if (empty($size_id) && empty($toppings[0]['topping_id'])) {
             // dd($item_id);
             return  Item::where('id', $item_id)->first()->price;
-
         }
         $price = 0;
         if (!empty($size_id)) {

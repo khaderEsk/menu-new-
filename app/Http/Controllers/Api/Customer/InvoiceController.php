@@ -37,6 +37,7 @@ class InvoiceController extends Controller
                 $inv = Invoice::whereTableId($user->table_id)->whereStatus(2)->whereDate('created_at', now())->latest()->first();
             elseif ($user->hasRole('takeout'))
                 $inv = Invoice::whereDate('created_at', now())->latest()->first();
+            Log::info($inv);
             if ($inv) {
                 $orders = Order::where('invoice_id', $inv->id)->latest()->get();
                 if ($user->hasRole('customer')) {
@@ -360,7 +361,7 @@ class InvoiceController extends Controller
                 // dd($userOrders->first()->deliveryRoute->distance);
 
                 // Dispatch the event with the required data
-                event ( new NewOrder($userOrders, $userTypeId));
+                event(new NewOrder($userOrders, $userTypeId));
                 // dd($not);
             }
 
