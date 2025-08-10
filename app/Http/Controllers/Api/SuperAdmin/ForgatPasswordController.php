@@ -21,7 +21,6 @@ class ForgatPasswordController extends Controller
 
     public function sendResetCode(Request $request)
     {
-        // dd("yes");
         $request->validate(['email' => 'required|email']);
         $user = SuperAdmin::where('email', $request->email)->first();
         if (!$user) {
@@ -36,7 +35,6 @@ class ForgatPasswordController extends Controller
         Mail::to($user->email)->queue(new ForgetPasswordMail(
             $code
         ));
-        // $user->notify(new ResetPasswordNotification($code));
         return $this->returnData(['expires_at' => $expiresAt->toDateTimeString()],  'تم إرسال رمز إعادة التعيين',);
     }
 
@@ -67,7 +65,7 @@ class ForgatPasswordController extends Controller
         if (!$record || !Hash::check($request['token'], $record->token)) {
             return $this->returnError(400,  'الرمز غير صحيح أو منتهي الصلاحية');
         }
-        $affectedRows = Admin::where('email', $request['email'])
+        $affectedRows = SuperAdmin::where('email', $request['email'])
             ->update(['password' => Hash::make($request['password'])]);
         if ($affectedRows === 0) {
             return $this->returnError(404,  'لم يتم العثور على أي حسابات بهذا الإيميل');
