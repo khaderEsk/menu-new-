@@ -23,6 +23,7 @@ class SuperAdmin extends Authenticatable
         'is_active',
         'city_id',
         'restaurant_id',
+        'email'
     ];
 
     protected $hidden = [
@@ -69,5 +70,4 @@ class SuperAdmin extends Authenticatable
 
     // protected array $guard_name = ['api', 'web'];
     protected $guard_name = 'web';
-
 }

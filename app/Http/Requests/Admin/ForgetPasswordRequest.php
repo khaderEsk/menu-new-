@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\CitySuperAdmin;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class CreateBossRequest extends FormRequest
+class ForgetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +22,9 @@ class CreateBossRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required'],
-            'user_name' => [Rule::unique('admins')->whereNull('deleted_at'), 'required'],
-            'password' => ['required', 'min:8', 'max:25'],
-            'mobile' => ['required', 'regex:/^\+?[0-9]{10,15}$/'],
-            'email' => ['required', 'email', Rule::unique('admins')]
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|confirmed|min:8'
         ];
     }
 }

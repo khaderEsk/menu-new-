@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\SuperAdmin\BackupController;
 use App\Http\Controllers\Api\SuperAdmin\CityController;
 use App\Http\Controllers\Api\SuperAdmin\EmojiController;
 use App\Http\Controllers\Api\SuperAdmin\FontController;
+use App\Http\Controllers\Api\SuperAdmin\ForgatPasswordController;
 use App\Http\Controllers\Api\SuperAdmin\IpQrController;
 use App\Http\Controllers\Api\SuperAdmin\MenuTemplateController;
 use App\Http\Controllers\Api\SuperAdmin\PackageController;
@@ -156,3 +157,8 @@ Route::middleware(['logs','auth:sanctum','role:superAdmin|citySuperAdmin|dataEnt
     Route::get('/storage/link', [ArtisanController::class, 'storageLink']);
     Route::get('/migrate', [ArtisanController::class, 'migrate']);
 });
+
+
+Route::post('/password/code', [ForgatPasswordController::class, 'sendResetCode']);
+Route::post('/password/verify', [ForgatPasswordController::class, 'verifyCode']);
+Route::post('/password/reset', [ForgatPasswordController::class, 'forgotPassword']);

@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
-    use HasFactory, HasApiTokens, SoftDeletes, HasRoles;
+    use HasFactory, HasApiTokens, SoftDeletes, HasRoles, Notifiable ;
 
     protected $fillable = [
         'user_name',
@@ -23,7 +24,8 @@ class Admin extends Authenticatable
         'type',
         'fcm_token',
         'restaurant_id',
-        'type_id'
+        'type_id',
+        'email'
     ];
 
     protected $hidden = [
@@ -33,9 +35,7 @@ class Admin extends Authenticatable
         'deleted_at',
     ];
 
-    public static function find(mixed $id)
-    {
-    }
+    public static function find(mixed $id) {}
 
     public function setPasswordAttribute($value)
     {
@@ -83,5 +83,4 @@ class Admin extends Authenticatable
     }
 
     protected $guard_name = 'web';
-
 }

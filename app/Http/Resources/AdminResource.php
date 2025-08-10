@@ -102,7 +102,7 @@ class AdminResource extends JsonResource
             'type_id' => $this->type_id,
             // 'type' => $this->type->name ?? null,
             'type' => $typeName, // <-- Use the new $typeName variable
-
+            'email' => $this->email,
             'is_active' => $this->is_active,
             'message_bad' => $this->restaurant->message_bad ?? null,
             'message_good' => $this->restaurant->message_good ?? null,
@@ -116,6 +116,7 @@ class AdminResource extends JsonResource
             // 'roles' => $this->roles->pluck('name'),
             // 'permissions' => $this->permissions->pluck('name'),
             'restaurant' => RestaurantResource::make($this->whenLoaded('restaurant')),
+            'email' => $this->email
         ];
         return $data;
     }

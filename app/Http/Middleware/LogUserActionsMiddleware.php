@@ -66,11 +66,11 @@ class LogUserActionsMiddleware
         } elseif (preg_match('/\/superAdmin_api\/update_emoji/', $url)) {
             return Emoji::find($id)->toArray();
         } elseif (preg_match('/\/superAdmin_api\/update_restaurant_manager/', $url)) {
-            return Admin::find($id)->toArray();
+            return Admin::find($id);
         } elseif (preg_match('/\/superAdmin_api\/update_restaurant/', $url)) {
-            return Restaurant::find($id)->toArray();
+            return Restaurant::find($id);
         } elseif (preg_match('/\/superAdmin_api\/update_admin_restaurant/', $url)) {
-            return Admin::find($id)->toArray();
+            return Admin::find($id);
         } elseif (preg_match('/\/superAdmin_api\/update_admin/', $url)) {
             return SuperAdmin::find($id)->toArray();
         }
@@ -90,7 +90,7 @@ class LogUserActionsMiddleware
         } elseif (preg_match('/\/admin_api\/update_item/', $url)) {
             return Item::find($id)->toArray();
         } elseif (preg_match('/\/admin_api\/update_admin/', $url)) {
-            return Admin::find($id)->toArray();
+            return Admin::find($id);
         } elseif (preg_match('/\/admin_api\/update_restaurant_admin/', $url)) {
             return Restaurant::find($id)->toArray();
         } elseif (preg_match('/\/admin_api\/update_order/', $url)) {
@@ -98,7 +98,7 @@ class LogUserActionsMiddleware
         } elseif (preg_match('/\/admin_api\/update_status_invoice_paid/', $url)) {
             return Invoice::find($id)->toArray();
         } elseif (preg_match('/\/admin_api\/update_user/', $url)) {
-            return Admin::find($id)->toArray();
+            return Admin::find($id);
         } elseif (preg_match('/\/admin_api\/update_advertisement/', $url)) {
             return Advertisement::find($id)->toArray();
         } elseif (preg_match('/\/admin_api\/update_news/', $url)) {
@@ -554,7 +554,7 @@ class LogUserActionsMiddleware
             case 'Super Admin':
                 return SuperAdmin::find($id)->toArray();
             case 'Restaurant Manager':
-                return Admin::find($id)->toArray();
+                return Admin::find($id);
             case 'Menu Template':
                 return MenuTemplate::find($id)->toArray();
             case 'package':
@@ -566,7 +566,7 @@ class LogUserActionsMiddleware
             case 'admin restaurant id':
                 return Restaurant::find($id)->toArray();
             case 'admin or employee or data entry':
-                return Admin::find($id)->toArray();
+                return Admin::find($id);
             case 'category':
                 return Category::find($id)->toArray();
             case 'item':

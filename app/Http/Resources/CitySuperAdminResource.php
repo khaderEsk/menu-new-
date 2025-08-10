@@ -14,7 +14,7 @@ class CitySuperAdminResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if($this->is_active === null)
+        if ($this->is_active === null)
             $this->is_active = 1;
 
         $roles = $this->roles->map(function ($role) {
@@ -33,7 +33,7 @@ class CitySuperAdminResource extends JsonResource
 
 
         $rolesArray = $roles->toArray();
-        $flattenedRolesArray = array_map(function($role) {
+        $flattenedRolesArray = array_map(function ($role) {
             return is_array($role) ? implode(', ', $role) : $role;
         }, $rolesArray);
 
@@ -50,6 +50,7 @@ class CitySuperAdminResource extends JsonResource
             'restaurant_id' => $this->restaurant_id,
             'roles' => $rolesString,
             'permissions' => $permissions,
+            'email' => $this->email
         ];
         return $data;
     }
