@@ -13,6 +13,8 @@ Route::post('/register', [UserTakeoutController::class, 'create']);
 Route::post('/forget_password', [Controller::class, 'modifyPassword']);
 Route::post('/check_code', [Controller::class, 'codeVerification']);
 
+
+
 Route::middleware(['auth:sanctum', 'role:takeout'])->group(function () {
     Route::post('/reset_password', [Controller::class, 'resetPassword']);
     Route::get('/show_address', [UserController::class, 'getAddress']);
