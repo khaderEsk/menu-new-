@@ -13,7 +13,7 @@ class ActivityLogController extends Controller
     public function __construct(private RecordCleanupService $recordCleanupService)
     {
     }
-
+    
     public function index(Request $request)
     {
         try{

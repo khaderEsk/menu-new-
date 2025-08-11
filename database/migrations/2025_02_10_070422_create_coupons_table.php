@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type');
             $table->integer('percent');
             $table->boolean('is_active')->default(1);
+            $table->string('qr')->nullable();
             $table->foreignIdFor(Restaurant::class)->nullable()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });

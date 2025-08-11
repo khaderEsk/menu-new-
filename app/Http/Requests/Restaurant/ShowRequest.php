@@ -23,8 +23,8 @@ class ShowRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'city_id' => ['nullable','exists:cities,id'],
-            'restaurant_manager_id' => ['nullable','exists:admins,id'],
+            'city_id' => ['nullable', 'exists:cities,id'],
+            'restaurant_manager_id' => ['nullable', 'exists:admins,id'],
             // 'city_super_admin_id' => [Rule::exists('city_super_admins','id')->whereNull('deleted_at'),'nullable'],
             'search' => ['nullable'],
             'per_page' => ['nullable']
