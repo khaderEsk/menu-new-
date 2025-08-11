@@ -12,6 +12,8 @@ use App\Events\InvoiceStatusUpdated;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Http\Resources\InvoiceUserMobileResource;
+use App\Models\User;
+use App\Notifications\ChangeStatusOrderNotification;
 
 class HandleInvoiceStatusUpdated
 {
@@ -25,7 +27,6 @@ class HandleInvoiceStatusUpdated
      */
     public function handle(InvoiceStatusUpdated $event): void
     {
-        Log::info("df");
         $invoice = $event->invoice;
 
         // Log::info("gfdmgdmfgmdfimgimdfg");
@@ -104,7 +105,6 @@ class HandleInvoiceStatusUpdated
             'orders',
             'address'
         ])->find($invoice->id);
-
         if ($freshInvoice) {
             $this->sendUserNotifications($freshInvoice);
             $this->sendDeliveryDriverUpdates($freshInvoice);
@@ -117,12 +117,22 @@ class HandleInvoiceStatusUpdated
 
         // --- Firebase Push Notification ---
         if ($invoice->user && $invoice->user->fcm_token) {
-            $title = "Your Order Status Updated";
+            $title = 'Your Order Status Updated';
             $statusName = ucfirst(str_replace('_', ' ', strtolower($invoice->status->name)));
-            $body = "Your order #{$invoice->num} is now {$statusName}.";
+            $body = "your Order #($invoice->num)'is Now $statusName";
+
             $this->firebaseService->sendNotification($invoice->user->fcm_token, $title, $body, []);
+            $user = User::find($invoice->user_id);
+            $user->notify(new ChangeStatusOrderNotification(
+                title: 'تم تغير حالة الطلب',
+                body: 'اصبح طلبك' . $statusName,
+                status: $statusName,
+                totalEstimatedDuration: $invoice->total_estimated_duration,
+                price: $invoice->price,
+                restaurant_id: $invoice->restaurant_id,
+            ));
         }
-        
+
         // --- Real-Time WebSocket Event ---
         // 1. Get the full list of the user's recent orders.
         $userOrders = Invoice::with(['orders.restaurant', 'address', 'user', 'delivery', 'deliveryRoute'])

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Customer\AdvertisementController;
 use App\Http\Controllers\Api\Customer\AuthController;
 use App\Http\Controllers\Api\Customer\CategoryController;
@@ -50,7 +51,7 @@ Route::middleware(['checkEndDate', 'auth:sanctum'])->group(function () {
     Route::get('/show_order', [OrderController::class, 'showById']);
 
 
-
+    Route::get('/notifications' ,[NotificationController::class, 'showAll']);
     
     Route::post('/add_address_to_invoice', [InvoiceController::class, 'invoiceAddress']);
 

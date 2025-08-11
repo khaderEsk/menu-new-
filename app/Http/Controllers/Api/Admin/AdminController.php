@@ -24,9 +24,7 @@ use Throwable;
 class AdminController extends Controller
 {
 
-    public function __construct(private AdminService $adminService)
-    {
-    }
+    public function __construct(private AdminService $adminService) {}
 
     // Update Admin
     // Update Restaurant Admin
@@ -52,7 +50,6 @@ class AdminController extends Controller
             $data = AdminResource::make($updatedAdmin);
 
             return $this->successResponse($data, trans('locale.updated'), 200);
-
         } catch (Throwable $th) {
             // It's good practice to log the actual error for debugging
             // and return a generic message to the client.
@@ -79,16 +76,20 @@ class AdminController extends Controller
             // 🚀 PERFORMANCE WIN: Eager load all relationships needed by the Resource.
             // This turns many database queries into just one, preventing the N+1 problem.
             $updatedRestaurant->load([
-                'emoji', 'FontEn', 'FontAr', 'fontTypeWelcome',
-                'fontTypeCategoryEn', 'fontTypeCategoryAr',
-                'fontTypeItemEn', 'fontTypeItemAr'
+                'emoji',
+                'FontEn',
+                'FontAr',
+                'fontTypeWelcome',
+                'fontTypeCategoryEn',
+                'fontTypeCategoryAr',
+                'fontTypeItemEn',
+                'fontTypeItemAr'
             ]);
 
             // 4. Pass the fully loaded, updated model to the resource.
             $data = RestaurantResource::make($updatedRestaurant);
 
             return $this->successResponse($data, trans('locale.updated'), 200);
-
         } catch (\Throwable $th) {
             // Log the detailed error for debugging purposes.
             Log::error('Restaurant Update Failed: ' . $th->getMessage(), ['trace' => $th->getTraceAsString()]);
@@ -102,7 +103,6 @@ class AdminController extends Controller
     {
         try {
             $user = auth()->user();
-
             // Path for SuperAdmins
             if ($user instanceof SuperAdmin) {
                 $superAdmin = $this->adminService->getSuperAdminProfile($user->id);
@@ -120,18 +120,16 @@ class AdminController extends Controller
                 $admin = $this->adminService->getAdminProfile($user->id);
                 $workTimeData = $this->adminService->calculateAverageWorkTime($admin, $request);
                 $qrUrl = $this->adminService->getQrCodeUrl($admin->restaurant);
-
                 // Pass the calculated data to the resource.
+
                 $resource = AdminResource::make($admin);
                 $resource->workTimeData = $workTimeData; // Pass the array with 'count' and 'avg'
                 $resource->qr_offline = $qrUrl;
 
                 return $this->successResponse($resource, trans('locale.adminFound'), 200);
             }
-
             // Fallback for unknown user types
             return $this->messageErrorResponse('User type not supported.', 403);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while fetching the profile.');
