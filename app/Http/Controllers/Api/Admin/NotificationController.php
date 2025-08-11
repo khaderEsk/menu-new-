@@ -9,25 +9,24 @@ use App\Http\Resources\NotificationResource;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use LDAP\Result;
 use Throwable;
 
 class NotificationController extends Controller
 {
-    public function __construct(private NotificationService $notificationService)
-    {
-    }
+    public function __construct(private NotificationService $notificationService) {}
+
     public function showAll(ShowRequest $request)
     {
-        try{
+        try {
             $restaurant_id = auth()->user()->restaurant_id;
-            $notifications = $this->notificationService->paginate($restaurant_id,$request->input('per_page', 25));
-            $data = NotificationResource::collection($notifications);
-            if (\count($notifications) == 0)
-                return $this->paginateSuccessResponse($data,trans('locale.dontHaveNotifications'),200);
+            $notifications = auth()->user()
+                ->notifications()
+                ->get();
 
-            return $this->paginateSuccessResponse($data,trans('locale.notificationsFound'),200);
-        } catch(Throwable $th){
+            return $this->returnData($notifications, trans('locale.notificationsFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -35,7 +34,7 @@ class NotificationController extends Controller
 
     public function sendNotification(ShowRequest $request)
     {
-        try{
+        try {
 
             $restaurant_id = auth()->user()->restaurant_id;
             $query = User::query();
@@ -50,8 +49,8 @@ class NotificationController extends Controller
                 $address = $request->input('address');
                 $query->whereHas('addresses', function ($q) use ($address) {
                     $q->where('region', 'LIKE', "%$address%")
-                     ->orWhere('url', 'LIKE', "%$address%")
-                     ->orWhere('city', 'LIKE', "%$address%");
+                        ->orWhere('url', 'LIKE', "%$address%")
+                        ->orWhere('city', 'LIKE', "%$address%");
                 })->get();
             }
 
@@ -62,25 +61,19 @@ class NotificationController extends Controller
             }
 
             if ($request->has('from_date') || $request->has('to_date')) {
-                if($request->has('from_date') && $request->has('to_date'))
-                {
+                if ($request->has('from_date') && $request->has('to_date')) {
                     $query->whereDate('birthday', '>=', $request->from_date)->whereDate('created_at', '<=', $request->to_date);
-                }
-                else if ($request->has('from_date'))
-                {
+                } else if ($request->has('from_date')) {
                     $query->whereDate('birthday', '>=', $request->from_date);
-                }
-                else if ($request->has('to_date'))
-                {
+                } else if ($request->has('to_date')) {
                     $query->whereDate('birthday', '<=', $request->to_date);
                 }
             }
 
             $users = $query->latest()->paginate($request->input('per_page', 25));
             $data = DeliveryResource::collection($users);
-            return $this->paginateSuccessResponse($data,trans('locale.foundSuccessfully'),200);
-
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }

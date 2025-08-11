@@ -17,7 +17,7 @@ return [
     'youCantDoThisOperation' => "You can't do this operation",
     'ThisInvoiceIsPaid' => 'This invoice is paid',
     'ThisInvoiceIsReceived' => 'This invoice is received',
-    'orderDelivered'   => 'This order is delivered', 
+    'orderDelivered'   => 'This order is delivered',
     'tableNotFound' => 'Table not found for this order',
     'locationUpdated' => 'Location Updated Successfully',
 
@@ -93,7 +93,7 @@ return [
     'youDontSubscriptionTable' => "You don't have a subscription to table",
     'youDontSubscriptionOrder' => "You don't have a subscription to order",
     'youDontSubscriptionAdvertisement' => "You don't have a subscription to advertisement",
-// ------------------------------------------------------------------
+    // ------------------------------------------------------------------
     'cannotAddSubcategoryToCategory' => 'Cannot add a subcategory to a category that has items.',
     'theSelectedCategoryHasSubcategories' => 'The selected category has subcategories and cannot be assigned to a item.',
     'categoryCannotBeItself' => 'category Cannot Be Equal id',
@@ -119,5 +119,17 @@ return [
     'pleaseEnterAnAddress' => 'Please enter an address',
     'dontHaveCoupons' => "don't have coupons",
     'dontHaveData' => "don't have data",
+
+    'bad' => 'bad',
+    'BadRate' => 'Bad Rate',
+    'nowRate' => 'now Rate',
+    'statusUpdated' => 'Your Order Status Updated',
+    'yourOrder ' => 'Your order',
+    'isNow' => 'is now',
+    'waiting' => 'waiting',
+    'approved' => 'approved',
+    'processing' => 'processing',
+    'underDelivery' => 'under Delivery',
+    'completed' => 'completed',
 
 ];

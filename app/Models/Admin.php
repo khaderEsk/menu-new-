@@ -72,7 +72,7 @@ class Admin extends Authenticatable
         return $this->morphMany(ActivityLog::class, 'loggable');
     }
 
-    public function employeeTable(): HasMany
+    public function employeeTables(): HasMany
     {
         return $this->hasMany(EmployeeTable::class);
     }

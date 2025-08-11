@@ -11,6 +11,7 @@ use App\Models\Admin;
 use App\Models\Notification;
 use App\Models\Rate;
 use App\Models\Restaurant;
+use App\Notifications\RateNotification;
 use App\Services\FirebaseService;
 use App\Services\RateService;
 use Illuminate\Http\Request;
@@ -19,14 +20,12 @@ use Throwable;
 
 class RateController extends Controller
 {
-    public function __construct(private RateService $rateService, private FirebaseService $firebaseService)
-    {
-    }
+    public function __construct(private RateService $rateService, private FirebaseService $firebaseService) {}
 
     // Show All rates For Admin
     public function showAll(ShowRequest $request)
     {
-        try{
+        try {
             $id = auth()->user()->id;
             $query = Rate::query();
             $query->where('customer_id', $id);
@@ -37,19 +36,16 @@ class RateController extends Controller
                 });
             }
 
-            if ($request->has('type') )
-            {
+            if ($request->has('type')) {
                 if ($request->type === 'person') {
                     $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name','!=', null);
+                        $q->where('name', '!=', null);
                     });
-                }
-                else{
+                } else {
                     $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name','=', null);
+                        $q->where('name', '=', null);
                     });
                 }
-
             }
 
             if ($request->has('from_age')) {
@@ -59,21 +55,16 @@ class RateController extends Controller
             }
 
             if ($request->has('from_date') || $request->has('to_date')) {
-                if($request->has('from_date') && $request->has('to_date'))
-                {
+                if ($request->has('from_date') && $request->has('to_date')) {
                     $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('created_at', '>=', $request->from_date)->where('created_at', '<=', $request->to_date);
                     });
-                }
-                else if ($request->has('from_date'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('from_date')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('created_at', '>=', $request->from_date);
                     });
-                }
-                else if ($request->has('to_date'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('to_date')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('created_at', '<=', $request->to_date);
                     });
                 }
@@ -87,9 +78,8 @@ class RateController extends Controller
 
             // return response()->json($reviews);
             $data = RateResource::collection($rates);
-            return $this->paginateSuccessResponse($data,trans('locale.ratesFound'),200);
-
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.ratesFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -98,47 +88,40 @@ class RateController extends Controller
     // Add rate
     public function create(AddRequest $request)
     {
-        try{
+        try {
             $id = auth()->user()->id;
             $customer = auth()->user();
             $data = $request->validated();
             $data['restaurant_id'] = $customer->restaurant_id;
-            if(is_null($request->rate))
-            {
+            if (is_null($request->rate)) {
                 $a = [];
                 $sum = 0;
-                if($request->has('service') && $request->service != 0)
-                {
+                if ($request->has('service') && $request->service != 0) {
                     $a = \array_merge($a, ['service' => $data['service']]);
                     $sum += $request->service;
                 }
-                if($request->has('arakel') && $request->arakel != 0)
-                {
+                if ($request->has('arakel') && $request->arakel != 0) {
                     $a = \array_merge($a, ['arakel' => $data['arakel']]);
                     $sum += $request->arakel;
                 }
-                if($request->has('foods') && $request->foods != 0)
-                {
+                if ($request->has('foods') && $request->foods != 0) {
                     $a = \array_merge($a, ['foods' => $data['foods']]);
                     $sum += $request->foods;
                 }
-                if($request->has('drinks') && $request->drinks != 0)
-                {
+                if ($request->has('drinks') && $request->drinks != 0) {
                     $a = \array_merge($a, ['drinks' => $data['drinks']]);
                     $sum += $request->drinks;
                 }
-                if($request->has('sweets') && $request->sweets != 0)
-                {
+                if ($request->has('sweets') && $request->sweets != 0) {
                     $a = \array_merge($a, ['sweets' => $data['sweets']]);
                     $sum += $request->sweets;
                 }
-                if($request->has('games_room') && $request->games_room != 0)
-                {
+                if ($request->has('games_room') && $request->games_room != 0) {
                     $a = \array_merge($a, ['games_room' => $data['games_room']]);
                     $sum += $request->games_room;
                 }
                 $num = count($a);
-                $avg = $sum/$num ;
+                $avg = $sum / $num;
                 $data['rate'] = round($avg, 0);
             }
             // $admin = Admin::whereRestaurantId($data['restaurant_id'])->first();
@@ -147,50 +130,51 @@ class RateController extends Controller
             $restaurant = Restaurant::whereId($customer->restaurant_id)->first();
             $admin = Admin::whereRestaurantId($customer->restaurant_id)->get();
 
-            if($restaurant->rate_format->value == 1)
-            {
-                if ($data['service'] == 1 || $data['arakel'] == 1 || $data['foods'] == 1 || $data['drinks'] == 1 || $data['sweets'] == 1 || $data['games_room'] == 1  ) {
+            if ($restaurant->rate_format->value == 1) {
+                if ($data['service'] == 1 || $data['arakel'] == 1 || $data['foods'] == 1 || $data['drinks'] == 1 || $data['sweets'] == 1 || $data['games_room'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
-                         $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
-                          . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
-                          ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
-                        for($i=0;$i< count($admin);$i++)
-                        {
-                            $firstElement = $admin->get($i);
-                            if ($firstElement)
-                            {
-                                if ($firstElement->fcm_token && $data['name']!='') {
-                                    // $this->SendNotification($firstElement->fcm_token, $data);
-                                    $this->firebaseService->sendNotification($firstElement->fcm_token, 'Bad Rate', $bodyFire, []);
-
-                                }
+                    $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
+                        . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
+                        ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
+                    for ($i = 0; $i < count($admin); $i++) {
+                        $firstElement = $admin->get($i);
+                        if ($firstElement) {
+                            if ($firstElement->fcm_token && $data['name'] != '') {
+                                // $this->SendNotification($firstElement->fcm_token, $data);
+                                $this->firebaseService->sendNotification($firstElement->fcm_token, 'Bad Rate', $bodyFire, []);
                             }
                         }
-                        Notification::create([
-                            'restaurant_id' => $data['restaurant_id'],
-                            'title' => 'Bad Rate',
-                            'body' => $body = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
-                            . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
-                            ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'],
-                            'phone' => $data['phone'],
-                        ]);
+                    }
+                    $customer->notify(new RateNotification(
+                        title:'Bad Rate',
+                        body:'now Rate',
+                        restaurant_id: $data['restaurant_id'],
+                        phone: $data['phone'],
+                        rate:'bad', 
+                        note: $data['note']
+                    ));
+                    // Notification::create([
+                    //     'restaurant_id' => $data['restaurant_id'],
+                    //     'title' => 'Bad Rate',
+                    //     'body' => $body = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
+                    //         . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
+                    //         ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'],
+                    //     'phone' => $data['phone'],
+                    // ]);
                     $rate = 'bad';
                 }
             }
             // Check Type Of Rate
-            if($restaurant->rate_format->value == 0)
-            {
+            if ($restaurant->rate_format->value == 0) {
                 if ($data['rate'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
                     $admin = Admin::whereRestaurantId($customer->restaurant_id)->get();
-                    for($i=0;$i< count($admin);$i++)
-                    {
+                    for ($i = 0; $i < count($admin); $i++) {
                         $firstElement = $admin->get($i);
-                        if ($firstElement)
-                        {
-                            if ($firstElement->fcm_token && $data['name']!='') {
+                        if ($firstElement) {
+                            if ($firstElement->fcm_token && $data['name'] != '') {
                                 // $this->SendNotification($firstElement->fcm_token, $data);
-                               $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone'].' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
+                                $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone'] . ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
                                 $this->firebaseService->sendNotification($firstElement->fcm_token, 'Bad Rate', $bodyFire, []);
 
                                 $data2 = [
@@ -203,28 +187,28 @@ class RateController extends Controller
                                 ];
                                 $bodyJson = json_encode($data2);
                                 Notification::create([
-                                'restaurant_id' => $firstElement->restaurant_id,
-                                'title' => 'Bad Rate',
-                                'body' => $bodyJson,
-                            //      $body = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone'] . ' , Rate : '
-                            // . $data['rate'] . ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'],
-                                'phone' => $data['phone'],
+                                    'restaurant_id' => $firstElement->restaurant_id,
+                                    'title' => 'Bad Rate',
+                                    'body' => $bodyJson,
+                                    //      $body = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone'] . ' , Rate : '
+                                    // . $data['rate'] . ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'],
+                                    'phone' => $data['phone'],
                                 ]);
                             }
                         }
                     }
 
                     $rate = 'bad';
-                } elseif ($data['rate'] == 2 ) {
+                } elseif ($data['rate'] == 2) {
                     $rate = 'good';
                 } else {
                     $rate = 'perfect';
                 }
             }
-            $rate = $this->rateService->create($id,$data);
+            $rate = $this->rateService->create($id, $data);
             $data = RateResource::make($rate);
-            return $this->successResponse($data,trans('locale.created'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.created'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }

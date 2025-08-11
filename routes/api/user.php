@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\UserTakeoutController;
 use App\Http\Controllers\Api\User\DistanceController;
 use App\Http\Controllers\Api\User\OrderController;
@@ -26,7 +27,9 @@ Route::middleware(['auth:sanctum', 'role:takeout'])->group(function () {
     Route::get('/show_profile', [UserTakeoutController::class, 'showProfile']);
     Route::post('/change_password', [UserController::class, 'changePassword']);
     Route::post('/check_coupon', [UserController::class, 'checkCoupon']);
+    Route::get('/notifications', [NotificationController::class, 'showAll']);
 });
+
 
 // Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 // Route::post('reset-password', [ResetPasswordController::class, 'reset']);
