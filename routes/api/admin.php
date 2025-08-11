@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\AdvertisementController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\CouponController;
 use App\Http\Controllers\Api\Admin\DeliveryController;
+use App\Http\Controllers\Api\Admin\ForgatPasswordController;
 use App\Http\Controllers\Api\Admin\InvoiceController;
 use App\Http\Controllers\Api\Admin\ItemController;
 use App\Http\Controllers\Api\Admin\NewsController;
@@ -216,3 +217,8 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
 });
 
 Route::post('/update-location', [LocationController::class, 'updateLocation']);
+
+
+Route::post('/password/code', [ForgatPasswordController::class, 'sendResetCode']);
+Route::post('/password/verify', [ForgatPasswordController::class, 'verifyCode']);
+Route::post('/password/reset', [ForgatPasswordController::class, 'forgotPassword']);

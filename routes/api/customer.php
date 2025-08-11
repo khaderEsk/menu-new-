@@ -37,7 +37,7 @@ Route::post('/login', [Controller::class, 'Login']);
 
 Route::middleware(['checkEndDate', 'auth:sanctum'])->group(function () {
 
-    // Rate
+    // Rat
     // Route::get('/show_rates', [RateController::class, 'showAll']);
     Route::post('/add_rate', [RateController::class, 'create']);
 
