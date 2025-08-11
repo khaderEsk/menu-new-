@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([InvoiceObserver::class])]
+// #[ObservedBy([InvoiceObserver::class])]
 class Invoice extends Model
 {
     use HasFactory;

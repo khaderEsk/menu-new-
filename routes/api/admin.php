@@ -36,11 +36,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::group(['middleware' => ['logs','version','auth:sanctum','active','role:admin|superAdmin|citySuperAdmin|dataEntry|restaurantManager']], function () {
+
+Route::group(['middleware' => ['logs', 'version', 'auth:sanctum', 'active', 'role:admin|superAdmin|citySuperAdmin|dataEntry|restaurantManager']], function () {
 
     Route::get('/show_restaurants', [RestaurantController::class, 'showMyRestaurants'])->middleware('can:my_restaurants');
     Route::post('/update_super_admin_restaurant_id', [RestaurantController::class, 'restaurantId'])->middleware('can:restaurantId');
-
 });
 
 
@@ -48,7 +48,7 @@ Route::group(['middleware' => ['logs','version','auth:sanctum','active','role:ad
 Route::post('/login', [Controller::class, 'Login'])->middleware(['version']);
 
 
-Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','active','role:admin|superAdmin|citySuperAdmin|dataEntry|employee|restaurantManager','checkRole']], function () {
+Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum', 'active', 'role:admin|superAdmin|citySuperAdmin|dataEntry|employee|restaurantManager', 'checkRole']], function () {
 
     // Category
     Route::get('/show_admin_categories', [CategoryController::class, 'showAll'])->middleware('can:category.index');
@@ -84,7 +84,7 @@ Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','a
     Route::get('show_admin', [AdminController::class, 'showById']);
 
     // order
-    Route::group(['middleware' => ['isOrder','isTable']], function () {
+    Route::group(['middleware' => ['isOrder', 'isTable']], function () {
         Route::get('show_orders', [OrderController::class, 'showAll'])->middleware('can:order.index');
         Route::post('/add_order', [OrderController::class, 'create'])->middleware('can:order.add');
         Route::post('/add_order2', [OrderController::class, 'create2'])->middleware('can:order.add');
@@ -108,7 +108,6 @@ Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','a
         Route::patch('/update_status_invoice_received', [InvoiceController::class, 'Received'])->middleware('can:order.update');
 
         Route::put('/accept_orders', [OrderController::class, 'acceptOrders'])->middleware('can:order.update');
-
     });
 
     Route::get('/types', [TypeController::class, 'showAll']);
@@ -145,7 +144,7 @@ Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','a
     });
 
     // Notifications
-    Route::get('/show_notifications',[NotificationController::class,'showAll'])->middleware('can:notifications.index');
+    Route::get('/show_notifications', [NotificationController::class, 'showAll'])->middleware('can:notifications.index');
 
     // tables
     Route::group(['middleware' => 'isTable'], function () {
@@ -157,7 +156,6 @@ Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','a
 
         Route::get('/show_orders_request', [OrderRequestController::class, 'showAll'])->middleware('can:table.index');
         Route::get('/accept', [TableController::class, 'accept']);
-
     });
 
     Route::post('/update_fcm_token', [Controller::class, 'fcmToken']);
@@ -167,12 +165,12 @@ Route::group(['middleware' => ['checkEndDate','logs','version','auth:sanctum','a
 
 });
 
-Route::get('/roles', [RoleController::class, 'getRolesAdmin'])->middleware(['auth:sanctum','logs']);
+Route::get('/roles', [RoleController::class, 'getRolesAdmin'])->middleware(['auth:sanctum', 'logs']);
 
 Route::post('/table/{id}/update_status', [TableController::class, 'updateStatus']);
 
 
-Route::group(['middleware' => ['checkEndDate','version','auth:sanctum','active','role:admin|superAdmin|citySuperAdmin|dataEntry|employee|restaurantManager','checkRole']], function () {
+Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'active', 'role:admin|superAdmin|citySuperAdmin|dataEntry|employee|restaurantManager', 'checkRole']], function () {
     // user takeout
     Route::get('/show_users_takeout', [UserTakeoutController::class, 'showAll'])->middleware('can:user.index');
     // Route::post('/add_user_takeout', [UserTakeoutController::class, 'create'])->middleware('can:user.add');
@@ -202,8 +200,8 @@ Route::group(['middleware' => ['checkEndDate','version','auth:sanctum','active',
     Route::post('/update_takeout', [UserTakeoutController::class, 'updateStatusOrder']);
 
     // send notifications
-    Route::get('/send_notifications',[NotificationController::class,'sendNotification'])->middleware('can:notifications.index');
-    Route::get('/show_address',[UserTakeoutController::class,'showAddress'])->middleware('can:user.index');
+    Route::get('/send_notifications', [NotificationController::class, 'sendNotification'])->middleware('can:notifications.index');
+    Route::get('/show_address', [UserTakeoutController::class, 'showAddress'])->middleware('can:user.index');
 
     // Coupon
     Route::get('/show_coupons', [CouponController::class, 'showAll'])->middleware('can:coupon.index');

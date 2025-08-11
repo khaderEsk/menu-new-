@@ -25,6 +25,10 @@ class EventServiceProvider extends ServiceProvider
         LocationUpdated::class => [
             LocationDriver::class,
         ],
+        \App\Events\InvoiceStatusUpdated::class => [
+            \App\Listeners\HandleInvoiceStatusUpdated::class,
+        ],
+
     ];
 
     /**

@@ -59,7 +59,7 @@ class NewOrder implements ShouldBroadcast, ShouldHandleEventsAfterCommit
         InvoiceUserResource::$userTypeId = $this->userTypeId;
         $payload = ['data' => InvoiceUserResource::collection($freshUserOrders)->resolve()];
 
-         Log::info('Broadcasting NewOrder event with payload:', $payload);
+        Log::info('Broadcasting NewOrder event with payload:', $payload);
 
         return $payload;
     }

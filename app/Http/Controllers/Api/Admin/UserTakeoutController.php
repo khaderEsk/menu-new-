@@ -2,36 +2,37 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Enum\InvoiceStatus;
+use Throwable;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\Order;
+use App\Models\Address;
+use App\Models\Invoice;
 use App\Events\NewOrder;
+use App\Enum\InvoiceStatus;
 use App\Events\OrderUpdated;
+use Illuminate\Http\Request;
+use App\Services\InvoiceService;
+use App\Services\FirebaseService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Events\InvoiceStatusUpdated;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Delivey\AddRequest;
-use App\Http\Requests\Delivey\IdRequest;
-use App\Http\Requests\Delivey\ShowAllRequest;
-use App\Http\Requests\Delivey\UpdateRequest;
+use App\Services\UserTakeoutService;
 use App\Http\Requests\IdInvoiceRequest;
-use App\Http\Requests\RegisterUserRequest;
 use App\Http\Resources\AddressResource;
-use App\Http\Requests\Invoice\IdRequest as InvoiceIdRequest;
+use App\Http\Requests\Delivey\IdRequest;
 use App\Http\Resources\DeliveryResource;
-use App\Http\Requests\Invoice\StatusInvoiceRequest;
+use App\Http\Requests\Delivey\AddRequest;
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Resources\InvoiceUserResource;
+use App\Http\Requests\Delivey\UpdateRequest;
+use App\Http\Requests\Delivey\ShowAllRequest;
 use App\Http\Requests\User\UpdateInfoRequest;
 use App\Http\Resources\InvoiceUserMobileResource;
-use App\Http\Resources\InvoiceUserResource;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Models\Address;
-use App\Models\Admin;
-use App\Models\Invoice;
-use App\Models\Order;
-use App\Models\User;
-use App\Services\FirebaseService;
-use App\Services\InvoiceService;
-use App\Services\UserTakeoutService;
-use Carbon\Carbon;
-use Throwable;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Invoice\StatusInvoiceRequest;
+use App\Http\Requests\Invoice\IdRequest as InvoiceIdRequest;
 
 
 class UserTakeoutController extends Controller
@@ -439,6 +440,7 @@ class UserTakeoutController extends Controller
     // }
     public function updateStatusOrder(StatusInvoiceRequest $request): JsonResponse
     {
+        // dd("dsf");
         try {
             $validatedData = $request->validated();
             $status = InvoiceStatus::fromString($validatedData['status']);
@@ -448,10 +450,13 @@ class UserTakeoutController extends Controller
                 ->where('restaurant_id', auth()->user()->restaurant_id)
                 ->firstOrFail();
 
+
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
             $invoice->save();
-            
+            event(new InvoiceStatusUpdated($invoice));
+
+
             // 3. Update the status of related orders. This is a fast operation.
             $orderStatus = $this->getOrderStatusFromInvoiceStatus($status);
             if ($orderStatus !== null) {
@@ -460,7 +465,6 @@ class UserTakeoutController extends Controller
 
             // The controller's job is done. It returns an immediate success response.
             return $this->messageSuccessResponse(trans('locale.successfully'), 200);
-
         } catch (\Throwable $th) {
             Log::error('--- updateStatusOrder Controller Error ---', ['message' => $th->getMessage()]);
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());

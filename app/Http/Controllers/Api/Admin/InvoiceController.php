@@ -30,9 +30,7 @@ use Throwable;
 
 class InvoiceController extends Controller
 {
-    public function __construct(private InvoiceService $invoiceService, private RecordCleanupService $recordCleanupService)
-    {
-    }
+    public function __construct(private InvoiceService $invoiceService, private RecordCleanupService $recordCleanupService) {}
 
     public function showInvoice(IdRequest $request): JsonResponse
     {
@@ -54,7 +52,6 @@ class InvoiceController extends Controller
                 'data' => $data,
                 'message' => trans('locale.foundSuccessfully')
             ], 200);
-
         } catch (ModelNotFoundException $e) {
             // If the service couldn't find the invoice for this restaurant.
             return $this->messageErrorResponse(trans('locale.invalidItem'), 404);
@@ -104,7 +101,6 @@ class InvoiceController extends Controller
                 'meta' => $meta,
                 'message' => trans('locale.foundSuccessfully')
             ], 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while fetching invoices.');
@@ -177,7 +173,6 @@ class InvoiceController extends Controller
             // 2. The service returns a complete invoice, ready for the resource.
             $data = InvoiceResources::make($invoice);
             return $this->successResponse($data, trans('locale.updated'), 200);
-
         } catch (ModelNotFoundException $e) {
             // Catch the specific error for an invoice that doesn't exist for this restaurant.
             return $this->messageErrorResponse(trans('locale.invalidItem'), 404);
@@ -201,7 +196,6 @@ class InvoiceController extends Controller
 
             // 2. Return the simple success message, matching the original code's primary path.
             return $this->messageSuccessResponse(trans('locale.successfully'), 200);
-
         } catch (ModelNotFoundException $e) {
             // Catch the specific error for an invoice that doesn't exist for this restaurant.
             return $this->messageErrorResponse(trans('locale.invalidItem'), 404);
@@ -234,12 +228,9 @@ class InvoiceController extends Controller
 
             // 2. Pass the collection directly to the export class.
             return Excel::download(new InvoiceExport($invoicesToExport), 'invoices-report.xlsx');
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while generating the export.');
         }
     }
-
-
 }

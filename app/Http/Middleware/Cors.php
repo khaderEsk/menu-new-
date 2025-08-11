@@ -30,7 +30,7 @@ class Cors
             Log::info('Request matches the download path.');
             return $next($request);
         }
-        Log::info('Request does not match the download path.');
+        // Log::info('Request does not match the download path.');
         return $next($request)
             ->header('Access-Control-Allow-Credentials', 'true')
             ->header('Access-Control-Allow-Origin', '*')
