@@ -133,4 +133,5 @@ return [
     'processing' =>'قيد التحضير',
     'underDelivery' =>'قيد التوصيل',
     'completed' =>'تم التوصيل',
+    'notificationsNotFound'=>'الاشعار غير موجود'
 ];

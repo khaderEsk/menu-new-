@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notification\ShowRequest;
@@ -8,6 +8,7 @@ use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\NotificationResource;
 use App\Models\User;
 use App\Services\NotificationService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use LDAP\Result;
@@ -17,12 +18,17 @@ class NotificationController extends Controller
 {
     public function __construct(private NotificationService $notificationService) {}
 
-    public function showAll(ShowRequest $request)
+    public function showAll(Request $request)
     {
         try {
-            $restaurant_id = auth()->user()->restaurant_id;
+            $isRead = request()->input('is_read');
             $notifications = auth()->user()
                 ->notifications()
+                ->when(isset($isRead), function ($query) use ($isRead) {
+                    return $isRead == 1
+                        ? $query->whereNotNull('read_at')  // مقروء
+                        : $query->whereNull('read_at');    // غير مقروء
+                })
                 ->get();
 
             return $this->returnData($notifications, trans('locale.notificationsFound'), 200);
@@ -32,15 +38,37 @@ class NotificationController extends Controller
         }
     }
 
+    public function readNotification($id)
+    {
+        try {
+
+            $notification = auth()->user()
+                ->unreadNotifications()
+                ->where('id', $id)->first();
+            if ($notification) {
+                $notification->update(['read_at' => now()]);
+                return $this->returnData(200, trans('locale.notificationsFound'), 200);
+            }
+            return $this->returnData(200, trans('locale.notificationsNotFound'), 200);
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            return $this->messageErrorResponse($message);
+        }
+    }
+
     public function sendNotification(ShowRequest $request)
     {
         try {
+
             $restaurant_id = auth()->user()->restaurant_id;
             $query = User::query();
+
             $query->where('restaurant_id', $restaurant_id);
+
             if ($request->has('gender')) {
                 $query->where('gender', $request->gender);
             }
+
             if ($request->has('address')) {
                 $address = $request->input('address');
                 $query->whereHas('addresses', function ($q) use ($address) {

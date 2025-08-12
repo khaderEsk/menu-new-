@@ -42,6 +42,7 @@ class AdvertisementController extends Controller
         try{
             $restaurant_id = auth()->user()->restaurant_id;
             $advertisement = $this->advertisementService->create($restaurant_id,$request->validated());
+            
             if ($request->hasFile('image'))
             {
                 $extension = $request->file('image')->getClientOriginalExtension();
