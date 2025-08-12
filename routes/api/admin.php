@@ -123,7 +123,7 @@ Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum'
     // Advertisements
     Route::group(['middleware' => 'isAdvertisement'], function () {
         Route::get('/show_advertisements', [AdvertisementController::class, 'showAll'])->middleware('can:advertisement.index');
-        Route::post('/add_advertisement', [AdvertisementController::class, 'create'])->middleware('can:advertisement.add');
+        Route::post('/add_advertisement', [AdvertisementController::class, 'create']);
         Route::post('/update_advertisement', [AdvertisementController::class, 'update'])->middleware('can:advertisement.update');
         Route::get('/show_advertisement', [AdvertisementController::class, 'showById'])->middleware('can:advertisement.index');
         Route::delete('/delete_advertisement', [AdvertisementController::class, 'delete'])->middleware('can:advertisement.delete');
