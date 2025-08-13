@@ -150,7 +150,7 @@ Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum'
     // tables
     Route::group(['middleware' => 'isTable'], function () {
         Route::get('/show_tables', [TableController::class, 'showAll'])->middleware('can:table.index');
-        Route::post('/add_table', [TableController::class, 'create'])->middleware('can:table.add');
+        Route::post('/add_table', [TableController::class, 'create']);
         Route::post('/update_table', [TableController::class, 'update'])->middleware('can:table.update');
         Route::get('/show_table', [TableController::class, 'showById'])->middleware('can:table.index');
         Route::delete('/delete_table', [TableController::class, 'delete'])->middleware('can:table.delete');

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\InvoiceStatus;
+use App\GeneralTrait;
 use App\Http\Resources\InvoiceResources;
 use App\Models\Admin;
 use App\Models\Customer;
@@ -11,18 +12,19 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\User;
+use App\Traits\ResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class InvoiceService
 {
     public function __construct(private OsrmService $osrmService) {}
-
     // to show paginate invoice active
     public function paginate($id, $num)
     {
@@ -393,7 +395,13 @@ class InvoiceService
                 ->whereNull('invoice_id')
                 ->whereDate('created_at', now()->toDateString())
                 ->get();
-
+            foreach ($ordersToInvoice as $key) {
+                if ($key->status != 'done') {
+                    throw ValidationException::withMessages([
+                        'orders' => trans('locale.requestCompleted'),
+                    ], 500);
+                }
+            }
             // 2. ✅ BUSINESS LOGIC: If there are no orders, throw a catchable exception.
             if ($ordersToInvoice->isEmpty()) {
                 throw ValidationException::withMessages([

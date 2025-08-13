@@ -129,10 +129,11 @@ return [
     'yourOrder ' => 'الطلب رقم ',
     'isNow' => 'اصبح الأن',
     'waiting' => 'انتظار',
-    'approved' =>'تم الموافققة',
-    'processing' =>'قيد التحضير',
-    'underDelivery' =>'قيد التوصيل',
-    'completed' =>'تم التوصيل',
-    'notificationNotFound'=>'الاشعار غير موجود',
-    'UserNotFound' =>'المستخدم غير موجود'
+    'approved' => 'تم الموافققة',
+    'processing' => 'قيد التحضير',
+    'underDelivery' => 'قيد التوصيل',
+    'completed' => 'تم التوصيل',
+    'notificationNotFound' => 'الاشعار غير موجود',
+    'UserNotFound' => 'المستخدم غير موجود',
+    'requestCompleted' => 'يجب الانتظار لحين اكتمال الطلبات'
 ];
