@@ -24,9 +24,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
-    public function __construct(private FirebaseService $firebaseService)
-    {
-    }
+    public function __construct(private FirebaseService $firebaseService) {}
 
     //======================================================================
     // PUBLIC API METHODS (Refactored & Complete)
@@ -91,10 +89,10 @@ class OrderService
 
             foreach ($data['data'] as $orderItemData) {
                 $item = $itemsData->get($orderItemData['item_id']);
-                if (!$item) continue;
-
+                if (!$item) continue;;
                 $price = $this->calculatePriceProduct($item, $orderItemData['toppings'] ?? [], $orderItemData['size_id'] ?? null);
                 $order = $this->createSingleOrderRecord($orderItemData, $item, $price, $table->id, $invoiceId);
+                
                 $this->notifyRelevantEmployees($order, "new order");
             }
 
@@ -285,6 +283,7 @@ class OrderService
             'en' => ['name' => $item->translate('en')->name, 'type' => $item->category->translate('en')->name],
             'ar' => ['name' => $item->translate('ar')->name, 'type' => $item->category->translate('ar')->name],
         ]);
+        
         $this->addDetailsItem($order, $orderData['size_id'] ?? null, $orderData['components'] ?? [], $orderData['toppings'] ?? []);
         return $order;
     }
@@ -322,8 +321,10 @@ class OrderService
     public function addDetailsItem(Order $order, ?int $sizeId, array $componentIds, array $toppingIds): void
     {
         if (!empty($toppingIds)) $order->toppings = Topping::whereIn('id', $toppingIds)->get(['name', 'price'])->toJson();
+        
         if (!empty($componentIds)) $order->components = Component::whereIn('id', $componentIds)->get(['name'])->toJson();
         if (!empty($sizeId)) $order->size = Size::where('id', $sizeId)->first(['name', 'price'])->toJson();
+        
         $order->save();
     }
 

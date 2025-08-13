@@ -133,5 +133,6 @@ return [
     'processing' =>'قيد التحضير',
     'underDelivery' =>'قيد التوصيل',
     'completed' =>'تم التوصيل',
-    'notificationsNotFound'=>'الاشعار غير موجود'
+    'notificationNotFound'=>'الاشعار غير موجود',
+    'UserNotFound' =>'المستخدم غير موجود'
 ];

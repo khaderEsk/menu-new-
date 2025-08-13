@@ -157,6 +157,7 @@ class InvoiceController extends Controller
             return $this->messageErrorResponse($e->errors()['orders'][0], 404);
         } catch (\Throwable $th) {
             report($th);
+            \Log::info('عدد سجلات الجداول:', ['count' => \App\Models\Table::count()]);
             return $this->messageErrorResponse('An error occurred while creating the invoice.');
         }
     }

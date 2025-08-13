@@ -21,7 +21,7 @@ class NotificationController extends Controller
     public function showAll(Request $request)
     {
         try {
-            $isRead = request()->input('is_read');
+            $isRead = request()->input('read_at');
             $notifications = auth()->user()
                 ->notifications()
                 ->when(isset($isRead), function ($query) use ($isRead) {
@@ -31,7 +31,7 @@ class NotificationController extends Controller
                 })
                 ->get();
 
-            return $this->returnData($notifications, trans('locale.notificationsFound'), 200);
+            return $this->returnData($notifications, trans('locale.notificationsFound'));
         } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
@@ -41,15 +41,16 @@ class NotificationController extends Controller
     public function readNotification($id)
     {
         try {
+            $user = auth()->user();
+            $notification = $user->unreadNotifications()->where('id', $id)->first();
 
-            $notification = auth()->user()
-                ->unreadNotifications()
-                ->where('id', $id)->first();
-            if ($notification) {
-                $notification->update(['read_at' => now()]);
-                return $this->returnData(200, trans('locale.notificationsFound'), 200);
+            if (!$notification) {
+                return $this->returnError(404, trans('locale.notificationNotFound'), 404);
             }
-            return $this->returnData(200, trans('locale.notificationsNotFound'), 200);
+
+            $notification->markAsRead();
+
+            return $this->returnData(200, trans('locale.notificationsFound'));
         } catch (\Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);

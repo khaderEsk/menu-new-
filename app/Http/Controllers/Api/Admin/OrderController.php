@@ -29,11 +29,13 @@ use App\Services\FirebaseService;
 use App\Services\InvoiceService;
 use App\Services\OrderService;
 use Carbon\Carbon;
+use GPBMetadata\Google\Api\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
@@ -98,7 +100,6 @@ class OrderController extends Controller
             } else {
                 $data['restaurant_id'] = $admin->restaurant_id;
             }
-
             // 2. Call the service to perform the entire creation process.
             // The service returns the updated table model.
             $updatedTable = $this->orderService->createOrdersFromRequest($data, $admin);
@@ -113,6 +114,7 @@ class OrderController extends Controller
 
         } catch (\Throwable $th) {
             report($th);
+            FacadesLog::info($th);
             return $this->messageErrorResponse('An error occurred while creating the order.');
         }
     }

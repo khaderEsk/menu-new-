@@ -11,6 +11,7 @@ use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\ModifyPasswordRequest;
 use App\Http\Resources\CitySuperAdminResource;
 use App\Http\Resources\LoginAdminResource;
+use App\Jobs\SendEmailTolUser;
 use App\Mail\SendCodeMail;
 use App\Models\Admin;
 use App\Models\Restaurant;
@@ -240,7 +241,9 @@ class Controller extends BaseController
             $actor = User::where('role', 0)
                 ->where('restaurant_id', $request->restaurant_id)
                 ->where('username', $request->username)->first();
-                
+            if (!$actor) {
+                return $this->returnError(404, trans('locale.UserNotFound'));
+            }
             if ($actor) {
                 if ($actor->question == $request->question && $actor->answer == $request->answer) {
                     $tokenResult = $actor->createToken('auth_token');
@@ -262,7 +265,12 @@ class Controller extends BaseController
                 $actor->update([
                     'code' => $randomNumber,
                 ]);
-                Mail::to($actor->email)->send(new SendCodeMail($actor->name, $randomNumber));
+                SendEmailTolUser::dispatch(
+                    $actor->email,
+                    $actor->name,
+                    $randomNumber
+                );
+                // Mail::to($actor->email)->send(new SendCodeMail($actor->name, $randomNumber));
                 return $this->messageSuccessResponse('تم إرسال الرابط.', 200);
 
                 // $response = Password::sendResetLink($request->only('email'));

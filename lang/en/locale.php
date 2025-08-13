@@ -131,6 +131,7 @@ return [
     'processing' => 'processing',
     'underDelivery' => 'under Delivery',
     'completed' => 'completed',
-    'notificationsNotFound' => 'notifications Not found'
+    'notificationNotFound' => 'notifications Not found',
+    'UserNotFound' => 'user not Found'
 
 ];

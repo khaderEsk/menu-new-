@@ -124,7 +124,7 @@ class InvoiceService
         return DB::transaction(function () use ($invoiceId, $currentUser) {
             // 3. ✅ SECURITY: Securely fetch the invoice, ensuring it belongs to the accountant's restaurant.
             $invoice = Invoice::with('table') // Eager-load the table for the time tracking step
-            ->where('id', $invoiceId)
+                ->where('id', $invoiceId)
                 ->where('restaurant_id', $currentUser->restaurant_id)
                 ->firstOrFail();
 
@@ -464,7 +464,7 @@ class InvoiceService
         if ($type === 'orders') {
             // "orders" type means completed or rejected invoices.
             $query->whereIn('status', [InvoiceStatus::COMPLETED->value, InvoiceStatus::REJECTED->value]);
-        } elseif ($type) {
+        } elseif ($type === 'current') {
             // Any other type means active, recent invoices.
             $query->whereIn('status', [
                 InvoiceStatus::WAITING->value,
@@ -472,8 +472,8 @@ class InvoiceService
                 InvoiceStatus::PROCESSING->value,
                 InvoiceStatus::UNDER_DELIVERY->value,
             ])->where(function ($dateQuery) {
-                $dateQuery->whereDate('created_at', now()->toDateString())
-                    ->orWhereDate('created_at', Carbon::yesterday()->toDateString());
+                // $dateQuery->whereDate('created_at', now()->toDateString())
+                //     ->orWhereDate('created_at', Carbon::yesterday()->toDateString());
             });
         }
         // If no 'type' is provided, no status filter is applied, and all invoices are returned.

@@ -9,6 +9,7 @@ use App\Http\Requests\Delivey\IdRequest;
 use App\Http\Requests\Delivey\ShowAllRequest as DeliveyShowAllRequest;
 use App\Http\Requests\Delivey\UpdateRequest;
 use App\Http\Resources\DeliveryResource;
+use App\Http\Resources\DeliverySitesResource;
 use App\Http\Resources\InvoiceUserResource;
 use App\Models\Invoice;
 use App\Models\Restaurant;
@@ -44,6 +45,32 @@ class DeliveryController extends Controller
             }
 
             $data = DeliveryResource::collection($deliveries);
+
+            return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
+
+        } catch (\Throwable $th) {
+            report($th); // It's better to log the error.
+            return $this->messageErrorResponse('An error occurred while fetching delivery staff.');
+        }
+    }
+    public function showAllSites(DeliveyShowAllRequest $request): JsonResponse
+    {
+        try {
+            $admin = auth()->user();
+
+            // Pass all necessary parameters to the service.
+            $deliveries = $this->deliveryService->paginate(
+                $admin->restaurant_id,
+                $request->input('per_page', 10),
+                $request->input('search') // Pass the search term
+            );
+
+            // This part of your original code was already good.
+            if ($deliveries->isEmpty()) {
+                return $this->successResponse([], trans('locale.dontHaveDelivery'), 200);
+            }
+
+            $data = DeliverySitesResource::collection($deliveries);
 
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
 

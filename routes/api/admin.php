@@ -189,6 +189,7 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::post('/rejected_order', [UserTakeoutController::class, 'rejectedOrder'])->middleware('can:delivery.update');
 
     // Delivery
+    Route::get('/show_deliveries_sites', [DeliveryController::class, 'showAllSites']);
     Route::get('/show_deliveries', [DeliveryController::class, 'showAll'])->middleware('can:delivery.index');
     Route::post('/add_delivery', [DeliveryController::class, 'create'])->middleware('can:delivery.add');
     Route::post('/update_delivery', [DeliveryController::class, 'update'])->middleware('can:delivery.update');
