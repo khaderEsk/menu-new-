@@ -7,6 +7,7 @@ use App\Http\Requests\Coupon\AddCouponRequest;
 use App\Http\Requests\Coupon\IdCouponRequest;
 use App\Http\Requests\Coupon\UpdateCouponRequest;
 use App\Http\Resources\CouponResource;
+use App\Models\Coupon;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Throwable;
@@ -104,5 +105,20 @@ class CouponController extends Controller
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
+    }
+
+    public function grantCouponToUser(Request $request, $couponId)
+    {
+        $this->couponService->grantCouponToUser($couponId, $request->user_id);
+        return $this->messageSuccessResponse('coupon gived to user successfully', 200);
+    }
+    public function redeem(Request $request, $code)
+    {
+        $request->validate([
+            'user_id' => ['required', 'integer'],
+            'invoice_id' => ['required', 'exists:invoices,id'],
+        ]);
+
+        return $this->couponService->redeemCouponOnInvoice($request->invoice_id, $code);
     }
 }

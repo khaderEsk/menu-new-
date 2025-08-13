@@ -21,7 +21,6 @@ use App\Models\SuperAdmin;
 use App\Services\RestaurantService;
 use App\Models\User;
 use App\Services\QrService;
-use Endroid\QrCode\Builder\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Endroid\QrCode\QrCode;

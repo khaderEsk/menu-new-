@@ -188,6 +188,8 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::post('/give_order_to_delivery', [UserTakeoutController::class, 'giveOrderToDelivery'])->middleware('can:delivery.update');
     Route::post('/rejected_order', [UserTakeoutController::class, 'rejectedOrder'])->middleware('can:delivery.update');
 
+    // Coupon
+
     // Delivery
     Route::get('/show_deliveries_sites', [DeliveryController::class, 'showAllSites']);
     Route::get('/show_deliveries', [DeliveryController::class, 'showAll'])->middleware('can:delivery.index');
@@ -212,7 +214,8 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::post('/deactivate_coupon', [CouponController::class, 'deactivate'])->middleware('can:coupon.active');
     Route::delete('/delete_coupon', [CouponController::class, 'delete'])->middleware('can:coupon.delete');
     Route::get('/show_coupon', [CouponController::class, 'showById'])->middleware('can:coupon.index');
-
+    Route::post('/grantCouponToUser/{id}', [CouponController::class, 'grantCouponToUser'])->middleware('can:coupon.add');
+    Route::post('/redeem-coupon/{code}', [CouponController::class, 'redeem'])->middleware(['can:coupon.add']);
     Route::get('/show_similar_items', [ItemController::class, 'showSimilarItems'])->middleware('can:item.index');
     Route::get('/show_waiters', [UserController::class, 'showWaiters']);
 });

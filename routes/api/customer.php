@@ -50,9 +50,9 @@ Route::middleware(['checkEndDate', 'auth:sanctum'])->group(function () {
     Route::delete('/delete_order', [OrderController::class, 'delete']);
     Route::get('/show_order', [OrderController::class, 'showById']);
 
-
-    Route::get('/notifications' ,[NotificationController::class, 'showAll']);
     
+    Route::get('/notifications' ,[NotificationController::class, 'showAll']);
+
     Route::post('/add_address_to_invoice', [InvoiceController::class, 'invoiceAddress']);
 
     Route::get('/show_orders_invoice', [InvoiceController::class, 'invoices']);

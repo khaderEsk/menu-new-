@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Coupon extends Model
 {
@@ -18,10 +19,17 @@ class Coupon extends Model
         'percent',
         'is_active',
         'restaurant_id',
+        'qr',
+        'driver_token',
     ];
 
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class , 'user_coupons')->withPivot('used', 'used_at')->withTimestamps();
     }
 }

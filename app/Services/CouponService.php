@@ -2,15 +2,22 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Order;
 use App\Models\Coupon;
+use App\Models\Invoice;
+use App\Models\UserCoupon;
+use App\Traits\ResponseTrait;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\UnauthorizedException;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CouponService
 {
+    use ResponseTrait;
+
     public function paginate($id, $num)
     {
         $coupons = Coupon::whereRestaurantId($id)->latest()->paginate($num);
@@ -24,19 +31,12 @@ class CouponService
         $data['restaurant_id'] = $id;
         $data['type'] = "منتجات";
 
-        // حفظ الكوبون في قاعدة البيانات
+        // حف   ظ الكوبون في قاعدة البيانات
         $coupon = Coupon::create($data);
 
-        // توليد توكن عشوائي لعامل التوصيل لضمان الأمان
-        $driverToken = bin2hex(random_bytes(16));
-
-        // تخزين التوكن في الكوبون (يجب إضافة عمود driver_token في الجدول)
-        $coupon->driver_token = $driverToken;
-        $coupon->save();
-
         // تحديد رابط Redeem الذي سيتم تضمينه في QR Code
-        $redeemUrl = env('APP_URL') . "/redeem-coupon/{$coupon->code}?token={$driverToken}";
-
+        $redeemUrl = env('APP_URL') . "/redeem-coupon/{$coupon->code}";
+        
         // توليد QR Code وحفظه في التخزين
         $qrPath = 'public/qrcodes/' . $coupon->code . '.png';
         $qrCode = Builder::create()
@@ -82,39 +82,61 @@ class CouponService
     }
 
 
-    public function redeemCoupon($data)
+    public function grantCouponToUser($couponId, $userId)
     {
-        $couponCode = array_key_exists('code', $data);
-        $orderId = array_key_exists('order_id', $data); // الفاتورة التي سيتم تطبيق الحسم عليها
+        $coupon = Coupon::findOrFail($couponId);
+        $user = User::findOrFail($userId);
 
-        // البحث عن الكوبون
-        $coupon = Coupon::where('code', $couponCode)->first();
-
-        if (!$coupon) {
-            return response()->json(['message' => 'الكوبون غير صالح'], 404);
+        // التحقق من صلاحية الكوبون
+        if (!$coupon->is_active || now()->lt($coupon->from_date) || now()->gt($coupon->to_date)) {
+            throw new \Exception("الكوبون غير صالح للاستخدام.");
         }
-
-        if ($coupon->used) {
-            return response()->json(['message' => 'تم استخدام الكوبون مسبقًا'], 400);
-        }
-
-        // البحث عن الطلب
-        $order = Order::find($orderId);
-        if (!$order) {
-            return response()->json(['message' => 'الفاتورة غير موجودة'], 404);
-        }
-
-        $order->total_price -= ($order->total_price * $coupon->discount / 100);
-        $order->save();
-
-        // تحديث حالة الكوبون ليصبح مستخدم
-        $coupon->used = true;
-        $coupon->used_at = now();
-        $coupon->save();
-
-        return response()->json([
-            'message' => 'تم تطبيق الكوبون بنجاح',
-            'new_total' => $order->total_price
+        // ربط الكوبون بالمستخدم (جدول many-to-many)
+        $coupon->users()->syncWithoutDetaching([
+            $user->id => [
+                'used' => false,
+                'granted_at' => now()
+            ]
         ]);
+        return true;
+    }
+
+    public function redeemCouponOnInvoice($invoiceId, $code)
+    {
+        $coupon = Coupon::where('code', $code)->firstOrFail();
+
+
+        $invoice = Invoice::findOrFail($invoiceId);
+        $user = $invoice->user;
+
+        $userCopon = UserCoupon::query()
+            ->where('user_id', $invoice->user_id)
+            ->where('coupon_id', $coupon->id)
+            ->first();
+
+        if ($userCopon == null) {
+            return $this->messageErrorResponse('user dont hase coupon', 200);
+        }
+
+
+        if (!$coupon->is_active || now()->lt($coupon->from_date) || now()->gt($coupon->to_date) || $userCopon->used == true) {
+            return response()->json(['message' => 'coupon is invaled'], 400);
+        }
+
+        $discountAmount = ($coupon->percent / 100) * $invoice->total;
+        $invoice->discount = $discountAmount;
+        $invoice->total = $invoice->total - $discountAmount;
+        $invoice->coupon_id = $coupon->id;
+        $invoice->save();
+
+
+        $coupon->users()->syncWithoutDetaching([
+            $invoice->user_id => [
+                'used' => true,
+                'used_at' => now()
+            ]
+        ]);
+
+        return $this->messageSuccessResponse('coupon applyed asuccessfully', 200);
     }
 }

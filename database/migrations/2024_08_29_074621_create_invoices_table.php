@@ -23,6 +23,7 @@ return new class extends Migration
             $table->double('consumer_spending')->default(1);
             $table->double('local_administration')->default(1);
             $table->double('reconstruction')->default(1);
+            $table->foreignId('coupon_id')->nullable()->constrained('coupons');
             $table->timestamps();
         });
     }

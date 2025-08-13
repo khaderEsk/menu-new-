@@ -22,11 +22,10 @@ class AddCouponRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required','unique:coupons,code'],
-            'from_date' =>['required','date','after_or_equal:today'],
-            'to_date' =>['required','date','after_or_equal:from_date'],
-            'type' => ['nullable','string'],
-            'percent' => ['required','min:1','max:100'],
+            'from_date' => ['required', 'date', 'after_or_equal:today'],
+            'to_date' => ['required', 'date', 'after_or_equal:from_date'],
+            'type' => ['nullable', 'string'],
+            'percent' => ['required', 'min:1', 'max:100'],
         ];
     }
 }
