@@ -115,7 +115,6 @@ class CouponController extends Controller
     public function redeem(Request $request, $code)
     {
         $request->validate([
-            'user_id' => ['required', 'integer'],
             'invoice_id' => ['required', 'exists:invoices,id'],
         ]);
 

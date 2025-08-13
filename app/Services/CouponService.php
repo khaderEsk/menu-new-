@@ -26,18 +26,14 @@ class CouponService
 
     public function create($id, $data)
     {
-        // إنشاء كود عشوائي للكوبون
         $data['code'] = mt_rand(100000, 999999);
         $data['restaurant_id'] = $id;
         $data['type'] = "منتجات";
 
-        // حف   ظ الكوبون في قاعدة البيانات
         $coupon = Coupon::create($data);
 
-        // تحديد رابط Redeem الذي سيتم تضمينه في QR Code
         $redeemUrl = env('APP_URL') . "/redeem-coupon/{$coupon->code}";
-        
-        // توليد QR Code وحفظه في التخزين
+
         $qrPath = 'public/qrcodes/' . $coupon->code . '.png';
         $qrCode = Builder::create()
             ->writer(new PngWriter())
@@ -48,7 +44,6 @@ class CouponService
 
         Storage::put($qrPath, $qrCode->getString());
 
-        // تحديث مسار الصورة في قاعدة البيانات
         $coupon->qr_path = $qrPath;
         $coupon->save();
 
@@ -107,7 +102,6 @@ class CouponService
 
 
         $invoice = Invoice::findOrFail($invoiceId);
-        $user = $invoice->user;
 
         $userCopon = UserCoupon::query()
             ->where('user_id', $invoice->user_id)
