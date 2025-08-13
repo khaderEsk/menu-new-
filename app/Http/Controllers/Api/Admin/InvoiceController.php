@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
@@ -140,7 +141,6 @@ class InvoiceController extends Controller
         try {
             $admin = auth()->user();
             $validatedData = $request->validated();
-
             // 1. Call the single, clean service method to perform the entire process.
             $invoice = $this->invoiceService->createFromTableOrders(
                 $validatedData['table_id'],
@@ -157,6 +157,7 @@ class InvoiceController extends Controller
             return $this->messageErrorResponse($e->errors()['orders'][0], 404);
         } catch (\Throwable $th) {
             report($th);
+            Log::info('عدد سجلات الجداول:', ['count' => \App\Models\Table::count()]);
             return $this->messageErrorResponse('An error occurred while creating the invoice.');
         }
     }

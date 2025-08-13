@@ -6,6 +6,8 @@ use App\Models\Table;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
 
 class TableService
 {
@@ -17,7 +19,7 @@ class TableService
     }
 
     // to show paginate table active
-    public function paginate($id,$num)
+    public function paginate($id, $num)
     {
         $tables = Table::whereRestaurantId($id)->orderByDESC('updated_at')->paginate($num);
         return $tables;
@@ -26,21 +28,22 @@ class TableService
     public function qr($table)
     {
         // // إنشاء QR code
-        $tableNumber = $table->num;
         $appUrl = env('APP_URL');
-        // $appUrl = "http://192.168.0.34:8080/";
-        $restaurantUrl = $appUrl."/".$tableNumber;
+        $restaurantUrlTakeOut = $appUrl . "/qr_table/" . $table->id;
 
-        $qrContent = "$restaurantUrl";
-
-        // توليد QR Code من النص المدمج
-        $qrCode = QrCode::format('png')->size(200)->generate($qrContent);
+        // توليد QR Code من النص
+        $qrCode = Builder::create()
+            ->writer(new PngWriter())
+            ->data($restaurantUrlTakeOut)
+            ->size(200)
+            ->margin(10)
+            ->build();
 
         // تحديد مسار للحفظ في التخزين
-        $qrCodePath = 'public/qr_codes/' . $table->id . '.png';
+        $qrCodePath = 'public/qr_table/' . $table->id . '.png';
 
         // حفظ الصورة في التخزين
-        Storage::put($qrCodePath, $qrCode);
+        Storage::put($qrCodePath, $qrCode->getString());
 
         // تحديث مسار الصورة في قاعدة البيانات
         $table->qr_code = $qrCodePath;
@@ -48,36 +51,36 @@ class TableService
     }
 
     // to create table
-    public function create($id,$data)
+    public function create($id, $data)
     {
         $data['restaurant_id'] = $id;
         $table = Table::create($data);
         // $tableData = $table->toJson();
-        if($table->is_qr_table == 1)
+        if ($table->is_qr_table == 1)
             $this->qr($table);
         return $table;
     }
 
     // to update table
-    public function update($id,$data)
+    public function update($id, $data)
     {
         $data['restaurant_id'] = $id;
         $table = Table::whereRestaurantId($id)->whereId($data['id'])->update($data);
         $t = Table::whereId($data['id'])->first();
-        if($t->is_qr_table == 1 && $t->qr_code == null)
+        if ($t->is_qr_table == 1 && $t->qr_code == null)
             $this->qr($t);
         return $table;
     }
 
     // to show a table
-    public function show($id,$data)
+    public function show($id, $data)
     {
         $table = Table::whereRestaurantId($id)->findOrFail($data['id']);
         return $table;
     }
 
     // to delete a table
-    public function destroy($id,$restaurant_id)
+    public function destroy($id, $restaurant_id)
     {
         $table = Table::whereRestaurantId($restaurant_id)->whereId($id)->first();
         if ($table->qr_code) {
@@ -87,9 +90,9 @@ class TableService
         // return $table->forceDelete();
     }
 
-    public function search($data,$num)
+    public function search($data, $num)
     {
-        $table=Table::whereTranslationLike('name',"%$data%")->latest()->paginate($num);
+        $table = Table::whereTranslationLike('name', "%$data%")->latest()->paginate($num);
         return $table;
     }
 }

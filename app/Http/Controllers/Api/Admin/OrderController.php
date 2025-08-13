@@ -29,20 +29,20 @@ use App\Services\FirebaseService;
 use App\Services\InvoiceService;
 use App\Services\OrderService;
 use Carbon\Carbon;
+use GPBMetadata\Google\Api\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
 class OrderController extends Controller
 {
-    public function __construct(private OrderService $orderService, private InvoiceService $invoiceService, private FirebaseService $firebaseService)
-    {
-    }
+    public function __construct(private OrderService $orderService, private InvoiceService $invoiceService, private FirebaseService $firebaseService) {}
 
     // Show All orders For Admin
     public function showAll(ShowRequest $request): JsonResponse
@@ -75,7 +75,6 @@ class OrderController extends Controller
 
             $data = OrderResource::collection($result);
             return $this->paginateSuccessResponse($data, trans('locale.ordersFound'), 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while fetching orders.');
@@ -98,7 +97,6 @@ class OrderController extends Controller
             } else {
                 $data['restaurant_id'] = $admin->restaurant_id;
             }
-
             // 2. Call the service to perform the entire creation process.
             // The service returns the updated table model.
             $updatedTable = $this->orderService->createOrdersFromRequest($data, $admin);
@@ -113,6 +111,7 @@ class OrderController extends Controller
 
         } catch (\Throwable $th) {
             report($th);
+            FacadesLog::info($th);
             return $this->messageErrorResponse('An error occurred while creating the order.');
         }
     }
@@ -154,7 +153,6 @@ class OrderController extends Controller
             // The resource receives a fully-loaded and secure model.
             $data = OrderResource::make($order);
             return $this->successResponse($data, trans('locale.orderFound'), 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // It's good practice to catch this specific exception for a clear "not found" message.
             return $this->messageErrorResponse(trans('locale.orderNotFound'), 404);
@@ -175,7 +173,6 @@ class OrderController extends Controller
             $this->invoiceService->destroy($validated['id'], $admin->restaurant_id);
 
             return $this->messageSuccessResponse(trans('locale.deleted'), 200);
-
         } catch (ModelNotFoundException $e) {
             // Catch the specific error for an invoice that doesn't exist.
             return $this->messageErrorResponse(trans('locale.invalidItem'), 404);
@@ -191,13 +188,12 @@ class OrderController extends Controller
     public function acceptOrders(TableIdRequest $request): JsonResponse
     {
         try {
+
             $admin = auth()->user();
             $validated = $request->validated();
-
             // 1. Determine the target status. Default to 'accepted' if not provided.
             $newStatus = $validated['status'] ?? 'accepted';
             $tableId = $validated['id'];
-
             // 2. Call the single, clean service method to perform all actions.
             $updatedCount = $this->orderService->updateOrderStatusForTable($tableId, $newStatus, $admin);
 
@@ -213,7 +209,6 @@ class OrderController extends Controller
 
             // 5. Return the simple success message.
             return $this->messageSuccessResponse(trans('locale.successfully'), 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An unexpected error occurred while updating orders.');
@@ -238,7 +233,6 @@ class OrderController extends Controller
             // 3. Pass the clean collection to the export class and download the file.
             $export = new SalesInventoryExport($exportData);
             return Excel::download($export, 'sales-inventory-report.xlsx');
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while generating the export.');
@@ -263,7 +257,6 @@ class OrderController extends Controller
 
             // 3. Return the simple success message.
             return $this->messageSuccessResponse(trans('locale.successfully'), 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while updating the order.');

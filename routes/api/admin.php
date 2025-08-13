@@ -123,7 +123,7 @@ Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum'
     // Advertisements
     Route::group(['middleware' => 'isAdvertisement'], function () {
         Route::get('/show_advertisements', [AdvertisementController::class, 'showAll'])->middleware('can:advertisement.index');
-        Route::post('/add_advertisement', [AdvertisementController::class, 'create'])->middleware('can:advertisement.add');
+        Route::post('/add_advertisement', [AdvertisementController::class, 'create']);
         Route::post('/update_advertisement', [AdvertisementController::class, 'update'])->middleware('can:advertisement.update');
         Route::get('/show_advertisement', [AdvertisementController::class, 'showById'])->middleware('can:advertisement.index');
         Route::delete('/delete_advertisement', [AdvertisementController::class, 'delete'])->middleware('can:advertisement.delete');
@@ -150,7 +150,7 @@ Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum'
     // tables
     Route::group(['middleware' => 'isTable'], function () {
         Route::get('/show_tables', [TableController::class, 'showAll'])->middleware('can:table.index');
-        Route::post('/add_table', [TableController::class, 'create'])->middleware('can:table.add');
+        Route::post('/add_table', [TableController::class, 'create']);
         Route::post('/update_table', [TableController::class, 'update'])->middleware('can:table.update');
         Route::get('/show_table', [TableController::class, 'showById'])->middleware('can:table.index');
         Route::delete('/delete_table', [TableController::class, 'delete'])->middleware('can:table.delete');
@@ -189,6 +189,7 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::post('/rejected_order', [UserTakeoutController::class, 'rejectedOrder'])->middleware('can:delivery.update');
 
     // Delivery
+    Route::get('/show_deliveries_sites', [DeliveryController::class, 'showAllSites']);
     Route::get('/show_deliveries', [DeliveryController::class, 'showAll'])->middleware('can:delivery.index');
     Route::post('/add_delivery', [DeliveryController::class, 'create'])->middleware('can:delivery.add');
     Route::post('/update_delivery', [DeliveryController::class, 'update'])->middleware('can:delivery.update');

@@ -24,9 +24,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
-    public function __construct(private FirebaseService $firebaseService)
-    {
-    }
+    public function __construct(private FirebaseService $firebaseService) {}
 
     //======================================================================
     // PUBLIC API METHODS (Refactored & Complete)
@@ -91,10 +89,10 @@ class OrderService
 
             foreach ($data['data'] as $orderItemData) {
                 $item = $itemsData->get($orderItemData['item_id']);
-                if (!$item) continue;
-
+                if (!$item) continue;;
                 $price = $this->calculatePriceProduct($item, $orderItemData['toppings'] ?? [], $orderItemData['size_id'] ?? null);
                 $order = $this->createSingleOrderRecord($orderItemData, $item, $price, $table->id, $invoiceId);
+
                 $this->notifyRelevantEmployees($order, "new order");
             }
 
@@ -210,8 +208,7 @@ class OrderService
         // 3. Perform all actions within a single, safe database transaction.
         return DB::transaction(function () use ($ordersToUpdate, $table, $newStatus, $currentUser) {
             // 4. Send notifications BEFORE updating the status.
-            $this->notifyEmployeesForStatusChange($table, $newStatus, $currentUser);
-
+            // $this->notifyEmployeesForStatusChange($table, $newStatus, $currentUser);
             // 5. Create the employee time tracking records.
             $this->trackEmployeeTimeForOrders($ordersToUpdate, $currentUser);
 
@@ -285,6 +282,7 @@ class OrderService
             'en' => ['name' => $item->translate('en')->name, 'type' => $item->category->translate('en')->name],
             'ar' => ['name' => $item->translate('ar')->name, 'type' => $item->category->translate('ar')->name],
         ]);
+
         $this->addDetailsItem($order, $orderData['size_id'] ?? null, $orderData['components'] ?? [], $orderData['toppings'] ?? []);
         return $order;
     }
@@ -322,8 +320,10 @@ class OrderService
     public function addDetailsItem(Order $order, ?int $sizeId, array $componentIds, array $toppingIds): void
     {
         if (!empty($toppingIds)) $order->toppings = Topping::whereIn('id', $toppingIds)->get(['name', 'price'])->toJson();
+
         if (!empty($componentIds)) $order->components = Component::whereIn('id', $componentIds)->get(['name'])->toJson();
         if (!empty($sizeId)) $order->size = Size::where('id', $sizeId)->first(['name', 'price'])->toJson();
+
         $order->save();
     }
 
@@ -405,7 +405,7 @@ class OrderService
                 ->whereDate('created_at', '<=', Carbon::tomorrow());
         };
 
-        return Order::where('table_id', $tableId)
+        return Order::where('table_id', 1)
             ->where('status', $fromStatus)
             ->where($dateQuery)
             ->get();

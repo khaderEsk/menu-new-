@@ -131,5 +131,8 @@ return [
     'processing' => 'processing',
     'underDelivery' => 'under Delivery',
     'completed' => 'completed',
+    'notificationNotFound' => 'notifications Not found',
+    'UserNotFound' => 'user not Found',
+    'requestCompleted' => 'You must wait until the requests are completed.'
 
 ];

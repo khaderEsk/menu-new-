@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use Endroid\QrCode\Builder\Builder;
 use App\Http\Requests\Restaurant\AddAdminRequest;
 use App\Http\Requests\Restaurant\AddRequest;
 use App\Http\Requests\Restaurant\DeleteRequest;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
+use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as FacadesQrCode;
 use Throwable;
 
@@ -218,7 +220,8 @@ class RestaurantController extends Controller
                 // تحديث مسار الصورة في قاعدة البيانات
                 $rest->qr_takeout = $qrCodePath;
                 $rest->save();
-            }            // /---------------------------------------------------------------------------/
+            }
+            // /---------------------------------------------------------------------------/
             $data = RestaurantResource::make($rest);
             return $this->successResponse($data, trans('locale.created'), 200);
         } catch (Throwable $th) {
@@ -226,6 +229,7 @@ class RestaurantController extends Controller
             return $this->messageErrorResponse($message);
         }
     }
+
 
     // Add Admin to Restaurant Function
     public function createAdmin(AddAdminRequest $request)

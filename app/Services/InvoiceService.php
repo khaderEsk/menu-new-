@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\InvoiceStatus;
+use App\GeneralTrait;
 use App\Http\Resources\InvoiceResources;
 use App\Models\Admin;
 use App\Models\Customer;
@@ -11,18 +12,19 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\User;
+use App\Traits\ResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class InvoiceService
 {
     public function __construct(private OsrmService $osrmService) {}
-
     // to show paginate invoice active
     public function paginate($id, $num)
     {
@@ -124,7 +126,7 @@ class InvoiceService
         return DB::transaction(function () use ($invoiceId, $currentUser) {
             // 3. ✅ SECURITY: Securely fetch the invoice, ensuring it belongs to the accountant's restaurant.
             $invoice = Invoice::with('table') // Eager-load the table for the time tracking step
-            ->where('id', $invoiceId)
+                ->where('id', $invoiceId)
                 ->where('restaurant_id', $currentUser->restaurant_id)
                 ->firstOrFail();
 
@@ -393,7 +395,13 @@ class InvoiceService
                 ->whereNull('invoice_id')
                 ->whereDate('created_at', now()->toDateString())
                 ->get();
-
+            foreach ($ordersToInvoice as $key) {
+                if ($key->status != 'done') {
+                    throw ValidationException::withMessages([
+                        'orders' => trans('locale.requestCompleted'),
+                    ], 500);
+                }
+            }
             // 2. ✅ BUSINESS LOGIC: If there are no orders, throw a catchable exception.
             if ($ordersToInvoice->isEmpty()) {
                 throw ValidationException::withMessages([
@@ -464,7 +472,7 @@ class InvoiceService
         if ($type === 'orders') {
             // "orders" type means completed or rejected invoices.
             $query->whereIn('status', [InvoiceStatus::COMPLETED->value, InvoiceStatus::REJECTED->value]);
-        } elseif ($type) {
+        } elseif ($type === 'current') {
             // Any other type means active, recent invoices.
             $query->whereIn('status', [
                 InvoiceStatus::WAITING->value,
@@ -472,8 +480,8 @@ class InvoiceService
                 InvoiceStatus::PROCESSING->value,
                 InvoiceStatus::UNDER_DELIVERY->value,
             ])->where(function ($dateQuery) {
-                $dateQuery->whereDate('created_at', now()->toDateString())
-                    ->orWhereDate('created_at', Carbon::yesterday()->toDateString());
+                // $dateQuery->whereDate('created_at', now()->toDateString())
+                //     ->orWhereDate('created_at', Carbon::yesterday()->toDateString());
             });
         }
         // If no 'type' is provided, no status filter is applied, and all invoices are returned.
