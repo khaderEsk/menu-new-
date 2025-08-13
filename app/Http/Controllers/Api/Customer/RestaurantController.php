@@ -108,6 +108,8 @@ class RestaurantController extends Controller
         }
     }
 
+
+    
     // Choose Table
     public function chooseTable(ChooseTableRequest $request)
     {
