@@ -27,6 +27,7 @@ class AdminFactory extends Factory
             'is_active' => 1,
             'restaurant_id' => Restaurant::factory(),
             'type_id' => Type::factory(),
+            'email' => $this->faker->email(),
         ];
     }
 }

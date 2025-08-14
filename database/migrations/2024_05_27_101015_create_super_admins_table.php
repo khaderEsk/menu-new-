@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('user_name')->collation('utf8_bin');
+            $table->string('email')->nullable()->unique();
             $table->string('password');
             $table->boolean('is_active')->default(1);
             $table->string('fcm_token')->nullable();

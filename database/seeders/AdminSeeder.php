@@ -17,11 +17,11 @@ class AdminSeeder extends Seeder
             'name' => 'admin1',
             'user_name' => 'levantAdmin',
             'password' => '12345678', // password
-            'mobile' => '9932517478'
+            'mobile' => '9932517478',
+            'email' => 'levant@gmail.com'
 
         ]);
 
         $admin->syncRoles(['admin']);
-
     }
 }
