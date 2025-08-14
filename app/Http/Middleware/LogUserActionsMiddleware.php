@@ -86,7 +86,7 @@ class LogUserActionsMiddleware
         }
             // -----------------Admin--------------
         elseif (preg_match('/\/admin_api\/update_category/', $url)) {
-            return Category::find($id)->toArray();
+            return Category::find($id);
         } elseif (preg_match('/\/admin_api\/update_item/', $url)) {
             return Item::find($id)->toArray();
         } elseif (preg_match('/\/admin_api\/update_admin/', $url)) {
