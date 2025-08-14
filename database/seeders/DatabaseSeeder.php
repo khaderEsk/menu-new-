@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
             //            NotificationSeeder::class,
             //            RateSeeder::class,
             //            TableSeeder::class,
-
+// 
             PaymentGetwaySeeder::class,
         ]);
     }
