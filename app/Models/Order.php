@@ -25,6 +25,7 @@ class Order extends Model implements TranslatableContract
         'components',
         'size',
         'item_id',
+        'payment_id',
     ];
 
     protected $hidden = [

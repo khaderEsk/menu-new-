@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\SuperAdmin\RoleController;
 use App\Http\Controllers\Api\SuperAdmin\TypeController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\PaymentMethodController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -218,6 +219,11 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::post('/redeem-coupon/{code}', [CouponController::class, 'redeem'])->middleware(['can:coupon.add']);
     Route::get('/show_similar_items', [ItemController::class, 'showSimilarItems'])->middleware('can:item.index');
     Route::get('/show_waiters', [UserController::class, 'showWaiters']);
+
+    // Pyment Methods
+    Route::get('/show-payments' , [PaymentMethodController::class , 'index'])->middleware(['role:admin']);
+    Route::post('/create-payment' , [PaymentMethodController::class , 'store'])->middleware(['role:superAdmin']);
+    Route::post('/update-payment' , [PaymentMethodController::class , 'update'])->middleware(['role:superAdmin']);
 });
 
 Route::post('/update-location', [LocationController::class, 'updateLocation']);

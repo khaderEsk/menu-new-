@@ -85,6 +85,7 @@ class CustomerAddRequest extends FormRequest
                     })
             ],
             'delivery_price' => ['nullable'],
+            'payment_id' => ['nullable', 'exists:payments,id'],
         ];
     }
 

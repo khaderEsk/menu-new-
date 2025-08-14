@@ -79,15 +79,15 @@ class DatabaseSeeder extends Seeder
             // AdminSeeder::class,      // Depends on Type and Restaurant
 
             // 3. Seed the rest
-//            AdvertisementSeeder::class,
-//            CouponSeeder::class,
-//            CustomerSeeder::class,
-//            DataEntrySeeder::class,
-//            NotificationSeeder::class,
-//            RateSeeder::class,
-//            TableSeeder::class,
+            //            AdvertisementSeeder::class,
+            //            CouponSeeder::class,
+            //            CustomerSeeder::class,
+            //            DataEntrySeeder::class,
+            //            NotificationSeeder::class,
+            //            RateSeeder::class,
+            //            TableSeeder::class,
 
-
+            PaymentGetwaySeeder::class,
         ]);
     }
 }

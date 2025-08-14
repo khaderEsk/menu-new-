@@ -38,5 +38,8 @@ return [
     'osrm' => [
         'base_url' => env('OSRM_BASE_URL'),
     ],
-
+    'myfatoorah' => [
+        'key' => env('MYFATOORAH_API_KEY'),
+        'url' => env('MYFATOORAH_BASE_URL'),
+    ]
 ];
