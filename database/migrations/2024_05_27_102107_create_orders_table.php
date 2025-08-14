@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->double('price');
             $table->integer('count');
-            $table->foreignId('payment_id')->nullable()->constrained('payments');
+            $table->foreignId('payment_id')->nullable()->constrained('payment_methods');
             $table->foreignIdFor(Restaurant::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Table::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->softDeletes();
