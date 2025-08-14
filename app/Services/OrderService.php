@@ -85,6 +85,8 @@ class OrderService
 
         return DB::transaction(function () use ($data, $currentUser, $itemsData) {
             $table = Table::findOrFail($data['table_id']);
+            $table->visited = 1;
+            $table->save();
             $invoiceId = $this->findOrCreateInvoiceIdForTable($table, $data['invoice_id'] ?? null);
 
             foreach ($data['data'] as $orderItemData) {

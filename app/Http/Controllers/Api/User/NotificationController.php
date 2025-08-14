@@ -14,6 +14,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use LDAP\Result;
 use Throwable;
 
+
 class NotificationController extends Controller
 {
     public function __construct(private NotificationService $notificationService) {}
@@ -103,4 +104,6 @@ class NotificationController extends Controller
             return $this->messageErrorResponse($message);
         }
     }
+
+    
 }
