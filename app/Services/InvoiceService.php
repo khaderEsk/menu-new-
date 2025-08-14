@@ -11,6 +11,7 @@ use App\Models\EmployeeTable;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\Table;
 use App\Models\User;
 use App\Traits\ResponseTrait;
 use Carbon\Carbon;
@@ -402,6 +403,9 @@ class InvoiceService
                     ], 500);
                 }
             }
+            $table = Table::find($tableId);
+            $table->visited = 0;
+            $table->save();
             // 2. ✅ BUSINESS LOGIC: If there are no orders, throw a catchable exception.
             if ($ordersToInvoice->isEmpty()) {
                 throw ValidationException::withMessages([

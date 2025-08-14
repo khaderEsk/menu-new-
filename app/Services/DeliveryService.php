@@ -44,6 +44,38 @@ class DeliveryService
 
         return $paginatedDeliveries;
     }
+    public function paginateDelivery(int $restaurant_id, int $id)
+    {
+        // 1. Use the private helper to build the base query.
+        $query = $this->findDelivery($restaurant_id, $id);
+
+        // 2. Get the paginated results.
+        // $paginatedDeliveries = $query->paginate($perPage);
+
+        // 3. Add the distance calculation only to the items on the current page.
+        // $this->addDistanceToDeliveries($query->getCollection());
+
+        return $query;
+    }
+
+    public function findDelivery(int $restaurant_id, int $id)
+    {
+        $query = User::where('restaurant_id', $restaurant_id)->where('role', 1)->where('id', $id)->first();
+        $query->with(['restaurant']);
+        // 🚀 PERFORMANCE WIN: Eager load all relationships needed by the resource.
+        // $query->with(['invoices']);
+
+        // if ($searchTerm) {
+        //     $query->where(function ($q) use ($searchTerm) {
+        //         $q->where('name', 'LIKE', "%{$searchTerm}%")
+        //             ->orWhere('username', 'LIKE', "%{$searchTerm}%")
+        //             ->orWhere('email', 'LIKE', "%{$searchTerm}%")
+        //             ->orWhere('phone', 'LIKE', "%{$searchTerm}%");
+        //     });
+        // }
+
+        return $query;
+    }
 
     private function getDeliveryQuery(int $restaurant_id, ?string $searchTerm = null)
     {
@@ -70,8 +102,10 @@ class DeliveryService
             $restaurant = $delivery->restaurant;
             $distance = null;
 
-            if ($restaurant && !empty($restaurant->latitude) && !empty($restaurant->longitude) &&
-                !empty($delivery->latitude) && !empty($delivery->longitude)) {
+            if (
+                $restaurant && !empty($restaurant->latitude) && !empty($restaurant->longitude) &&
+                !empty($delivery->latitude) && !empty($delivery->longitude)
+            ) {
 
                 $routeData = $this->osrmService->getRoute(
                     (float)$delivery->latitude,
@@ -117,7 +151,6 @@ class DeliveryService
             });
 
             return $delivery->load(['restaurant', 'invoices', 'latestAddress']);
-
         } catch (\Throwable $e) {
             report($e); // Log the actual error for debugging.
             return null; // Return null on failure.
@@ -154,7 +187,6 @@ class DeliveryService
             // 🚀 PERFORMANCE WIN: Return the updated model, fully loaded with all necessary relationships.
             // This prevents the controller from needing to re-fetch the user.
             return $delivery->load(['restaurant', 'invoices', 'latestAddress']);
-
         } catch (\Throwable $e) {
             report($e); // Log the actual error for debugging.
             return null; // Return null on failure.

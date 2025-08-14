@@ -11,6 +11,7 @@ use App\Http\Requests\Delivey\UpdateRequest;
 use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\DeliverySitesResource;
 use App\Http\Resources\InvoiceUserResource;
+use App\Models\DeliveryRoute;
 use App\Models\Invoice;
 use App\Models\Restaurant;
 use App\Models\User;
@@ -20,64 +21,117 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Throwable;
 
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
+
 class DeliveryController extends Controller
 {
-    public function __construct(private DeliveryService $deliveryService)
-    {
-    }
+    public function __construct(private DeliveryService $deliveryService) {}
 
     // Show All deliveries For Admin
     public function showAll(DeliveyShowAllRequest $request): JsonResponse
     {
         try {
             $admin = auth()->user();
-
             // Pass all necessary parameters to the service.
             $deliveries = $this->deliveryService->paginate(
                 $admin->restaurant_id,
                 $request->input('per_page', 10),
                 $request->input('search') // Pass the search term
             );
-
             // This part of your original code was already good.
             if ($deliveries->isEmpty()) {
                 return $this->successResponse([], trans('locale.dontHaveDelivery'), 200);
             }
-
             $data = DeliveryResource::collection($deliveries);
-
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
-
         } catch (\Throwable $th) {
             report($th); // It's better to log the error.
             return $this->messageErrorResponse('An error occurred while fetching delivery staff.');
         }
     }
+
     public function showAllSites(DeliveyShowAllRequest $request): JsonResponse
     {
         try {
             $admin = auth()->user();
-
             // Pass all necessary parameters to the service.
             $deliveries = $this->deliveryService->paginate(
                 $admin->restaurant_id,
                 $request->input('per_page', 10),
                 $request->input('search') // Pass the search term
             );
-
             // This part of your original code was already good.
             if ($deliveries->isEmpty()) {
                 return $this->successResponse([], trans('locale.dontHaveDelivery'), 200);
             }
-
             $data = DeliverySitesResource::collection($deliveries);
-
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
-
         } catch (\Throwable $th) {
             report($th); // It's better to log the error.
             return $this->messageErrorResponse('An error occurred while fetching delivery staff.');
         }
+    }
+
+    public function route($id)
+    {
+        $admin = auth()->user();
+        $deliveries = $this->deliveryService->findDelivery(
+            $admin->restaurant_id,
+            $id,
+        );
+        return $deliveries;
+
+        $fromLat = $delivery->start_lat;
+        $fromLng = $delivery->start_lon;
+        $toLat   = $delivery->end_lat;
+        $toLng   = $delivery->end_lon;
+        $profile = 'driving';
+
+        if (abs($fromLat - $toLat) < 1e-8 && abs($fromLng - $toLng) < 1e-8) {
+            throw ValidationException::withMessages([
+                'to' => ['نقطة البداية تساوي نقطة النهاية.']
+            ]);
+        }
+
+        $base = 'https://router.project-osrm.org';
+        $coords = "{$fromLng},{$fromLat};{$toLng},{$toLat}";
+        $url = "$base/route/v1/{$profile}/{$coords}";
+        $query = [
+            'overview'     => 'full',      // يعيد خط المسار كاملاً
+            'geometries'   => 'geojson',   // أسهل للاستخدام في الخرائط
+            'steps'        => 'true',      // بدائل للمسار
+            'annotations'  => 'distance,duration'
+        ];
+
+        $response = Http::timeout(10)->get($url, $query);
+
+        if (!$response->ok()) {
+            return response()->json([
+                'message' => 'فشل طلب التوجيه من OSRM',
+                'details' => $response->body(),
+            ], 502);
+        }
+
+        $json = $response->json();
+
+        if (!isset($json['routes'][0])) {
+            return response()->json([
+                'message' => 'لم يتم العثور على مسار مناسب',
+            ], 404);
+        }
+        $best = $json['routes'][0];
+        $result = [
+            'distance_m' => $best['distance'],
+            'distance_km' => round($best['distance'] / 1000, 3),
+            'geometry'   => $best['geometry'],
+            'waypoints'  => $json['waypoints'] ?? [],
+            'provider'   => 'OSRM',
+            'profile'    => $profile,
+        ];
+
+        return response()->json($result);
     }
 
     // Show All deliveries Active
@@ -151,7 +205,6 @@ class DeliveryController extends Controller
             $data = DeliveryResource::make($updatedDelivery);
 
             return $this->successResponse($data, trans('locale.updated'), 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An unexpected error occurred while updating the user.');

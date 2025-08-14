@@ -201,6 +201,7 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::get('/show_delivery', [DeliveryController::class, 'showById'])->middleware('can:delivery.index');
     Route::get('/show_orders_delivery', [DeliveryController::class, 'showOrderDelivery'])->middleware('can:delivery.index');
     Route::get('/show_deliveries_active', [DeliveryController::class, 'showAllActive'])->middleware('can:delivery.index');
+    Route::get('/route/{id}', [DeliveryController::class, 'route']);
 
     Route::post('/update_takeout', [UserTakeoutController::class, 'updateStatusOrder']);
 
