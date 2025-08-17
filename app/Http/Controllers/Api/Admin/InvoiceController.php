@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Enum\InvoiceStatus;
 use App\Exports\InvoiceExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CouponInvoiceRequest;
 use App\Http\Requests\Invoice\AddRequest;
 use App\Http\Requests\Invoice\IdRequest;
 use App\Http\Requests\Invoice\ShowRequest;
 use App\Http\Requests\Invoice\UpdateRequest;
 use App\Http\Resources\InvoiceResources;
 use App\Http\Resources\OrderResource;
+use App\Models\Coupon;
 use App\Models\Customer;
 use App\Models\EmployeeTable;
 use App\Models\Invoice;
@@ -154,7 +156,7 @@ class InvoiceController extends Controller
 
         } catch (ValidationException $e) {
             // Catch the specific error for when no billable orders are found.
-            return $this->messageErrorResponse($e->errors()['orders'][0], 404);
+            return $this->messageErrorResponse($e->errors()['orders'][0], 200);
         } catch (\Throwable $th) {
             report($th);
             Log::info('عدد سجلات الجداول:', ['count' => \App\Models\Table::count()]);
@@ -162,6 +164,36 @@ class InvoiceController extends Controller
         }
     }
 
+    public function createCouponInvoice(CouponInvoiceRequest $request): JsonResponse
+    {
+        try {
+            $admin = auth()->user();
+            // 1. Call the single, clean service method to perform the entire process.
+            $invoice = Invoice::find($request->invoice_id);
+            $coupon = Coupon::find($request->coupon_id);
+
+            $discountAmount = ($invoice->total * $coupon->percent) / 100;
+            $newTotal = $invoice->total - $discountAmount;
+
+            $invoice->update([
+                'discount' => $discountAmount,
+                'total' => $newTotal
+            ]);
+            // $invoice->save();
+            // 2. The service returns a complete invoice, ready for the resource.
+            // return $this->successResponse("dsdsd", trans('locale.successfully'), 201);
+            $data = InvoiceResources::make($invoice);
+            return $this->successResponse($data, trans('locale.successfully'), 201); // 201 for created
+
+        } catch (ValidationException $e) {
+            // Catch the specific error for when no billable orders are found.
+            return $this->messageErrorResponse($e->errors()['orders'][0], 200);
+        } catch (\Throwable $th) {
+            report($th);
+            Log::info('عدد سجلات الجداول:', ['count' => \App\Models\Table::count()]);
+            return $this->messageErrorResponse('An error occurred while creating the invoice.');
+        }
+    }
     public function update(UpdateRequest $request): JsonResponse
     {
         try {

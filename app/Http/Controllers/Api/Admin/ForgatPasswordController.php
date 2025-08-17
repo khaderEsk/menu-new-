@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ForgetPasswordRequest;
+use App\Http\Requests\ModifyPasswordRequest;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Jobs\SendEmailTolUser;
 use App\Mail\ForgetPasswordMail;
 use App\Models\Admin;
 use App\Traits\ResponseTrait;
@@ -18,60 +21,61 @@ class ForgatPasswordController extends Controller
 {
     use ResponseTrait;
 
-    public function sendResetCode(Request $request)
+
+    public function modifyPassword(Request $request)
     {
-        // dd("yes");
-        $request->validate(['email' => 'required|email']);
-        $user = Admin::where('email', $request->email)->first();
-        if (!$user) {
-            return $this->returnError(404, 'الحساب غير مسجل');
+        $actor = Admin::where('email', $request->email)->first();
+        // return $actor;
+        if ($actor) {
+            do {
+                $randomNumber = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+                $exists = Admin::where('code', $randomNumber)->exists();
+            } while ($exists);
+            $actor->update([
+                'code' => $randomNumber,
+            ]);
+
+            SendEmailTolUser::dispatch(
+                $actor->email,
+                $actor->name,
+                $randomNumber
+            );
+            return $this->messageSuccessResponse('تم إرسال الرابط.', 200);
         }
-        $code = rand(100000, 999999);
-        $expiresAt = Carbon::now()->addMinutes(30);
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $request->email],
-            ['token' => Hash::make($code), 'created_at' => now()]
-        );
-        Mail::to($user->email)->queue(new ForgetPasswordMail(
-            $code
-        ));
-        // $user->notify(new ResetPasswordNotification($code));
-        return $this->returnData(['expires_at' => $expiresAt->toDateTimeString()],  'تم إرسال رمز إعادة التعيين',);
+        return response()->json(['status' => false, 'message' => trans('locale.error')], 400);
     }
 
-    public function verifyCode(Request $request)
+
+    public function codeVerification(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required|digits:6'
-        ]);
-        $record = DB::table('password_reset_tokens')
-            ->where('email', $request['email'])
-            ->first();
-        if (!$record || !Hash::check($request->otp_code, $record->token)) {
-            return $this->returnError(400, 'الرمز غير صحيح');
+        $actor = Admin::where('code', $request->code)->first();
+        if ($actor) {
+            $tokenResult = $actor->createToken('auth_token');
+            $token = $tokenResult->plainTextToken;
+            $tokenResult->accessToken->forceFill(['platform' => $request->header('User-Agent')])->save();
+            $data = [
+                'token' => $token,
+                'actor' => $actor
+            ];
+            return $this->successResponse($data, trans('locale.successfully'), 200);
         }
-        $tempToken = Str::random(60);
-        DB::table('password_reset_tokens')
-            ->where('email', $request['email'])
-            ->update(['token' => Hash::make($tempToken)]);
-        return $this->returnData(['temp_token' => $tempToken], 'تم التحقق بنجاح');
+        return $this->messageErrorResponse(trans('locale.error'), 400);
     }
 
-    public function forgotPassword(ForgetPasswordRequest $request)
+    public function resetPassword(UpdatePasswordRequest $request)
     {
-        $record = DB::table('password_reset_tokens')
-            ->where('email', $request['email'])
-            ->first();
-        if (!$record || !Hash::check($request['token'], $record->token)) {
-            return $this->returnError(400,  'الرمز غير صحيح أو منتهي الصلاحية');
+        $actor = auth()->user();
+        if ($actor) {
+            if ($request->repeat_password == $request->password) {
+                $newPassword = Hash::make($request->password);
+
+                $actor->update([
+                    'password' => $request->password,
+                    'code' => null,
+                ]);
+                return $this->messageSuccessResponse(trans('locale.successfully'), 200);
+            }
+            return $this->messageErrorResponse(trans('locale.passwordDoesNotMatch'), 400);
         }
-        $affectedRows = Admin::where('email', $request['email'])
-            ->update(['password' => Hash::make($request['password'])]);
-        if ($affectedRows === 0) {
-            return $this->returnError(404,  'لم يتم العثور على أي حسابات بهذا الإيميل');
-        }
-        DB::table('password_reset_tokens')->where('email', $request['email'])->delete();
-        return $this->returnData(200,  'تم تحديث كلمة المرور بنجاح');
     }
 }

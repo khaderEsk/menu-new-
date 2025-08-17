@@ -196,7 +196,6 @@ class OrderController extends Controller
             $tableId = $validated['id'];
             // 2. Call the single, clean service method to perform all actions.
             $updatedCount = $this->orderService->updateOrderStatusForTable($tableId, $newStatus, $admin);
-
             // 3. Check if any orders were actually updated.
             if ($updatedCount === 0) {
                 return $this->messageErrorResponse(trans('locale.dontHaveOrders'), 404); // 404 is better if no orders are found

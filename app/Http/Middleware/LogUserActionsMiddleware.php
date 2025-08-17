@@ -88,7 +88,7 @@ class LogUserActionsMiddleware
         elseif (preg_match('/\/admin_api\/update_category/', $url)) {
             return Category::find($id);
         } elseif (preg_match('/\/admin_api\/update_item/', $url)) {
-            return Item::find($id)->toArray();
+            return Item::find($id);
         } elseif (preg_match('/\/admin_api\/update_admin/', $url)) {
             return Admin::find($id);
         } elseif (preg_match('/\/admin_api\/update_restaurant_admin/', $url)) {

@@ -24,12 +24,13 @@ class CreateRequest extends FormRequest
     {
         return [
             'name' => ['required'],
-            'user_name' => [Rule::unique('super_admins','user_name')->whereNull('deleted_at'),'required'],
-            'password' => ['required','min:8','max:25'],
+            'user_name' => [Rule::unique('super_admins', 'user_name')->whereNull('deleted_at'), 'required'],
+            'password' => ['required', 'min:8', 'max:25'],
             // 'city_id' => ['nullable','exists:cities,id'],
-            'city_id' => ['nullable','required_if:role,City super admin,سوبر أدمن تابع لمدينة','exists:cities,id'],
+            'city_id' => ['nullable', 'required_if:role,City super admin,سوبر أدمن تابع لمدينة', 'exists:cities,id'],
             'role' => ['required'],
             'permission' => ['nullable'],
+            'email' => ['required', 'email']
         ];
     }
 }

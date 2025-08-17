@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(1);
             $table->string('type')->nullable();
             $table->string('fcm_token')->nullable();
+            $table->integer('code')->nullable();
             $table->foreignIdFor(Restaurant::class)->nullable()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->softDeletes();
             $table->timestamps();

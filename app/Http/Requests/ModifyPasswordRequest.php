@@ -24,9 +24,9 @@ class ModifyPasswordRequest extends FormRequest
     {
         return [
             'restaurant_id' => ['required','exists:restaurants,id'],
-            'method' => ['required','in:0,1'],
             'username' => ['required_if:method,0'],
             'email' => ['required_if:method,1','email'],
+            'method' => ['required','in:0,1'],
             'question' => ['required_if:method,0'],
             'answer' => ['required_if:method,0'],
         ];

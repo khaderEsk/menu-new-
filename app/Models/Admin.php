@@ -14,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
-    use HasFactory, HasApiTokens, SoftDeletes, HasRoles, Notifiable ;
+    use HasFactory, HasApiTokens, SoftDeletes, HasRoles, Notifiable;
 
     protected $fillable = [
         'user_name',
@@ -25,7 +25,8 @@ class Admin extends Authenticatable
         'fcm_token',
         'restaurant_id',
         'type_id',
-        'email'
+        'email',
+        'code'
     ];
 
     protected $hidden = [
