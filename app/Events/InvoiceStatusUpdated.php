@@ -16,7 +16,7 @@ class InvoiceStatusUpdated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Invoice $invoice;
-
+    
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -30,7 +30,7 @@ class InvoiceStatusUpdated
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel(''),
         ];
     }
 }

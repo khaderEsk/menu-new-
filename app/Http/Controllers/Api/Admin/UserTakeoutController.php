@@ -440,7 +440,6 @@ class UserTakeoutController extends Controller
     // }
     public function updateStatusOrder(StatusInvoiceRequest $request): JsonResponse
     {
-        // dd("dsf");
         try {
             $validatedData = $request->validated();
             $status = InvoiceStatus::fromString($validatedData['status']);

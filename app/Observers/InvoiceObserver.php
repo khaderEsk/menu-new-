@@ -26,91 +26,89 @@ class InvoiceObserver
      * Handle the Invoice "updated" event.
      * This entire method will now run asynchronously in a background queue worker.
      */
-    // public function updated(Invoice $invoice): void
-    // {
-    //     Log::info("ddf");
-    //     // Log::info("gfdmgdmfgmdfimgimdfg");
-    //     // --- Part 1: Your existing distance calculation logic ---
-    //     // This part remains the same. It will now run safely in the background.
-    //     if ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::APPROVED) {
-    //         $restaurant = $invoice->orders->first()?->restaurant;
-    //         $address = $invoice->address;
-    //         if (!$restaurant || !$address || !$restaurant->latitude || !$address->latitude) {
-    //             Log::warning("Missing data for invoice #{$invoice->id}. Cannot calculate route.");
-    //             // return;
-    //         }
+    public function updated(Invoice $invoice): void
+    {
+        // --- Part 1: Your existing distance calculation logic ---
+        // This part remains the same. It will now run safely in the background.
+        if ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::APPROVED) {
+            $restaurant = $invoice->orders->first()?->restaurant;
+            $address = $invoice->address;
+            if (!$restaurant || !$address || !$restaurant->latitude || !$address->latitude) {
+                Log::warning("Missing data for invoice #{$invoice->id}. Cannot calculate route.");
+                // return;
+            }
 
-    //         $routeData = $this->osrmService->getRoute(
-    //             $restaurant->latitude,
-    //             $restaurant->longitude,
-    //             $address->latitude,
-    //             $address->longitude
-    //         );
+            $routeData = $this->osrmService->getRoute(
+                $restaurant->latitude,
+                $restaurant->longitude,
+                $address->latitude,
+                $address->longitude
+            );
 
-    //         if (!$routeData) {
-    //             Log::error("Failed to get route from OSRM for invoice #{$invoice->id}.");
-    //             return;
-    //         }
+            if (!$routeData) {
+                Log::error("Failed to get route from OSRM for invoice #{$invoice->id}.");
+                return;
+            }
 
-    //         $distanceInKm = round($routeData['distance'] / 1000, 2);
-    //         $durationInMinutes = round($routeData['duration'] / 60, 2);
+            $distanceInKm = round($routeData['distance'] / 1000, 2);
+            $durationInMinutes = round($routeData['duration'] / 60, 2);
 
-    //         $invoice->deliveryRoute()->updateOrCreate(
-    //             ['invoice_id' => $invoice->id],
-    //             [
-    //                 'start_lat' => $restaurant->latitude,
-    //                 'start_lon' => $restaurant->longitude,
-    //                 'end_lat' => $address->latitude,
-    //                 'end_lon' => $address->longitude,
-    //                 'distance' => $distanceInKm,
-    //                 'duration' => $durationInMinutes,
-    //             ]
-    //         );
+            $invoice->deliveryRoute()->updateOrCreate(
+                ['invoice_id' => $invoice->id],
+                [
+                    'start_lat' => $restaurant->latitude,
+                    'start_lon' => $restaurant->longitude,
+                    'end_lat' => $address->latitude,
+                    'end_lon' => $address->longitude,
+                    'distance' => $distanceInKm,
+                    'duration' => $durationInMinutes,
+                ]
+            );
 
-    //         // 1. Calculate the delivery price
-    //         $deliveryPrice = $distanceInKm * ($restaurant->price_km ?? 0);
+            // 1. Calculate the delivery price
+            $deliveryPrice = $distanceInKm * ($restaurant->price_km ?? 0);
 
-    //         // 2. Update the invoice object with the new values
-    //         $invoice->delivery_price = $deliveryPrice;
-    //         $invoice->total += $deliveryPrice; // Adds the delivery price to the existing total
-    //         $invoice->total_estimated_duration = 40 + $durationInMinutes;
+            // 2. Update the invoice object with the new values
+            $invoice->delivery_price = $deliveryPrice;
+            $invoice->total += $deliveryPrice; // Adds the delivery price to the existing total
+            $invoice->total_estimated_duration = 40 + $durationInMinutes;
 
-    //         // 3. Save all changes to the invoice at once
-    //         $invoice->saveQuietly();
-    //     } elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::PROCESSING) {
-    //         $travelTime = $invoice->deliveryRoute?->duration ?? 0;
-    //         $invoice->total_estimated_duration = 30 + $travelTime;
-    //         $invoice->saveQuietly();
-    //     } // 3. On 'Under Delivery': SET the time to just the travel time
-    //     elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::UNDER_DELIVERY) {
-    //         $travelTime = $invoice->deliveryRoute?->duration ?? 0;
-    //         $invoice->total_estimated_duration = $travelTime;
-    //         $invoice->saveQuietly();
-    //     } elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::COMPLETED) {
+            // 3. Save all changes to the invoice at once
+            $invoice->saveQuietly();
+        } elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::PROCESSING) {
+            $travelTime = $invoice->deliveryRoute?->duration ?? 0;
+            $invoice->total_estimated_duration = 30 + $travelTime;
+            $invoice->saveQuietly();
+        } // 3. On 'Under Delivery': SET the time to just the travel time
+        elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::UNDER_DELIVERY) {
+            $travelTime = $invoice->deliveryRoute?->duration ?? 0;
+            $invoice->total_estimated_duration = $travelTime;
+            $invoice->saveQuietly();
+        } elseif ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::COMPLETED) {
 
-    //         $invoice->total_estimated_duration = null;
-    //         $deliveryRoute = $invoice->deliveryRoute()->update(
-    //             [
-    //                 'distance' => null,
-    //             ]
-    //         );
-    //         $invoice->saveQuietly();
-    //     }
+            $invoice->total_estimated_duration = null;
+            $deliveryRoute = $invoice->deliveryRoute()->update(
+                [
+                    'distance' => null,
+                ]
+            );
+            $invoice->saveQuietly();
+        }
 
-    //     $freshInvoice = Invoice::with([
-    //         'user',
-    //         'delivery',
-    //         'deliveryRoute',
-    //         'orders',
-    //         'address'
-    //     ])->find($invoice->id);
+        $freshInvoice = Invoice::with([
+            'user',
+            'delivery',
+            'deliveryRoute',
+            'orders',
+            'address'
+        ])->find($invoice->id);
 
 
-    //     if ($freshInvoice) {
-    //         $this->sendUserNotifications($freshInvoice);
-    //         $this->sendDeliveryDriverUpdates($freshInvoice);
-    //     }
-    // }
+        if ($freshInvoice) {
+            $this->sendUserNotifications($freshInvoice);
+            $this->sendDeliveryDriverUpdates($freshInvoice);
+        }
+    }
 
     private function calculateAndSaveRouteData(Invoice $invoice): void
     {
