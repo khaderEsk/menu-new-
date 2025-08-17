@@ -170,7 +170,6 @@ class OrderController extends Controller
     // Add order
     public function create(CustomerAddRequest $request)
     {
-        try {
             $customer = auth()->user();
             if ($customer->hasRole('customer')) {
                 $customer_id = $customer->id;
@@ -601,10 +600,7 @@ class OrderController extends Controller
                     return $this->messageSuccessResponse(trans('locale.created'), 200);
                 }
             }
-        } catch (Throwable $th) {
-            $message = $th->getMessage();
-            return $this->messageErrorResponse($message);
-        }
+
     }
 
     // Add order
