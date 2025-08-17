@@ -23,7 +23,7 @@ class SuperAdmin extends Authenticatable
         'is_active',
         'city_id',
         'restaurant_id',
-        'email'
+        'email',
     ];
 
     protected $hidden = [

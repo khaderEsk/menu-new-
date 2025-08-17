@@ -407,7 +407,7 @@ class OrderService
                 ->whereDate('created_at', '<=', Carbon::tomorrow());
         };
 
-        return Order::where('table_id', 1)
+        return Order::where('table_id', $tableId)
             ->where('status', $fromStatus)
             ->where($dateQuery)
             ->get();

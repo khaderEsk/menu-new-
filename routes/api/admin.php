@@ -49,8 +49,12 @@ Route::group(['middleware' => ['logs', 'version', 'auth:sanctum', 'active', 'rol
 // Route::post('/login', [Controller::class, 'Login'])->middleware(['version','ensureTokenIsNotFromAnotherDevice']);
 Route::post('/login', [Controller::class, 'Login'])->middleware(['version']);
 
+Route::post('/forget_password', [ForgatPasswordController::class, 'modifyPassword']);
+Route::post('/check_code', [ForgatPasswordController::class, 'codeVerification']);
+
 
 Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum', 'active', 'role:admin|superAdmin|citySuperAdmin|dataEntry|employee|restaurantManager', 'checkRole']], function () {
+    Route::post('/reset_password', [ForgatPasswordController::class, 'resetPassword']);
 
     // Category
     Route::get('/show_admin_categories', [CategoryController::class, 'showAll'])->middleware('can:category.index');
@@ -105,6 +109,7 @@ Route::group(['middleware' => ['checkEndDate', 'logs', 'version', 'auth:sanctum'
 
         Route::get('/show_orders_invoice', [InvoiceController::class, 'showInvoice'])->middleware('can:order.index');
         Route::post('/add_invoice_to_table', [InvoiceController::class, 'createInvoiceTable'])->middleware('can:order.add');
+        Route::post('/add_coupon_to_invoice', [InvoiceController::class, 'createCouponInvoice'])->middleware('can:order.add');
         Route::patch('/update_status_invoice_paid', [InvoiceController::class, 'update'])->middleware('can:order.update');
 
         Route::patch('/update_status_invoice_received', [InvoiceController::class, 'Received'])->middleware('can:order.update');
@@ -222,14 +227,9 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
     Route::get('/show_waiters', [UserController::class, 'showWaiters']);
 
     // Pyment Methods
-    Route::get('/show-payments' , [PaymentMethodController::class , 'index'])->middleware(['role:admin']);
-    Route::post('/create-payment' , [PaymentMethodController::class , 'store'])->middleware(['role:superAdmin']);
-    Route::post('/update-payment' , [PaymentMethodController::class , 'update'])->middleware(['role:superAdmin']);
+    Route::get('/show-payments', [PaymentMethodController::class, 'index'])->middleware(['role:admin']);
+    Route::post('/create-payment', [PaymentMethodController::class, 'store'])->middleware(['role:superAdmin']);
+    Route::post('/update-payment', [PaymentMethodController::class, 'update'])->middleware(['role:superAdmin']);
 });
 
 Route::post('/update-location', [LocationController::class, 'updateLocation']);
-
-
-Route::post('/password/code', [ForgatPasswordController::class, 'sendResetCode']);
-Route::post('/password/verify', [ForgatPasswordController::class, 'verifyCode']);
-Route::post('/password/reset', [ForgatPasswordController::class, 'forgotPassword']);

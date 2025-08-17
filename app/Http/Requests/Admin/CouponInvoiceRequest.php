@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Table;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class IdRequest extends FormRequest
-
+class CouponInvoiceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +22,8 @@ class IdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required',Rule::exists('tables','id')->where('restaurant_id',auth()->user()->restaurant_id)->whereNull('deleted_at')],
-            // 'restaurant_id' => ['required','exists:restaurants,id'],
-            'status' => ['nullable','in:accepted,preparation,done'],
+            'invoice_id' => ['required', 'exists:invoices,id'],
+            'coupon_id' => ['required', 'exists:coupons,id']
         ];
     }
 }
