@@ -16,21 +16,29 @@ class BackupController extends Controller
     {
         $backupScriptPath = base_path('backup.php');
 
+        // Verify the file exists first
+        if (!file_exists($backupScriptPath)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Backup script not found at: ' . $backupScriptPath
+            ]);
+        }
+
         $output = [];
         $resultCode = 0;
-        exec("php \"$backupScriptPath\"", $output, $resultCode);
+        exec("php \"$backupScriptPath\" 2>&1", $output, $resultCode);
 
         if ($resultCode === 0) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Backup created successfully.',
-                // 'output' => implode("\n", $output)
+                'output' => implode("\n", $output) // Now showing output for debugging
             ]);
         } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Backup failed with exit code ' . $resultCode,
-                // 'output' => implode("\n", $output)
+                'output' => implode("\n", $output) // Now showing output for debugging
             ]);
         }
     }
