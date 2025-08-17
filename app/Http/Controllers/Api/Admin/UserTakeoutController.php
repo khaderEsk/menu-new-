@@ -440,7 +440,6 @@ class UserTakeoutController extends Controller
     // }
     public function updateStatusOrder(StatusInvoiceRequest $request): JsonResponse
     {
-        // dd("dsf");
         try {
             $validatedData = $request->validated();
             $status = InvoiceStatus::fromString($validatedData['status']);
@@ -454,7 +453,7 @@ class UserTakeoutController extends Controller
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
             $invoice->save();
-            event(new InvoiceStatusUpdated($invoice));
+            // event(new InvoiceStatusUpdated($invoice));
 
 
             // 3. Update the status of related orders. This is a fast operation.

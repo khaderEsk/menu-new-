@@ -29,7 +29,7 @@ Broadcast::channel('locationUpdated', function () {
 });
 
 Broadcast::channel('order.{orderId}', function ($user, $orderId) {
-    if($user->role == 0)
+    if ($user->role == 0)
         $order = Invoice::whereUserId($user->id)->whereId($orderId)->first();
     else
         $order = Invoice::whereDeliveryId($user->id)->whereId($orderId)->first();

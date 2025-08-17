@@ -170,7 +170,6 @@ class OrderController extends Controller
     // Add order
     public function create(CustomerAddRequest $request)
     {
-        Log::info($request->validated());
         try {
             $customer = auth()->user();
             if ($customer->hasRole('customer')) {

@@ -23,6 +23,8 @@ class NewOrder implements ShouldBroadcast, ShouldHandleEventsAfterCommit
 
     public function __construct($userOrders, $userTypeId)
     {
+        Log::info($userOrders);
+        Log::info($userTypeId);
         $this->userOrders = $userOrders;
         $this->userTypeId = $userTypeId;
         $this->firstInvoice = $this->userOrders->first();

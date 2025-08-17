@@ -39,7 +39,6 @@ class HandleInvoiceStatusUpdated
                 Log::warning("Missing data for invoice #{$invoice->id}. Cannot calculate route.");
                 return;
             }
-
             $routeData = $this->osrmService->getRoute(
                 $restaurant->latitude,
                 $restaurant->longitude,
