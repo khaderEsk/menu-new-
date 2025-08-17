@@ -454,7 +454,7 @@ class UserTakeoutController extends Controller
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
             $invoice->save();
-            event(new InvoiceStatusUpdated($invoice));
+            // event(new InvoiceStatusUpdated($invoice));
 
 
             // 3. Update the status of related orders. This is a fast operation.
