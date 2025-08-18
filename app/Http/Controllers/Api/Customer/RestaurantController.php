@@ -109,7 +109,7 @@ class RestaurantController extends Controller
     }
 
 
-    
+
     // Choose Table
     public function chooseTable(ChooseTableRequest $request)
     {
@@ -117,9 +117,12 @@ class RestaurantController extends Controller
         $restaurant = $this->restaurantService->showByName($data);
         if ($restaurant->is_table == 1 && $restaurant->is_order == 1) {
             $table = Table::whereRestaurantId($data['id'])->whereId($data['table_id'])->first();
-            if (!$table)
+            if (!$table) {
                 return $this->messageErrorResponse(trans('locale.invalidItem'), 404);
-
+            }
+            if ($table->visited == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidTable'), 501);
+            }
             $user = Customer::create([
                 'user_name' => Str::random(10),
                 'password' => Hash::make('password'),
@@ -130,6 +133,8 @@ class RestaurantController extends Controller
             $expiration = now()->addHours(2);
             $tokenResult = $user->createToken('auth_token');
             $token = $tokenResult->plainTextToken;
+            $table->visited = 1;
+            $table->save();
             $data = [
                 'token' => $token,
                 'table_id' => $table->id,
