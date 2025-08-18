@@ -156,7 +156,7 @@ class CategoryController extends Controller
             if(\array_key_exists('category_id',$data))
             {
                 $maxIndex = Category::where('category_id',$data['category_id'])->where('restaurant_id', $restaurant_id)->max('index');
-                $category_id = $data['category_id'];
+                // $category_id = $data['category_id'];
             }
             $category = $this->categoryService->create($restaurant_id,$request->validated(),$maxIndex,$category_id);
             if ($request->hasFile('image'))

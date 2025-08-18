@@ -43,7 +43,7 @@ class CityController extends Controller
             {
                 $cities = $this->cityService->all();
                 if (\count($cities) == 0) {
-                    return $this->successResponse([],trans('locale.dontHaveCities'),200);
+                    return $this->successResponse([],trans('locale.doNotHaveCities'),200);
                 }
                 $cities = $this->cityService->paginate($request->input('per_page', 25));
                 $data = CityResource::collection($cities);
@@ -100,7 +100,7 @@ class CityController extends Controller
                 if($admin->city_id != null)
                 {
                     if($request->id != $admin->city_id)
-                    return $this->messageSuccessResponse(trans('locale.youCantDeactiveThisCity'),200);
+                    return $this->messageSuccessResponse(trans('locale.youCantDeActiveThisCity'),200);
                 }
             }
             $admin = auth()->user()->id;

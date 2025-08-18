@@ -22,6 +22,7 @@ class User extends Authenticatable implements HasMedia
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
+     * 
      */
     protected $fillable = [
         'name',
@@ -85,6 +86,6 @@ class User extends Authenticatable implements HasMedia
 
     public function coupons()
     {
-        return $this->belongsToMany(Coupon::class , 'user_coupons')->withPivot('used', 'used_at')->withTimestamps();
+        return $this->belongsToMany(Coupon::class, 'user_coupons')->withPivot('used', 'used_at')->withTimestamps();
     }
 }

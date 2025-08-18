@@ -37,7 +37,7 @@ class AdminController extends Controller
             {
                 $SuperAdmins = SuperAdmin::where('id','!=',1)->where('id','!=',$admin->id)->whereCityId($admin->city_id)->with('city')->with('permissions')->latest()->get();
                 if (\count($SuperAdmins) == 0) {
-                    return $this->successResponse([],trans('locale.dontHaveCitySuperAdminDataEntry'),200);
+                    return $this->successResponse([],trans('locale.doNotHaveCitySuperAdminDataEntry'),200);
                 }
 
                 $query = SuperAdmin::query();
@@ -73,7 +73,7 @@ class AdminController extends Controller
 
             $dataAdmin =  $this->superAdminService->all();
             if (\count($dataAdmin) == 0) {
-                return $this->successResponse([],trans('locale.dontHaveCitySuperAdminDataEntry'),200);
+                return $this->successResponse([],trans('locale.doNotHaveCitySuperAdminDataEntry'),200);
             }
 
             $query = SuperAdmin::query();
