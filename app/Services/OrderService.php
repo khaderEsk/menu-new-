@@ -93,6 +93,8 @@ class OrderService
                 $item = $itemsData->get($orderItemData['item_id']);
                 if (!$item) continue;;
                 $price = $this->calculatePriceProduct($item, $orderItemData['toppings'] ?? [], $orderItemData['size_id'] ?? null);
+
+
                 $order = $this->createSingleOrderRecord($orderItemData, $item, $price, $table->id, $invoiceId);
 
                 $this->notifyRelevantEmployees($order, "new order");
@@ -198,11 +200,11 @@ class OrderService
             'done' => 'preparation',
         ];
         $fromStatus = $statusMap[$newStatus] ?? 'waiting';
-
+        // dd($fromStatus);
         // 2. Find the table and the orders that need to be updated.
         $table = Table::findOrFail($tableId);
         $ordersToUpdate = $this->getOrdersForStatusUpdate($tableId, $fromStatus);
-
+        // dd(count($ordersToUpdate));
         if ($ordersToUpdate->isEmpty()) {
             return 0; // No orders found to update.
         }
@@ -273,6 +275,7 @@ class OrderService
 
     private function createSingleOrderRecord(array $orderData, Item $item, float $price, int $tableId, ?int $invoiceId): Order
     {
+
         $order = Order::create([
             'item_id' => $item->id,
             'price' => $price,
@@ -281,10 +284,10 @@ class OrderService
             'restaurant_id' => $item->restaurant_id,
             'invoice_id' => $invoiceId,
             'status' => "accepted",
+            'size' => $orderData['size_id'],
             'en' => ['name' => $item->translate('en')->name, 'type' => $item->category->translate('en')->name],
             'ar' => ['name' => $item->translate('ar')->name, 'type' => $item->category->translate('ar')->name],
         ]);
-
         $this->addDetailsItem($order, $orderData['size_id'] ?? null, $orderData['components'] ?? [], $orderData['toppings'] ?? []);
         return $order;
     }
@@ -324,7 +327,7 @@ class OrderService
         if (!empty($toppingIds)) $order->toppings = Topping::whereIn('id', $toppingIds)->get(['name', 'price'])->toJson();
 
         if (!empty($componentIds)) $order->components = Component::whereIn('id', $componentIds)->get(['name'])->toJson();
-        if (!empty($sizeId)) $order->size = Size::where('id', $sizeId)->first(['name', 'price'])->toJson();
+        if (!empty($sizeId)) $order->size = Size::where('id', $sizeId)->first(['price'])->toJson();
 
         $order->save();
     }
@@ -406,10 +409,10 @@ class OrderService
             $query->whereDate('created_at', '>=', Carbon::yesterday())
                 ->whereDate('created_at', '<=', Carbon::tomorrow());
         };
-
+        // dd($dateQuery);
         return Order::where('table_id', $tableId)
             ->where('status', $fromStatus)
-            ->where($dateQuery)
+            // ->where($dateQuery)
             ->get();
     }
 

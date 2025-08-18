@@ -87,7 +87,6 @@ class OrderController extends Controller
         try {
             $admin = auth()->user();
             $data = $request->validated();
-
             // 1. Prepare the data for the service.
             // The controller is responsible for getting IDs from the request context.
             if ($request->has('invoice_id')) {
@@ -197,10 +196,9 @@ class OrderController extends Controller
             // 2. Call the single, clean service method to perform all actions.
             $updatedCount = $this->orderService->updateOrderStatusForTable($tableId, $newStatus, $admin);
             // 3. Check if any orders were actually updated.
-            if ($updatedCount === 0) {
-                return $this->messageErrorResponse(trans('locale.dontHaveOrders'), 404); // 404 is better if no orders are found
+            if ($updatedCount == 0) {
+                return $this->messageErrorResponse(trans('locale.doNotHaveOrders'), 404); // 404 is better if no orders are found
             }
-
             // 4. Dispatch the event with the paginated list of all tables (preserving original behavior).
             $tables = Table::where('restaurant_id', $admin->restaurant_id)->paginate(15);
             $paginatedResource = $this->paginateSuccessResponse(TableResource::collection($tables), '', 200);
