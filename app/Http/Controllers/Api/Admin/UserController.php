@@ -37,20 +37,8 @@ class UserController extends Controller
             // dd($query);
 
             // Filter by role
-            if ($request->has('role')) {
-                $role = Role::where('name', $request->role)->first();
-                if ($role) {
-                    $query->role($request->role);
-                } else {
-                    $rolesTranslations = trans('roles');
-
-                    $roleKey = array_search($data['role'], $rolesTranslations);
-                    if (!$roleKey) {
-                        return "the role is incorrect";
-                    }
-                    $role = Role::where('name', $roleKey)->first();
-                    $query->role($role);
-                }
+            if ($request->has('type_id')) {
+                $query->where('type_id', $request->type_id);
             }
 
             // Filter search
