@@ -39,10 +39,11 @@ class AddRequest extends FormRequest
             'user_name' => ['required', 'unique:admins,user_name', 'min:2', 'max:20'],
             'password' => ['required', 'min:8', 'max:25'],
             'mobile' => ['required', 'regex:/^\+?[0-9]{10,15}$/', 'unique:admins,mobile'],
-            'role' => ['required'],
+            'role' => ['nullable'],
             'restaurant_id' => ['nullable'],
             'email' => ['required', 'email'],
-            'type_id' => ['required_if:role,موظف,employee', 'exists:types,id'],
+            // 'type_id' => ['required_if:role,موظف,employee', 'exists:types,id'],
+            'type_id' => ['required', 'exists:types,id'],
             'category' => [
                 'required_if:type_id,4,8',
                 'array',

@@ -19,19 +19,17 @@ use Throwable;
 
 class UserController extends Controller
 {
-    public function __construct(private UserService $userService)
-    {
-    }
+    public function __construct(private UserService $userService) {}
 
     // Show All Admins
     public function showAll(ShowAllRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user();
             $data = $request->validated();
-            $dataAdmin =  $this->userService->all($admin->restaurant_id,$admin->id);
+            $dataAdmin =  $this->userService->all($admin->restaurant_id, $admin->id);
             if (\count($dataAdmin) == 0) {
-                return $this->successResponse([],trans('locale.dontHaveEmployee'),200);
+                return $this->successResponse([], trans('locale.dontHaveEmployee'), 200);
             }
 
 
@@ -43,8 +41,7 @@ class UserController extends Controller
                 $role = Role::where('name', $request->role)->first();
                 if ($role) {
                     $query->role($request->role);
-                }
-                else {
+                } else {
                     $rolesTranslations = trans('roles');
 
                     $roleKey = array_search($data['role'], $rolesTranslations);
@@ -74,19 +71,17 @@ class UserController extends Controller
                 $query->where('type_id', $request->type_id);
             }
 
-            if($admin->hasRole(['admin']))
-            {
-                $superAdmin = $query->where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+            if ($admin->hasRole(['admin'])) {
+                $superAdmin = $query->where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                     $query->where('name', 'restaurantManager');
                 })->whereRestaurantId($admin->restaurant_id)->paginate($request->input('per_page', 25));
                 $data = AdminResource::collection($superAdmin);
-                return $this->paginateSuccessResponse($data,trans('locale.foundSuccessfully'),200);
+                return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
             }
-            $superAdmin = $query->where('id','!=',$admin->id)->whereRestaurantId($admin->restaurant_id)->paginate($request->input('per_page', 25));
+            $superAdmin = $query->where('id', '!=', $admin->id)->whereRestaurantId($admin->restaurant_id)->paginate($request->input('per_page', 25));
             $data = AdminResource::collection($superAdmin);
-            return $this->paginateSuccessResponse($data,trans('locale.foundSuccessfully'),200);
-
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -95,8 +90,9 @@ class UserController extends Controller
     // Add User
     public function create(AddRequest $request)
     {
-        try{
+        try {
             $dataValid = $request->validated();
+            $dataValid['role'] = 'موظف';
             $admin = auth()->user();
             // if($admin->hasRole(['admin']))
             // {
@@ -114,12 +110,12 @@ class UserController extends Controller
             //     }
             // }
             $restaurant_id = auth()->user()->restaurant_id;
-            $user = $this->userService->create($request->validated(),$restaurant_id);
-            if($user === "the role is incorrect")
-                return $this->messageErrorResponse(trans('locale.theRoleIsIncorrect'),400);
+            $user = $this->userService->create($dataValid, $restaurant_id);
+            if ($user === "the role is incorrect")
+                return $this->messageErrorResponse(trans('locale.theRoleIsIncorrect'), 400);
             $data = AdminResource::make($user);
-            return $this->successResponse($data,trans('locale.created'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.created'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -128,28 +124,31 @@ class UserController extends Controller
     // Update User
     public function update(UpdateRequest $request)
     {
-        try{
+        try {
             // $id = auth()->user()->id;
             $admin = auth()->user();
-            $arrRole = Arr::only($request->validated(),
-            ['role','permission']);
+            $arrRole = Arr::only(
+                $request->validated(),
+                ['role', 'permission']
+            );
 
-            $arrAdmin = Arr::only($request->validated(),
-            ['id','name','password','user_name','mobile','type_id']);
-            $user = $this->userService->update($admin,$arrAdmin,$arrRole,$admin->id);
-            if($user == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $arrAdmin = Arr::only(
+                $request->validated(),
+                ['id', 'name', 'password', 'user_name', 'mobile', 'type_id']
+            );
+            $user = $this->userService->update($admin, $arrAdmin, $arrRole, $admin->id);
+            if ($user == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            $showUser = $this->userService->show($admin->restaurant_id,$arrAdmin,$admin->id);
+            $showUser = $this->userService->show($admin->restaurant_id, $arrAdmin, $admin->id);
 
             if ($showUser) {
                 $showUser->tokens()->delete();
             }
 
             $data = AdminResource::make($showUser);
-            return $this->successResponse($data,trans('locale.updated'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.updated'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -158,13 +157,13 @@ class UserController extends Controller
     // Show User By Id
     public function showById(IdRequest $request)
     {
-        try{
+        try {
             // $id = auth()->user()->id;
             $admin = auth()->user();
-            $user = $this->userService->show($admin->restaurant_id,$request->validated(),$admin->id);
+            $user = $this->userService->show($admin->restaurant_id, $request->validated(), $admin->id);
             $data = AdminResource::make($user);
-            return $this->successResponse($data,trans('locale.foundSuccessfully'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.foundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -173,15 +172,14 @@ class UserController extends Controller
     // Delete User
     public function delete(IdRequest $request)
     {
-        try{
+        try {
             $restaurant_id = auth()->user()->restaurant_id;
-            $user = $this->userService->destroy($request->validated(),$restaurant_id);
-            if($user == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $user = $this->userService->destroy($request->validated(), $restaurant_id);
+            if ($user == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.deleted'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.deleted'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -190,17 +188,16 @@ class UserController extends Controller
     // Active Or DisActive User
     public function deactivate(IdRequest $request)
     {
-        try{
+        try {
             // $id = Auth()->user()->id;
             $admin = auth()->user();
-            $user = $this->userService->show($admin->restaurant_id,$request->validated(),$admin->id);
+            $user = $this->userService->show($admin->restaurant_id, $request->validated(), $admin->id);
             $item = $this->userService->activeOrDesactive($user);
-            if($item == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($item == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.successfully'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.successfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -208,18 +205,17 @@ class UserController extends Controller
 
     public function detail2()
     {
-        try{
+        try {
             $admin = auth()->user();
-            $dataAdmin =  $this->userService->all($admin->restaurant_id,$admin->id);
+            $dataAdmin =  $this->userService->all($admin->restaurant_id, $admin->id);
             if (\count($dataAdmin) == 0) {
-                return $this->successResponse([],trans('locale.dontHaveEmployee'),200);
+                return $this->successResponse([], trans('locale.dontHaveEmployee'), 200);
             }
 
             $responseData = [];
 
-            if($admin->hasRole(['admin']))
-            {
-                $superAdmin = Admin::where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+            if ($admin->hasRole(['admin'])) {
+                $superAdmin = Admin::where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                     $query->where('name', 'restaurantManager');
                 })->whereRestaurantId($admin->restaurant_id)->get();
 
@@ -230,16 +226,15 @@ class UserController extends Controller
 
                         $totalSeconds = 0;
                         $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
-                        for($j=0;$j< count($num);$j++)
-                        {
+                        for ($j = 0; $j < count($num); $j++) {
                             $firstElement = $num->get($j);
                             $time = $firstElement->order_time;
                             list($hours, $minutes, $seconds) = explode(':', $time);
                             $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
                         }
 
-                        $n = count($num) == 0 ? 1:count($num);
-                        $total = $totalSeconds/$n;
+                        $n = count($num) == 0 ? 1 : count($num);
+                        $total = $totalSeconds / $n;
                         $hours = floor($total / 3600);
                         $minutes = floor(($total % 3600) / 60);
                         $seconds = $total % 60;
@@ -259,9 +254,9 @@ class UserController extends Controller
                         'response_times' => $responseTimes
                     ];
                 }
-                return $this->successResponse($responseData,trans('locale.foundSuccessfully'),200);
+                return $this->successResponse($responseData, trans('locale.foundSuccessfully'), 200);
             }
-            $superAdmin = Admin::where('id','!=',$admin->id)->whereRestaurantId($admin->restaurant_id)->get();
+            $superAdmin = Admin::where('id', '!=', $admin->id)->whereRestaurantId($admin->restaurant_id)->get();
             foreach ($superAdmin as $employee) {
                 $responseTimes = [];
                 for ($i = 0; $i <= 30; $i++) {
@@ -269,16 +264,15 @@ class UserController extends Controller
 
                     $totalSeconds = 0;
                     $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
-                    for($j=0;$j< count($num);$j++)
-                    {
+                    for ($j = 0; $j < count($num); $j++) {
                         $firstElement = $num->get($j);
                         $time = $firstElement->order_time;
                         list($hours, $minutes, $seconds) = explode(':', $time);
                         $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
                     }
 
-                    $n = count($num) == 0 ? 1:count($num);
-                    $total = $totalSeconds/$n;
+                    $n = count($num) == 0 ? 1 : count($num);
+                    $total = $totalSeconds / $n;
                     $hours = floor($total / 3600);
                     $minutes = floor(($total % 3600) / 60);
                     $seconds = $total % 60;
@@ -298,79 +292,74 @@ class UserController extends Controller
                     'response_times' => $responseTimes
                 ];
             }
-            return $this->successResponse($responseData,trans('locale.foundSuccessfully'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($responseData, trans('locale.foundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
     }
 
-   public function detail()
+    public function detail()
     {
-        try{
+        try {
             $admin = auth()->user();
-            $dataAdmin =  $this->userService->all($admin->restaurant_id,$admin->id);
+            $dataAdmin =  $this->userService->all($admin->restaurant_id, $admin->id);
             if (\count($dataAdmin) == 0) {
-                return $this->successResponse([],trans('locale.dontHaveEmployee'),200);
+                return $this->successResponse([], trans('locale.dontHaveEmployee'), 200);
             }
-            if(request()->has('startDate') && request()->has('endDate'))
-            {
+            if (request()->has('startDate') && request()->has('endDate')) {
                 //if($admin->hasRole(['admin']))
                 //{
-                if(request()->has('type_id'))
-                {
-                    $superAdmin = Admin::role('employee')->where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+                if (request()->has('type_id')) {
+                    $superAdmin = Admin::role('employee')->where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                         $query->where('name', 'restaurantManager');
-                    })->whereRestaurantId($admin->restaurant_id)->where('type_id',request()->type_id)->get();
-                }
-                else
-                {
-                    $superAdmin = Admin::role('employee')->where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+                    })->whereRestaurantId($admin->restaurant_id)->where('type_id', request()->type_id)->get();
+                } else {
+                    $superAdmin = Admin::role('employee')->where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                         $query->where('name', 'restaurantManager');
-                    })->whereRestaurantId($admin->restaurant_id)->where('type_id','>', 2)->get();
+                    })->whereRestaurantId($admin->restaurant_id)->where('type_id', '>', 2)->get();
                 }
-                    foreach ($superAdmin as $employee) {
-                        $responseTimes = [];
-                            $date1 = \Carbon\Carbon::createFromFormat('Y-m-d', request()->startDate);
-                            $date2 = \Carbon\Carbon::createFromFormat('Y-m-d', request()->endDate);
-                            $diffInDays = $date1->diffInDays($date2);
+                foreach ($superAdmin as $employee) {
+                    $responseTimes = [];
+                    $date1 = \Carbon\Carbon::createFromFormat('Y-m-d', request()->startDate);
+                    $date2 = \Carbon\Carbon::createFromFormat('Y-m-d', request()->endDate);
+                    $diffInDays = $date1->diffInDays($date2);
 
-                            for ($i = 0; $i <= $diffInDays; $i++) {
-                                $day = $date1->format('Y-m-d');
-                                $date1->addDay();
+                    for ($i = 0; $i <= $diffInDays; $i++) {
+                        $day = $date1->format('Y-m-d');
+                        $date1->addDay();
 
-                                $totalSeconds = 0;
-                                $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
-                                for($j=0;$j< count($num);$j++)
-                                {
-                                    $firstElement = $num->get($j);
-                                    $time = $firstElement->order_time;
-                                    list($hours, $minutes, $seconds) = explode(':', $time);
-                                    $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
-                                }
+                        $totalSeconds = 0;
+                        $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
+                        for ($j = 0; $j < count($num); $j++) {
+                            $firstElement = $num->get($j);
+                            $time = $firstElement->order_time;
+                            list($hours, $minutes, $seconds) = explode(':', $time);
+                            $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
+                        }
 
-                                $n = count($num) == 0 ? 1:count($num);
-                                $total = $totalSeconds/$n;
-                                $hours = floor($total / 3600);
-                                $minutes = floor(($total % 3600) / 60);
-                                $seconds = $total % 60;
-                                $avg = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+                        $n = count($num) == 0 ? 1 : count($num);
+                        $total = $totalSeconds / $n;
+                        $hours = floor($total / 3600);
+                        $minutes = floor(($total % 3600) / 60);
+                        $seconds = $total % 60;
+                        $avg = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 
-                                $responseTimes[] = [
-                                    'date' => $day,
-                                    'number' => count($num),
-                                    'average_response_time' => $avg
-                                ];
-                            }
-
-                        $responseData[] = [
-                            'name' => $employee->name,
-                            'user_name' => $employee->user_name,
-                            'mobile' => $employee->mobile,
-                            'response_times' => $responseTimes
+                        $responseTimes[] = [
+                            'date' => $day,
+                            'number' => count($num),
+                            'average_response_time' => $avg
                         ];
                     }
-                    return $this->successResponse($responseData,trans('locale.foundSuccessfully'),200);
+
+                    $responseData[] = [
+                        'name' => $employee->name,
+                        'user_name' => $employee->user_name,
+                        'mobile' => $employee->mobile,
+                        'response_times' => $responseTimes
+                    ];
+                }
+                return $this->successResponse($responseData, trans('locale.foundSuccessfully'), 200);
                 //}
                 // $superAdmin = Admin::role('employee')->where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
                 //     $query->where('name', 'restaurantManager');
@@ -419,23 +408,17 @@ class UserController extends Controller
                 //         'response_times' => $responseTimes
                 //     ];
                 // }
-            }
-            else
-            {
+            } else {
                 $responseData = [];
-                if($admin->hasRole(['admin']))
-                {
-                    if(request()->has('type_id'))
-                    {
-                        $superAdmin = Admin::where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+                if ($admin->hasRole(['admin'])) {
+                    if (request()->has('type_id')) {
+                        $superAdmin = Admin::where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                             $query->where('name', 'restaurantManager');
-                        })->whereRestaurantId($admin->restaurant_id)->where('type_id',request()->type_id)->get();
-                    }
-                    else
-                    {
-                        $superAdmin = Admin::where('id','!=',$admin->id)->whereDoesntHave('roles', function($query) {
+                        })->whereRestaurantId($admin->restaurant_id)->where('type_id', request()->type_id)->get();
+                    } else {
+                        $superAdmin = Admin::where('id', '!=', $admin->id)->whereDoesntHave('roles', function ($query) {
                             $query->where('name', 'restaurantManager');
-                        })->whereRestaurantId($admin->restaurant_id)->where('type_id','>', 2)->get();
+                        })->whereRestaurantId($admin->restaurant_id)->where('type_id', '>', 2)->get();
                     }
                     foreach ($superAdmin as $employee) {
                         $responseTimes = [];
@@ -444,16 +427,15 @@ class UserController extends Controller
 
                             $totalSeconds = 0;
                             $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
-                            for($j=0;$j< count($num);$j++)
-                            {
+                            for ($j = 0; $j < count($num); $j++) {
                                 $firstElement = $num->get($j);
                                 $time = $firstElement->order_time;
                                 list($hours, $minutes, $seconds) = explode(':', $time);
                                 $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
                             }
 
-                            $n = count($num) == 0 ? 1:count($num);
-                            $total = $totalSeconds/$n;
+                            $n = count($num) == 0 ? 1 : count($num);
+                            $total = $totalSeconds / $n;
                             $hours = floor($total / 3600);
                             $minutes = floor(($total % 3600) / 60);
                             $seconds = $total % 60;
@@ -473,16 +455,13 @@ class UserController extends Controller
                             'response_times' => $responseTimes
                         ];
                     }
-                    return $this->successResponse($responseData,trans('locale.foundSuccessfully'),200);
+                    return $this->successResponse($responseData, trans('locale.foundSuccessfully'), 200);
                 }
 
-                if(request()->has('type_id'))
-                {
-                    $superAdmin = Admin::where('id','!=',$admin->id)->whereRestaurantId($admin->restaurant_id)->where('type_id',request()->type_id)->get();
-                }
-                else
-                {
-                    $superAdmin = Admin::where('id','!=',$admin->id)->whereRestaurantId($admin->restaurant_id)->where('type_id','>', 2)->get();
+                if (request()->has('type_id')) {
+                    $superAdmin = Admin::where('id', '!=', $admin->id)->whereRestaurantId($admin->restaurant_id)->where('type_id', request()->type_id)->get();
+                } else {
+                    $superAdmin = Admin::where('id', '!=', $admin->id)->whereRestaurantId($admin->restaurant_id)->where('type_id', '>', 2)->get();
                 }
                 foreach ($superAdmin as $employee) {
                     $responseTimes = [];
@@ -491,16 +470,15 @@ class UserController extends Controller
 
                         $totalSeconds = 0;
                         $num = EmployeeTable::whereAdminId($employee->id)->whereDate('created_at', $day)->get();
-                        for($j=0;$j< count($num);$j++)
-                        {
+                        for ($j = 0; $j < count($num); $j++) {
                             $firstElement = $num->get($j);
                             $time = $firstElement->order_time;
                             list($hours, $minutes, $seconds) = explode(':', $time);
                             $totalSeconds += ($hours * 3600) + ($minutes * 60) + $seconds;
                         }
 
-                        $n = count($num) == 0 ? 1:count($num);
-                        $total = $totalSeconds/$n;
+                        $n = count($num) == 0 ? 1 : count($num);
+                        $total = $totalSeconds / $n;
                         $hours = floor($total / 3600);
                         $minutes = floor(($total % 3600) / 60);
                         $seconds = $total % 60;
@@ -520,9 +498,9 @@ class UserController extends Controller
                         'response_times' => $responseTimes
                     ];
                 }
-                return $this->successResponse($responseData,trans('locale.foundSuccessfully'),200);
+                return $this->successResponse($responseData, trans('locale.foundSuccessfully'), 200);
             }
-        } catch(Throwable $th){
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -532,6 +510,6 @@ class UserController extends Controller
     {
         $admin = auth()->user();
         $waiters = Admin::whereRestaurantId($admin->restaurant_id)->role('employee')->whereTypeId(5)->get();
-        return $this->successResponse($waiters,trans('locale.foundSuccessfully'),200);
+        return $this->successResponse($waiters, trans('locale.foundSuccessfully'), 200);
     }
 }
