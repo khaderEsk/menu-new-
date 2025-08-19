@@ -379,7 +379,7 @@ class OrderController extends Controller
                     })->whereIn('status', [0, 1, 2, 5, 6])->latest()->get();
                     $data = InvoiceUserResource::collection($orders);
                     $userTypeId = auth()->user()->type_id;
-                    event(new NewOrder($data, $userTypeId));
+                    // event(new NewOrder($data, $userTypeId));
                     return $this->messageSuccessResponse(trans('locale.created'), 200);
                 }
                 // $token = PersonalAccessToken::findToken($request->bearerToken());
