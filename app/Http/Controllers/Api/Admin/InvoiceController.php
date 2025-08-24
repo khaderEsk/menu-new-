@@ -129,7 +129,7 @@ class InvoiceController extends Controller
     {
         try {
             $admin = auth()->user();
-            $invoice = $this->invoiceService->show($admin->restaurant_id, $request->validated());
+            $invoice = $this->invoiceService->show($request->id, $admin->restaurant_id);
             $data = InvoiceResources::make($invoice);
             return $this->SuccessResponse($data, trans('locale.foundSuccessfully'), 200);
         } catch (Throwable $th) {

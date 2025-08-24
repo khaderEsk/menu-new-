@@ -68,6 +68,7 @@ class AdminController extends Controller
             // The service now handles all data processing and file uploads.
             $updatedRestaurant = $this->adminService->updateRestaurant($restaurant, $request);
 
+            Log::info($updatedRestaurant);
             // 3. Check if the service method failed.
             if (!$updatedRestaurant) {
                 return $this->messageErrorResponse(trans('locale.invalidItem'), 422); // 422 is often better for a failed update.
