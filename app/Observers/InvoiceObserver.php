@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Services\FirebaseService;
 use App\Services\OsrmService;
 use Carbon\Carbon;
+use FFI;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
@@ -174,7 +175,7 @@ class InvoiceObserver
                 $orderInvoice->distance_km = isset($routeData['distance']) ? round($routeData['distance'] / 1000, 2) : null;
             }
         });
-
+        // dd($invoice->user_id);
         // 3. Dispatch the event with the now-corrected data.
         event(new NewOrder($userOrders, $invoice->user->type_id ?? 0));
     }
@@ -191,7 +192,7 @@ class InvoiceObserver
                 ->where('delivery_id', $invoice->delivery_id)
                 ->get();
 
-            event(new OrderUpdated(InvoiceUserMobileResource::collection($deliveryInvoices)));
+            event(new OrderUpdated($deliveryInvoices));
         }
     }
 }

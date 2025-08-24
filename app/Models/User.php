@@ -22,7 +22,7 @@ class User extends Authenticatable implements HasMedia
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-     * 
+     *
      */
     protected $fillable = [
         'name',
@@ -68,7 +68,7 @@ class User extends Authenticatable implements HasMedia
 
     public function invoices(): HasMany
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class , 'delivery_id');
     }
 
     public function addresses(): HasMany

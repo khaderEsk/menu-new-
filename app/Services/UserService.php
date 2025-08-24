@@ -11,35 +11,39 @@ use Spatie\Permission\Models\Role;
 class UserService
 {
     // to show all user active
-    public function all($id,$admin_id)
+    public function all($id, $admin_id)
     {
-        $users = Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->with('permissions')->with('roles')->latest()->get();
+        $users = Admin::where('id', '!=', $admin_id)
+        ->whereRestaurantId($id)
+        ->with('permissions')
+        ->with('roles')
+        ->latest()
+        ->get();
         return $users;
-
     }
 
     // to show paginate  active
-    public function paginate($num,$id,$admin_id)
+    public function paginate($num, $id, $admin_id)
     {
-        $admins = Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->latest()->paginate($num);
+        $admins = Admin::where('id', '!=', $admin_id)->whereRestaurantId($id)->latest()->paginate($num);
         return $admins;
     }
 
-    public function searchRole($id,$role,$where,$num,$admin_id)
+    public function searchRole($id, $role, $where, $num, $admin_id)
     {
-        $admin=Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->role($role)->where($where)->latest()->paginate($num);
+        $admin = Admin::where('id', '!=', $admin_id)->whereRestaurantId($id)->role($role)->where($where)->latest()->paginate($num);
         return $admin;
     }
 
-      // to show paginate  admin
-      public function paginateRole($id,$num,$role,$admin_id)
-      {
-          $admin = Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->role($role)->latest()->paginate($num);
-          return $admin;
-      }
+    // to show paginate  admin
+    public function paginateRole($id, $num, $role, $admin_id)
+    {
+        $admin = Admin::where('id', '!=', $admin_id)->whereRestaurantId($id)->role($role)->latest()->paginate($num);
+        return $admin;
+    }
 
     // to create
-    public function create($data,$id)
+    public function create($data, $id)
     {
         $rolesTranslations = trans('roles');
         $roleKey = array_search($data['role'], $rolesTranslations);
@@ -49,43 +53,32 @@ class UserService
         $role = Role::where('name', $roleKey)->first();
 
         $data['restaurant_id'] = $id;
-        if(!request()->has('type_id'))
+        if (!request()->has('type_id'))
             $data['type_id'] = 1;
         $admin = Admin::create($data);
-        if ($role->name === "admin")
-        {
+        if ($role->name === "admin") {
             $admin->assignRole($role);
-            $admin->givePermissionTo('category.index','category.add','category.update','category.active','category.delete','reorder','item.index','item.add','item.update','item.active','item.delete','update_restaurant_admin','order.index','order.add','order.update','order.delete','user.index','user.add','user.update','user.delete','user.active','advertisement.index','advertisement.add','advertisement.update','advertisement.delete','news.index','news.add','news.update','news.delete','rate.index','excel','notifications.index','table.index','table.add','table.update','table.delete','service.index','service.add','service.update','service.delete','delivery.index','delivery.add','delivery.update','delivery.active','delivery.delete','coupon.index','coupon.add','coupon.update','coupon.delete','coupon.active');
+            $admin->givePermissionTo('category.index', 'category.add', 'category.update', 'category.active', 'category.delete', 'reorder', 'item.index', 'item.add', 'item.update', 'item.active', 'item.delete', 'update_restaurant_admin', 'order.index', 'order.add', 'order.update', 'order.delete', 'user.index', 'user.add', 'user.update', 'user.delete', 'user.active', 'advertisement.index', 'advertisement.add', 'advertisement.update', 'advertisement.delete', 'news.index', 'news.add', 'news.update', 'news.delete', 'rate.index', 'excel', 'notifications.index', 'table.index', 'table.add', 'table.update', 'table.delete', 'service.index', 'service.add', 'service.update', 'service.delete', 'delivery.index', 'delivery.add', 'delivery.update', 'delivery.active', 'delivery.delete', 'coupon.index', 'coupon.add', 'coupon.update', 'coupon.delete', 'coupon.active');
         }
 
-        if ($role->name === "employee")
-        {
-            if($data['type_id'] == 3)
-            {
+        if ($role->name === "employee") {
+            if ($data['type_id'] == 3) {
                 $admin->assignRole($role);
-                $admin->givePermissionTo('order.index','order.add','order.update','order.delete','table.index','table.add','table.update','table.delete','service.index','service.add','service.update','service.delete','delivery.index','delivery.add','delivery.update','delivery.active','delivery.delete','coupon.index','coupon.add','coupon.update','coupon.delete','coupon.active');
-            }
-            elseif($data['type_id'] == 4)
-            {
+                $admin->givePermissionTo('order.index', 'order.add', 'order.update', 'order.delete', 'table.index', 'table.add', 'table.update', 'table.delete', 'service.index', 'service.add', 'service.update', 'service.delete', 'delivery.index', 'delivery.add', 'delivery.update', 'delivery.active', 'delivery.delete', 'coupon.index', 'coupon.add', 'coupon.update', 'coupon.delete', 'coupon.active');
+            } elseif ($data['type_id'] == 4) {
                 $admin->assignRole($role);
-                $admin->givePermissionTo('category.index','item.index','order.index','order.add','order.update','order.delete','notifications.index','table.index','service.index','service.add','service.update','service.delete');
+                $admin->givePermissionTo('category.index', 'item.index', 'order.index', 'order.add', 'order.update', 'order.delete', 'notifications.index', 'table.index', 'service.index', 'service.add', 'service.update', 'service.delete');
                 $data['category'] = array_map('intval', $data['category']);
                 $admin->categories()->sync($data['category']);
-            }
-            elseif($data['type_id'] == 5)
-            {
+            } elseif ($data['type_id'] == 5) {
                 $admin->assignRole($role);
-                $admin->givePermissionTo('category.index','item.index','order.index','order.add','order.update','order.delete','notifications.index','table.index','service.index','service.add','service.update','service.delete');
-            }
-            elseif($data['type_id'] == 6)
-            {
+                $admin->givePermissionTo('category.index', 'item.index', 'order.index', 'order.add', 'order.update', 'order.delete', 'notifications.index', 'table.index', 'service.index', 'service.add', 'service.update', 'service.delete');
+            } elseif ($data['type_id'] == 6) {
                 $admin->assignRole($role);
-                $admin->givePermissionTo('category.index','item.index','order.index','notifications.index','table.index','service.index','service.add','service.update','service.delete');
-            }
-            elseif($data['type_id'] == 8)
-            {
+                $admin->givePermissionTo('category.index', 'item.index', 'order.index', 'notifications.index', 'table.index', 'service.index', 'service.add', 'service.update', 'service.delete');
+            } elseif ($data['type_id'] == 8) {
                 $admin->assignRole($role);
-                $admin->givePermissionTo('category.index','item.index','order.index','order.add','order.update','order.delete','notifications.index','table.index','service.index','service.add','service.update','service.delete');
+                $admin->givePermissionTo('category.index', 'item.index', 'order.index', 'order.add', 'order.update', 'order.delete', 'notifications.index', 'table.index', 'service.index', 'service.add', 'service.update', 'service.delete');
                 $data['category'] = array_map('intval', $data['category']);
                 $admin->categories()->sync($data['category']);
             }
@@ -117,12 +110,11 @@ class UserService
     }
 
     // to update user
-    public function update($admin,$data,$arrRole,$admin_id)
+    public function update($admin, $data, $arrRole, $admin_id)
     {
-        if(\array_key_exists('password',$data))
-        {
-            if(is_null($data['password']))
-                $data = Arr::only($data, ['id','name','user_name','mobile','type']);
+        if (\array_key_exists('password', $data)) {
+            if (is_null($data['password']))
+                $data = Arr::only($data, ['id', 'name', 'user_name', 'mobile', 'type']);
             else
                 $data['password'] = Hash::make($data['password']);
         }
@@ -134,11 +126,10 @@ class UserService
         }
         $role = Role::where('name', $roleKey)->first();
         $data['restaurant_id'] = $admin->restaurant_id;
-        $user = Admin::where('id','!=',$admin_id)->whereRestaurantId($admin->restaurant_id)->whereId($data['id'])->update($data);
+        $user = Admin::where('id', '!=', $admin_id)->whereRestaurantId($admin->restaurant_id)->whereId($data['id'])->update($data);
         $admin =  Admin::findOrFail($data['id']);
         // $admin->removeRole($role);
-        if(\array_key_exists('permission',$arrRole) && \array_key_exists('role',$arrRole))
-        {
+        if (\array_key_exists('permission', $arrRole) && \array_key_exists('role', $arrRole)) {
             $permissions = $admin->permissions;
             $admin->revokePermissionTo($permissions);
             $admin->syncRoles($role->name);
@@ -146,40 +137,38 @@ class UserService
 
 
         // $admin->assignRole($role);
-    // if ($role) {
-    // }
+        // if ($role) {
+        // }
 
-        if ($role->name === "admin")
-        {
+        if ($role->name === "admin") {
             $admin->assignRole($role);
-            $admin->givePermissionTo('category.index','category.add','category.update','category.active','category.delete','reorder','item.index','item.add','item.update','item.active','item.delete','update_restaurant_admin','order.index','order.add','order.update','order.delete','user.index','user.add','user.update','user.delete','user.active','advertisement.index','advertisement.add','advertisement.update','advertisement.delete','news.index','news.add','news.update','news.delete','rate.index','excel','notifications.index','table.index','table.add','table.update','table.delete','service.index','service.add','service.update','service.delete','delivery.index','delivery.add','delivery.update','delivery.active','delivery.delete','coupon.index','coupon.add','coupon.update','coupon.delete','coupon.active');
+            $admin->givePermissionTo('category.index', 'category.add', 'category.update', 'category.active', 'category.delete', 'reorder', 'item.index', 'item.add', 'item.update', 'item.active', 'item.delete', 'update_restaurant_admin', 'order.index', 'order.add', 'order.update', 'order.delete', 'user.index', 'user.add', 'user.update', 'user.delete', 'user.active', 'advertisement.index', 'advertisement.add', 'advertisement.update', 'advertisement.delete', 'news.index', 'news.add', 'news.update', 'news.delete', 'rate.index', 'excel', 'notifications.index', 'table.index', 'table.add', 'table.update', 'table.delete', 'service.index', 'service.add', 'service.update', 'service.delete', 'delivery.index', 'delivery.add', 'delivery.update', 'delivery.active', 'delivery.delete', 'coupon.index', 'coupon.add', 'coupon.update', 'coupon.delete', 'coupon.active');
             return 1;
         }
 
         // if ($role) {
         //     $admin->assignRole($role);
         // }
-// // **********************************************************
-//             $data['restaurant_id'] = $admin->restaurant_id;
-//             $user = Admin::where('id','!=',$admin_id)->whereRestaurantId($admin->restaurant_id)->whereId($data['id'])->update($data);
-//             $admin =  Admin::findOrFail($data['id']);
+        // // **********************************************************
+        //             $data['restaurant_id'] = $admin->restaurant_id;
+        //             $user = Admin::where('id','!=',$admin_id)->whereRestaurantId($admin->restaurant_id)->whereId($data['id'])->update($data);
+        //             $admin =  Admin::findOrFail($data['id']);
 
-//             $permissions = $admin->permissions;
-//             $admin->revokePermissionTo($permissions);
+        //             $permissions = $admin->permissions;
+        //             $admin->revokePermissionTo($permissions);
 
-//             $rolesTranslations = trans('roles');
+        //             $rolesTranslations = trans('roles');
 
-//             $roleKey = array_search($arrRole['role'], $rolesTranslations);
+        //             $roleKey = array_search($arrRole['role'], $rolesTranslations);
 
-//             $role = Role::where('name', $roleKey)->first();
+        //             $role = Role::where('name', $roleKey)->first();
 
-//         if ($role) {
-//             $admin->removeRole($role);
-//             $admin->assignRole($role);
-//         }
+        //         if ($role) {
+        //             $admin->removeRole($role);
+        //             $admin->assignRole($role);
+        //         }
 
-        if(\array_key_exists('permission',$arrRole) && \array_key_exists('role',$arrRole))
-        {
+        if (\array_key_exists('permission', $arrRole) && \array_key_exists('role', $arrRole)) {
             if (!empty($arrRole['permission'])) {
                 foreach ($arrRole['permission'] as $permission) {
                     $permissionsTranslations = trans('permissions');
@@ -205,40 +194,35 @@ class UserService
 
 
     // to show a user
-    public function show($id,$data,$admin_id)
+    public function show($id, $data, $admin_id)
     {
-        $user = Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->findOrFail($data['id']);
+        $user = Admin::where('id', '!=', $admin_id)->whereRestaurantId($id)->findOrFail($data['id']);
         return $user;
     }
 
     // to delete a user
-    public function destroy($data,$restaurant_id)
+    public function destroy($data, $restaurant_id)
     {
         return Admin::whereRestaurantId($restaurant_id)->whereId($data['id'])->forceDelete();
     }
 
-    public function search($id,$num,$where,$admin_id)
+    public function search($id, $num, $where, $admin_id)
     {
-        $user=Admin::where('id','!=',$admin_id)->whereRestaurantId($id)->where($where)->latest()->paginate($num);
+        $user = Admin::where('id', '!=', $admin_id)->whereRestaurantId($id)->where($where)->latest()->paginate($num);
         return $user;
-
     }
 
     public function activeOrDesactive($data)
     {
-        if($data['is_active'] == 1)
-        {
+        if ($data['is_active'] == 1) {
             $admin = Admin::whereId($data['id'])->update([
                 'is_active' => 0,
             ]);
-        }
-        else
-        {
-             $admin = Admin::whereId($data['id'])->update([
+        } else {
+            $admin = Admin::whereId($data['id'])->update([
                 'is_active' => 1,
             ]);
         }
         return $admin;
     }
-
 }

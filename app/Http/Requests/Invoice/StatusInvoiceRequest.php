@@ -54,6 +54,7 @@ class StatusInvoiceRequest extends FormRequest
         $rules = [
             // The 'status' must be a valid string defined in our Enum.
             'status' => ['required', 'string', new IsValidInvoiceStatus],
+            'delivery_id' => ['nullable'],
         ];
 
         // Dynamically set the validation rule for the 'id' field based on the user's role.

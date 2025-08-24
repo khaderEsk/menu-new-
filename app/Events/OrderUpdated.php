@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class OrderUpdated implements ShouldBroadcast
 {
@@ -35,18 +36,19 @@ class OrderUpdated implements ShouldBroadcast
         }
         $firstTable = $this->orders->first();
 
-        if( $firstTable->status == 'Ordered')
-            $status = "processing";
+        // if ($firstTable->status == 'Ordered')
+        //     $status = "processing";
 
-        elseif($firstTable->status == 'Under delivery')
-            $status = "under_delivery";
+        // elseif ($firstTable->status == 'Under delivery')
+        //     $status = "under_delivery";
 
-        elseif($firstTable->status == 'Paid' || $firstTable->status == 'Received')
-            $status = "accepted";
-        else
-            $status = $firstTable->status;
-
+        // elseif ($firstTable->status == 'Paid' || $firstTable->status == 'Received')
+        //     $status = "accepted";
+        // else
+        $status = $firstTable->status->value;
+        Log::info(['status111' => $status]);
         $channelName = 'all-orders.' . $status . '.' . $firstTable->delivery_id;
+
         return new Channel($channelName);
     }
 

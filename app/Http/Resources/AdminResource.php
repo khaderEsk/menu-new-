@@ -89,7 +89,7 @@ class AdminResource extends JsonResource
         if ($this->type_id > 2) {
             $n = count($num);
         } else {
-            $n = "ــ";
+            $n = 0;
             $avg = "ــ";
         }
 
@@ -112,10 +112,10 @@ class AdminResource extends JsonResource
             'fcm_token' => $this->fcm_token,
             'roles' => $rolesString,
             'permissions' => $permissions,
-            'category' => $this->categories,
+            // 'category' => $this->categories,
             // 'roles' => $this->roles->pluck('name'),
             // 'permissions' => $this->permissions->pluck('name'),
-            'restaurant' => RestaurantResource::make($this->whenLoaded('restaurant')),
+            // 'restaurant' => RestaurantResource::make($this->whenLoaded('restaurant')),
             'email' => $this->email
         ];
         return $data;

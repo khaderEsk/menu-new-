@@ -23,16 +23,17 @@ class ShowAllRequest extends FormRequest
     {
         return [
             'type_id' => ['nullable'],
-            'active' => ['nullable','in:0,1'],
+            'active' => ['nullable', 'in:0,1'],
             'search' => ['nullable'],
             'per_page' => ['nullable'],
-            'role' => ['nullable'],
-            'startDate' => ['nullable','date', function ($attribute, $value, $fail) {
+            // 'role' => ['nullable'],
+            'type_id' => ['nullable', 'integer', 'exists:types,id'],
+            'startDate' => ['nullable', 'date', function ($attribute, $value, $fail) {
                 if (request('endDate') && $value >= request('endDate')) {
                     $fail('The startDate must be less than endDate');
                 }
             },],
-            'endDate' => ['nullable','date',function ($attribute, $value, $fail) {
+            'endDate' => ['nullable', 'date', function ($attribute, $value, $fail) {
                 if (request('startDate') && $value <= request('startDate')) {
                     $fail('The endDate must be greater than startDate');
                 }
