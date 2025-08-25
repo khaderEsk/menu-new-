@@ -457,14 +457,14 @@ class UserTakeoutController extends Controller
                     ->where('delivery_id', $request->delivery_id)
                     ->where('status', InvoiceStatus::COMPLETED->value)
                     ->first();
-                dd($invoiceWithDelivery);
-                if ($invoiceWithDelivery->status != 6) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => trans('locale.delivery')
-                    ], 500);
-                }
-                dd("Dsdsd");
+                // dd($invoiceWithDelivery);
+                // if ($invoiceWithDelivery->status != 6) {
+                //     return response()->json([
+                //         'status' => false,
+                //         'message' => trans('locale.delivery')
+                //     ], 500);
+                // }
+                // dd("Dsdsd");
 
                 // if ($invoices) {
                 //     return response()->json([
