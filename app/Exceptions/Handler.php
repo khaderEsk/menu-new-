@@ -66,6 +66,7 @@ class Handler extends ExceptionHandler
     {
         parent::report($exception);
     }
+
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof ExceptionsUnauthorizedException) {
@@ -114,5 +115,4 @@ class Handler extends ExceptionHandler
     {
         return response()->json(['message' => 'Unauthenticated'], 401);
     }
-
 }

@@ -456,7 +456,7 @@ class UserTakeoutController extends Controller
                 $invoice->delivery_id = $request->delivery_id;
             $invoice->save();
             // event(new InvoiceStatusUpdated($invoice));
-
+            Log::info($invoice);
 
             // 3. Update the status of related orders. This is a fast operation.
             $orderStatus = $this->getOrderStatusFromInvoiceStatus($status);

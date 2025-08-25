@@ -396,6 +396,7 @@ class InvoiceService
                 ->whereNull('invoice_id')
                 ->whereDate('created_at', now()->toDateString())
                 ->get();
+
             foreach ($ordersToInvoice as $key) {
                 if ($key->status != 'done') {
                     throw ValidationException::withMessages([
