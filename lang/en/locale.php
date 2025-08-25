@@ -134,6 +134,7 @@ return [
     'notificationNotFound' => 'notifications Not found',
     'UserNotFound' => 'user not Found',
     'requestCompleted' => 'You must wait until the requests are completed.',
-    'invalidTable' => 'The table is reserved.'
+    'invalidTable' => 'The table is reserved.',
+    'delivery' => 'The driver delivers an order that cannot be relied upon.'
 
 ];

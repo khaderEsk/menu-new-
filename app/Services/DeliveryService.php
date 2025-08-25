@@ -81,6 +81,7 @@ class DeliveryService
     {
         $query = User::where('restaurant_id', $restaurant_id)->where('role', 1);
 
+        // 🚀 PERFORMANCE WIN: Eager load all relationships needed by the resource.
         $query->with(['restaurant', 'invoices', 'latestAddress']);
 
         if ($searchTerm) {
