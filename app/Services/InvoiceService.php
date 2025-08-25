@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+// use Illuminate\Validation\ValidationException;
+
+
 class InvoiceService
 {
     public function __construct(private OsrmService $osrmService) {}
@@ -37,6 +40,7 @@ class InvoiceService
     public function create(int $restaurantId, array $data): Invoice
     {
         return DB::transaction(function () use ($restaurantId, $data) {
+
             $data['restaurant_id'] = $restaurantId;
             $maxNum = Invoice::where('restaurant_id', $restaurantId)->max('num');
             $data['num'] = ($maxNum ?? 0) + 1;
@@ -396,21 +400,24 @@ class InvoiceService
                 ->whereNull('invoice_id')
                 ->whereDate('created_at', now()->toDateString())
                 ->get();
-
+            // dd($ordersToInvoice);
             foreach ($ordersToInvoice as $key) {
                 if ($key->status != 'done') {
-                    throw ValidationException::withMessages([
-                        'orders' => trans('locale.requestCompleted'),
-                    ], 500);
+                    abort(422, trans('locale.requestCompleted'), [
+                        'errors' => [
+                            'orders' => [trans('locale.requestCompleted')]
+                        ]
+                    ]);
                 }
             }
+
             $table = Table::find($tableId);
             $table->visited = 0;
             $table->save();
             // 2. ✅ BUSINESS LOGIC: If there are no orders, throw a catchable exception.
             if ($ordersToInvoice->isEmpty()) {
                 throw ValidationException::withMessages([
-                    'orders' => trans('locale.dontHaveOrders'),
+                    'orders' => trans('locale.dontHaveOrder'),
                 ]);
             }
 

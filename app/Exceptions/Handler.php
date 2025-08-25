@@ -95,10 +95,11 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof ValidationException) {
+            Log::info("message");
             return response()->json([
                 'message' => $exception->getMessage(),
                 'errors' => $exception->errors()
-            ], 422);
+            ],$exception->getCode());
         }
 
         // if ($exception instanceof QueryException) {

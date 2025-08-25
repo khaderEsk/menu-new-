@@ -31,6 +31,7 @@ class DeliveryController extends Controller
 
     // Show All deliveries For Admin
     public function showAll(DeliveyShowAllRequest $request): JsonResponse
+    
     {
         try {
             $admin = auth()->user();

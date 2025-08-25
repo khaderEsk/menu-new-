@@ -136,5 +136,6 @@ return [
     'notificationNotFound' => 'الاشعار غير موجود',
     'UserNotFound' => 'المستخدم غير موجود',
     'requestCompleted' => 'يجب الانتظار لحين اكتمال الطلبات',
-    'invalidTable' => '.الطاولة المختارة محجوزة'
+    'invalidTable' => '.الطاولة المختارة محجوزة',
+    'delivery'=> 'السائق يوصل طلب لا يمكن استناد المهم له'
 ];

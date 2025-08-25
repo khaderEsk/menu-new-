@@ -33,7 +33,7 @@ use App\Http\Requests\User\UpdateInfoRequest;
 use App\Http\Resources\InvoiceUserMobileResource;
 use App\Http\Requests\Invoice\StatusInvoiceRequest;
 use App\Http\Requests\Invoice\IdRequest as InvoiceIdRequest;
-
+use CuyZ\Valinor\Mapper\Tree\Message\Message;
 
 class UserTakeoutController extends Controller
 {
@@ -449,11 +449,31 @@ class UserTakeoutController extends Controller
                 ->where('restaurant_id', auth()->user()->restaurant_id)
                 ->firstOrFail();
 
-
+            // 
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
-            if ($request->has('delivery_id'))
+            if ($request->has('delivery_id')) {
+                $invoiceWithDelivery = Invoice::where('restaurant_id', auth()->user()->restaurant_id)
+                    ->where('delivery_id', $request->delivery_id)
+                    ->where('status', InvoiceStatus::COMPLETED->value)
+                    ->first();
+                dd($invoiceWithDelivery);
+                if ($invoiceWithDelivery->status != 6) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => trans('locale.delivery')
+                    ], 500);
+                }
+                dd("Dsdsd");
+
+                // if ($invoices) {
+                //     return response()->json([
+                //         'status' => false,
+                //         'message' => trans('locale.delivery')
+                //     ], 500);
+                // }
                 $invoice->delivery_id = $request->delivery_id;
+            }
             $invoice->save();
             // event(new InvoiceStatusUpdated($invoice));
 

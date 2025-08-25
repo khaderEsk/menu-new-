@@ -81,8 +81,10 @@ class DeliveryService
     {
         $query = User::where('restaurant_id', $restaurant_id)->where('role', 1);
 
-        $query->with(['restaurant', 'invoices', 'latestAddress']);
-
+        $query->with(['restaurant', 'latestAddress']);
+        $query->with('invoices', function ($q) {
+            $q->whereNot('status', 6);
+        });
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
