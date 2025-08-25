@@ -85,6 +85,7 @@ class DeliveryService
         $query->with('invoices', function ($q) {
             $q->whereNot('status', 6);
         });
+        
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
