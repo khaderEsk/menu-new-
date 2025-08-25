@@ -11,6 +11,7 @@ enum InvoiceStatus: int
     case UNDER_DELIVERY = 5;
     case COMPLETED = 6;
 
+    
     /**
      * This is the "state machine" logic.
      * It defines all valid transitions from one status to another.

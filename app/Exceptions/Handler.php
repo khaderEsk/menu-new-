@@ -100,7 +100,7 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'message' => $exception->getMessage(),
                 'errors' => $exception->errors()
-            ],$exception->getCode());
+            ], 422);
         }
 
         // if ($exception instanceof QueryException) {

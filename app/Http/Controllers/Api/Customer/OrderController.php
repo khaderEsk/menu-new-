@@ -383,7 +383,7 @@ class OrderController extends Controller
                     return $this->messageSuccessResponse(trans('locale.created'), 200);
                 }
                 // $token = PersonalAccessToken::findToken($request->bearerToken());
-                
+
                 // $aa = $data['data'][0];
                 else {
                     $sum = 0;

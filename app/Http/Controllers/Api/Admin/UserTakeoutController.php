@@ -449,7 +449,7 @@ class UserTakeoutController extends Controller
                 ->where('restaurant_id', auth()->user()->restaurant_id)
                 ->firstOrFail();
 
-            // 
+            //
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
             if ($request->has('delivery_id')) {
@@ -457,14 +457,13 @@ class UserTakeoutController extends Controller
                     ->where('delivery_id', $request->delivery_id)
                     ->where('status', InvoiceStatus::COMPLETED->value)
                     ->first();
-                dd($invoiceWithDelivery);
-                if ($invoiceWithDelivery->status != 6) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => trans('locale.delivery')
-                    ], 500);
-                }
-                dd("Dsdsd");
+
+                // if ($invoiceWithDelivery->status != 6) {
+                //     return response()->json([
+                //         'status' => false,
+                //         'message' => trans('locale.delivery')
+                //     ], 500);
+                // }
 
                 // if ($invoices) {
                 //     return response()->json([
