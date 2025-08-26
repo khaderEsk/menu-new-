@@ -29,7 +29,7 @@ class UpdateRequest extends FormRequest
             'user_name' => ['required_without:id','filled',Rule::unique('admins','user_name')->ignore($this->id,'id')->whereNull('deleted_at')],
             'password' => ['nullable','filled','min:8','max:25'],
             'mobile' => ['required_without:id','regex:/^\+?[0-9]{10,15}$/',Rule::unique('admins','mobile')->ignore($this->id,'id')],
-            'role' => ['required'],
+            'role' => ['nullable'],
             'type_id' => ['nullable'],
             'permission' => ['nullable'],
             // 'permission' => ['required_unless:role,أدمن,admin'],
