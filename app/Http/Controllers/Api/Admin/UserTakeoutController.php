@@ -490,7 +490,6 @@ class UserTakeoutController extends Controller
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());
         }
     }
-
     /**
      * A simple helper to map InvoiceStatus to Order status.
      */
