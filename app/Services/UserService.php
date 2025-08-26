@@ -118,33 +118,33 @@ class UserService
             else
                 $data['password'] = Hash::make($data['password']);
         }
-        $rolesTranslations = trans('roles');
+        // $rolesTranslations = trans('roles');
 
-        $roleKey = array_search($arrRole['role'], $rolesTranslations);
-        if (!$roleKey) {
-            return "the role is incorrect";
-        }
-        $role = Role::where('name', $roleKey)->first();
+        // $roleKey = array_search($arrRole['role'], $rolesTranslations);
+        // if (!$roleKey) {
+        //     return "the role is incorrect";
+        // }
+        // $role = Role::where('name', $roleKey)->first();
         $data['restaurant_id'] = $admin->restaurant_id;
         $user = Admin::where('id', '!=', $admin_id)->whereRestaurantId($admin->restaurant_id)->whereId($data['id'])->update($data);
         $admin =  Admin::findOrFail($data['id']);
         // $admin->removeRole($role);
-        if (\array_key_exists('permission', $arrRole) && \array_key_exists('role', $arrRole)) {
-            $permissions = $admin->permissions;
-            $admin->revokePermissionTo($permissions);
-            $admin->syncRoles($role->name);
-        }
+        // if (\array_key_exists('permission', $arrRole) && \array_key_exists('role', $arrRole)) {
+        //     $permissions = $admin->permissions;
+        //     $admin->revokePermissionTo($permissions);
+        //     // $admin->syncRoles($role->name);
+        // }
 
 
         // $admin->assignRole($role);
         // if ($role) {
         // }
 
-        if ($role->name === "admin") {
-            $admin->assignRole($role);
-            $admin->givePermissionTo('category.index', 'category.add', 'category.update', 'category.active', 'category.delete', 'reorder', 'item.index', 'item.add', 'item.update', 'item.active', 'item.delete', 'update_restaurant_admin', 'order.index', 'order.add', 'order.update', 'order.delete', 'user.index', 'user.add', 'user.update', 'user.delete', 'user.active', 'advertisement.index', 'advertisement.add', 'advertisement.update', 'advertisement.delete', 'news.index', 'news.add', 'news.update', 'news.delete', 'rate.index', 'excel', 'notifications.index', 'table.index', 'table.add', 'table.update', 'table.delete', 'service.index', 'service.add', 'service.update', 'service.delete', 'delivery.index', 'delivery.add', 'delivery.update', 'delivery.active', 'delivery.delete', 'coupon.index', 'coupon.add', 'coupon.update', 'coupon.delete', 'coupon.active');
-            return 1;
-        }
+        // if ($role->name === "admin") {
+        //     $admin->assignRole($role);
+        //     $admin->givePermissionTo('category.index', 'category.add', 'category.update', 'category.active', 'category.delete', 'reorder', 'item.index', 'item.add', 'item.update', 'item.active', 'item.delete', 'update_restaurant_admin', 'order.index', 'order.add', 'order.update', 'order.delete', 'user.index', 'user.add', 'user.update', 'user.delete', 'user.active', 'advertisement.index', 'advertisement.add', 'advertisement.update', 'advertisement.delete', 'news.index', 'news.add', 'news.update', 'news.delete', 'rate.index', 'excel', 'notifications.index', 'table.index', 'table.add', 'table.update', 'table.delete', 'service.index', 'service.add', 'service.update', 'service.delete', 'delivery.index', 'delivery.add', 'delivery.update', 'delivery.active', 'delivery.delete', 'coupon.index', 'coupon.add', 'coupon.update', 'coupon.delete', 'coupon.active');
+        //     return 1;
+        // }
 
         // if ($role) {
         //     $admin->assignRole($role);

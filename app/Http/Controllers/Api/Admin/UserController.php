@@ -119,7 +119,7 @@ class UserController extends Controller
                 $request->validated(),
                 ['role', 'permission']
             );
-
+            // return $arrRole;
             $arrAdmin = Arr::only(
                 $request->validated(),
                 ['id', 'name', 'password', 'user_name', 'mobile', 'type_id']
