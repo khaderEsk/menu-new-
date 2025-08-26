@@ -452,6 +452,7 @@ class UserTakeoutController extends Controller
             //
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
+            $invoice->admin_id = auth()->id();
             if ($request->has('delivery_id')) {
                 $invoiceWithDelivery = Invoice::where('restaurant_id', auth()->user()->restaurant_id)
                     ->where('delivery_id', $request->delivery_id)
