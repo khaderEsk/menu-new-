@@ -26,6 +26,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PaymentMethodController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -233,3 +234,9 @@ Route::group(['middleware' => ['checkEndDate', 'version', 'auth:sanctum', 'activ
 });
 
 Route::post('/update-location', [LocationController::class, 'updateLocation']);
+
+Route::get('faild_jobs' , function(){
+    return response()->json([
+        'faild_jobs' => DB::table('failed_jobs')->get()
+    ]);
+});

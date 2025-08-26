@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Laravel Reverb Test</title>
 </head>
+
 <body>
     <h1>🛰️ Listening for OrderShipped...</h1>
     <div id="output"></div>
@@ -28,7 +30,6 @@
             disableStats: true,
             enabledTransports: ['ws', 'wss']
         });
-
         // الاستماع للقناة الخاصة
         // window.Echo.private('orders.1')
         //     .listen('OrderShipped', (e) => {
@@ -41,21 +42,21 @@
         //     console.log('📦 Public order shipped:', e);
         // });
 
-        // window.Echo.channel('message')
-        // .listen('TableUpdatedEvent', (e) => {
-        //     console.log('📦 Public order shipped:', e);
-        // });
+        window.Echo.channel('message')
+        .listen('TableUpdatedEvent', (e) => {
+            console.log('📦 Public order shipped:', e);
+        });
 
         // window.Echo.channel('locationUpdated')
         // .listen('LocationUpdated', (e) => {
         //     console.log('📦 Public order shipped:', e);
         // });
 
-        window.Echo.channel('restaurant46')
-        .listen('TableUpdatedEvent', (e) => {
-            console.log('📦 Public order shipped:', e);
-        });
-
+        // window.Echo.channel('restaurant46')
+        //     .listen('TestEvent', (e) => {
+        //         console.log('📦 TestEvent received:', e);
+        //     });
     </script>
 </body>
+
 </html>

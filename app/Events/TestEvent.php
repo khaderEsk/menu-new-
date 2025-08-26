@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use GPBMetadata\Google\Api\Log;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -9,33 +10,34 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use PgSql\Lob;
 
-class LocationUpdated implements ShouldBroadcast
+class TestEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $latitude;
-    public $longitude;
     /**
      * Create a new event instance.
      */
-    public function __construct($latitude, $longitude)
+    public function __construct()
     {
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
+        //
     }
 
-    public function broadcastOn(): Channel
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
+     */
+    public function broadcastOn()
     {
-        return new Channel('locationUpdated');
-        // return new Channel('LocationUpdated.' . $this->location['invoice_id']);
+        return new Channel('restaurant46');
     }
 
     public function broadcastWith()
     {
         return [
-            'lat' => $this->latitude,
-            'lang' => $this->longitude
+            'data' => 'true'
         ];
     }
 }
