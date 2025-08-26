@@ -449,23 +449,21 @@ class UserTakeoutController extends Controller
                 ->where('restaurant_id', auth()->user()->restaurant_id)
                 ->firstOrFail();
 
-            // 
+            //
             // 2. Update the invoice status. This action will automatically trigger the queued observer.
             $invoice->status = $status->value;
-            $invoice->admin_id = auth()->id();
             if ($request->has('delivery_id')) {
                 $invoiceWithDelivery = Invoice::where('restaurant_id', auth()->user()->restaurant_id)
                     ->where('delivery_id', $request->delivery_id)
                     ->where('status', InvoiceStatus::COMPLETED->value)
                     ->first();
-                // dd($invoiceWithDelivery);
+
                 // if ($invoiceWithDelivery->status != 6) {
                 //     return response()->json([
                 //         'status' => false,
                 //         'message' => trans('locale.delivery')
                 //     ], 500);
                 // }
-                // dd("Dsdsd");
 
                 // if ($invoices) {
                 //     return response()->json([
@@ -477,7 +475,7 @@ class UserTakeoutController extends Controller
             }
             $invoice->save();
             // event(new InvoiceStatusUpdated($invoice));
-
+            Log::info($invoice);
 
             // 3. Update the status of related orders. This is a fast operation.
             $orderStatus = $this->getOrderStatusFromInvoiceStatus($status);
@@ -492,7 +490,6 @@ class UserTakeoutController extends Controller
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());
         }
     }
-
     /**
      * A simple helper to map InvoiceStatus to Order status.
      */
