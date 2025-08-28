@@ -46,9 +46,8 @@ class OrderUpdated implements ShouldBroadcast
         //     $status = "accepted";
         // else
         $status = $firstTable->status->value;
-        Log::info(['status111' => $status]);
-        $channelName = 'all-orders.' . $status . '.' . $firstTable->delivery_id;
-
+        $channelName = 'all-orders.' . 'processing' . '.' . $firstTable->delivery_id;
+        Log::info($channelName);
         return new Channel($channelName);
     }
 

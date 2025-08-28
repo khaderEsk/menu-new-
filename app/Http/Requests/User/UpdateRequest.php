@@ -24,11 +24,11 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => [Rule::exists('admins','id')->whereNull('deleted_at')->where('restaurant_id',auth()->user()->restaurant_id),'required'],
-            'name' => ['required_without:id','filled'],
-            'user_name' => ['required_without:id','filled',Rule::unique('admins','user_name')->ignore($this->id,'id')->whereNull('deleted_at')],
-            'password' => ['nullable','filled','min:8','max:25'],
-            'mobile' => ['required_without:id','regex:/^\+?[0-9]{10,15}$/',Rule::unique('admins','mobile')->ignore($this->id,'id')],
+            'id' => [Rule::exists('admins', 'id')->whereNull('deleted_at')->where('restaurant_id', auth()->user()->restaurant_id), 'required'],
+            'name' => ['required_without:id', 'filled'],
+            'user_name' => ['required_without:id', 'filled', Rule::unique('admins', 'user_name')->ignore($this->id, 'id')->whereNull('deleted_at')],
+            'password' => ['nullable', 'filled', 'min:8', 'max:25'],
+            'mobile' => ['required_without:id', 'regex:/^\+?[0-9]{10,15}$/', Rule::unique('admins', 'mobile')->ignore($this->id, 'id')],
             'role' => ['nullable'],
             'type_id' => ['nullable'],
             'permission' => ['nullable'],
@@ -50,8 +50,8 @@ class UpdateRequest extends FormRequest
                     $restaurantId = auth()->user()->restaurant_id;
 
                     $existingAdmin = Admin::where('restaurant_id', $restaurantId)
-                                            ->role('admin')
-                                            ->count();
+                        ->role('admin')
+                        ->count();
 
                     if ($existingAdmin != 0) {
                         $validator->errors()->add('role', trans('locale.theRestaurantHasAdmin'));

@@ -20,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class UserController extends Controller
@@ -67,6 +68,7 @@ class UserController extends Controller
 
     public function locationTracking(AddRequest $request)
     {
+        Log::info('Sdfsdf');
         try {
             $data_val = $request->validated();
             $user = auth()->user();

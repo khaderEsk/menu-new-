@@ -25,9 +25,7 @@ use Throwable;
 
 class OrderController extends Controller
 {
-    public function __construct(private InvoiceService $invoiceService, private FirebaseService $firebaseService)
-    {
-    }
+    public function __construct(private InvoiceService $invoiceService, private FirebaseService $firebaseService) {}
 
     public function acceptOrder(AcceptRequest $request)
     {
@@ -184,7 +182,6 @@ class OrderController extends Controller
             // 2. The service returns a complete paginator, ready for the resource.
             $data = InvoiceUserResource::collection($invoices);
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
-
         } catch (\Throwable $th) {
             report($th);
             return $this->messageErrorResponse('An error occurred while fetching your orders.');
