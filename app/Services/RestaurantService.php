@@ -25,7 +25,7 @@ class RestaurantService
 
     public function allRestaurantManager($admin)
     {
-        $restaurants = Restaurant::whereAdminId($admin)->latest()->get();
+        $restaurants = Restaurant::where('admin_id',$admin)->latest()->get();
         return $restaurants;
     }
     // to show paginate Restaurant active
