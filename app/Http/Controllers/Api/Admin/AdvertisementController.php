@@ -52,7 +52,7 @@ class AdvertisementController extends Controller
                 $request->input('title'), // استخدم input() بدلاً من الوصول المباشر
                 $request->input('from_date'),
                 $request->input('to_date'),
-                $request->input('restaurant_id')
+                $restaurant_id
             );
             return $this->successResponse($data, trans('locale.created'), 200);
         } catch (Throwable $th) {
