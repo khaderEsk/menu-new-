@@ -23,7 +23,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required',Rule::exists('invoices','id')->where('restaurant_id',auth()->user()->restaurant_id)],
+            'id' => ['required', Rule::exists('invoices', 'id')->where('restaurant_id', auth()->user()->restaurant_id)],
         ];
     }
 }

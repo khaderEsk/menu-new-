@@ -28,7 +28,7 @@ class DeliveryResource extends JsonResource
             'phone' => $this->phone,
             'gender' => $this->gender,
             'birthday' => $this->birthday,
-            'address' => $this->address,
+            'address' => $this->whenLoaded('latestAddress'),
             'restaurant_id' => $this->restaurant_id,
             'status' => $this->status,
             'is_active' => $this->is_active ?? 1,

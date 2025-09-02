@@ -68,7 +68,6 @@ class UserController extends Controller
 
     public function locationTracking(AddRequest $request)
     {
-        Log::info('Sdfsdf');
         try {
             $data_val = $request->validated();
             $user = auth()->user();

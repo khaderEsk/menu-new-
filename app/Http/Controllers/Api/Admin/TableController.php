@@ -62,6 +62,7 @@ class TableController extends Controller
             $tables= Table::whereRestaurantId($restaurant_id)->paginate($request->input('per_page', 50));
             $allTable = TableResource::collection($tables);
             $t = $this->paginateSuccessResponse($allTable,trans('locale.created'),200);
+            Log::info($t->getData(true));
             event(new TableUpdatedEvent($t->getData(true)));
             return $this->successResponse($data,trans('locale.created'),200);
         } catch(Throwable $th){
