@@ -149,14 +149,14 @@ class InvoiceObserver
             $body = "Your order #{$invoice->num} is now {$statusName}.";
             $this->firebaseService->sendNotification($invoice->user->fcm_token, $title, $body, []);
 
-            // $invoice->user->notify(new ChangeStatusOrderNotification(
-            //     title: 'تم تغير حالة الطلب',
-            //     body: 'اصبح طلبك' . $statusName,
-            //     status: $statusName,
-            //     totalEstimatedDuration: $invoice->total_estimated_duration,
-            //     price: $invoice->price,
-            //     restaurant_id: $invoice->restaurant_id,
-            // ));
+            $invoice->user->notify(new ChangeStatusOrderNotification(
+                title: 'تم تغير حالة الطلب',
+                body: 'اصبح طلبك' . $statusName,
+                status: $statusName,
+                totalEstimatedDuration: $invoice->total_estimated_duration,
+                price: $invoice->price,
+                restaurant_id: $invoice->restaurant_id,
+            ));
         }
 
         // --- Real-Time WebSocket Event ---

@@ -139,6 +139,7 @@ class CategoryService
 
     public function activeOrDesactive($data)
     {
+        //DesActive Category By ID
         if($data['is_active'] == 1)
         {
             // Category::whereRestaurantId($data['restaurant_id'])->whereNull('deleted_at')->orderBy('index')->where('index', '>', $data['index'])->decrement('index');
@@ -146,6 +147,7 @@ class CategoryService
                 'is_active' => 0,
             ]);
         }
+        //Active Category By ID
         else
         {
             // if($data['category_id'] != null)

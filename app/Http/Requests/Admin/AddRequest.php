@@ -72,7 +72,7 @@ class AddRequest extends FormRequest
             // }
             // ],
             'fcm_token' => ['nullable'],
-            'permission'=>['nullable']
+            'permission' => ['nullable', 'array']
         ];
     }
 
