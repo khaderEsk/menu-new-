@@ -16,40 +16,37 @@ use Throwable;
 
 class EmojiController extends Controller
 {
-    public function __construct(private EmojiService $emojiService)
-    {
-    }
+    public function __construct(private EmojiService $emojiService) {}
 
     // Show All Emoji
     public function showAll(ShowAllRequest $request)
     {
-        try{
+        try {
             $data =  $this->emojiService->all();
             if (\count($data) == 0) {
-                return $this->successResponse([],trans('locale.dontHaveEmoji'),200);
+                return $this->successResponse([], trans('locale.dontHaveEmoji'), 200);
             }
 
             $data = $request->validated();
             $where = [];
 
             // Filter By Search
-            if(\array_key_exists('search',$data))
-                $where = \array_merge($where,[['name','like','%'.$data['search'].'%']]);
+            if (\array_key_exists('search', $data))
+                $where = \array_merge($where, [['name', 'like', '%' . $data['search'] . '%']]);
             // Filter Active
-            if(\array_key_exists('active',$data))
-                $where = \array_merge($where,['is_active'=> $data['active']]);
+            if (\array_key_exists('active', $data))
+                $where = \array_merge($where, ['is_active' => $data['active']]);
 
-            if(\array_key_exists('search',$data) || \array_key_exists('active',$data))
-            {
-                $emoji =  $this->emojiService->search($where,$request->input('per_page', 25));
+            if (\array_key_exists('search', $data) || \array_key_exists('active', $data)) {
+                $emoji =  $this->emojiService->search($where, $request->input('per_page', 25));
                 $data = EmojiResource::collection($emoji);
-                return $this->paginateSuccessResponse($data,trans('locale.emojiFound'),200);
+                return $this->paginateSuccessResponse($data, trans('locale.emojiFound'), 200);
             }
 
             $emoji = $this->emojiService->paginate($request->input('per_page', 25));
             $data = EmojiResource::collection($emoji);
-            return $this->paginateSuccessResponse($data,trans('locale.emojiFound'),200);
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.emojiFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -58,9 +55,9 @@ class EmojiController extends Controller
     // Add Emoji
     public function create(AddRequest $request)
     {
-        try{
+        try {
             $id = auth()->user()->id;
-            $emoji = $this->emojiService->create($id,$request->validated());
+            $emoji = $this->emojiService->create($id, $request->validated());
             if ($request->hasFile('bad_image')) {
                 $extension = $request->file('bad_image')->getClientOriginalExtension();
                 $randomFileName = str()->random(10) . '.' . $extension;
@@ -77,8 +74,8 @@ class EmojiController extends Controller
                 $emoji->addMediaFromRequest('perfect_image')->usingFileName($randomFileName)->usingName($emoji->name)->toMediaCollection('emoji_perfect');
             }
             $data = EmojiResource::make($emoji);
-            return $this->successResponse($data,trans('locale.created'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.created'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -86,14 +83,16 @@ class EmojiController extends Controller
 
     public function update(UpdateRequest $request)
     {
-        try{
+        try {
             $id = auth()->user()->id;
             $data = $request->validated();
 
-            $arrEmoji = Arr::only($data,
-            ['id','name']);
+            $arrEmoji = Arr::only(
+                $data,
+                ['id', 'name']
+            );
 
-            $emoji = $this->emojiService->update($id,$arrEmoji);
+            $emoji = $this->emojiService->update($id, $arrEmoji);
             $first_emoji = Emoji::whereId($data['id'])->first();
             if ($request->hasFile('bad_image')) {
                 $first_emoji->clearMediaCollection('emoji_bad');
@@ -113,14 +112,13 @@ class EmojiController extends Controller
                 $randomFileName = str()->random(10) . '.' . $extension;
                 $first_emoji->addMediaFromRequest('perfect_image')->usingFileName($randomFileName)->toMediaCollection('emoji_perfect');
             }
-            if($emoji == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($emoji == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $emoji = $this->emojiService->show($request->id);
             $data = EmojiResource::make($emoji);
-            return $this->successResponse($data,trans('locale.updated'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.updated'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -129,16 +127,15 @@ class EmojiController extends Controller
     // Active Or DisActive Emoji
     public function deactivate(IdRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user()->id;
             $emoji = $this->emojiService->show($request->id);
-            $item = $this->emojiService->activeOrDesactive($emoji,$admin);
-            if($item == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $item = $this->emojiService->activeOrDesactive($emoji, $admin);
+            if ($item == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.successfully'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.successfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -147,23 +144,21 @@ class EmojiController extends Controller
     // Delete Emoji
     public function delete(IdRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user()->id;
             $done = Emoji::whereId($request->id)->first();
             $done->clearMediaCollection('emoji_bad');
             $done->clearMediaCollection('emoji_good');
             $done->clearMediaCollection('emoji_perfect');
-            $emoji = $this->emojiService->destroy($request->id,$admin);
-            if($emoji == -10)
-            {
-                return $this->messageErrorResponse(trans('locale.youCantDeleteThisEmojiBecauseItHasRestaurant'),403);
+            $emoji = $this->emojiService->destroy($request->id, $admin);
+            if ($emoji == -10) {
+                return $this->messageErrorResponse(trans('locale.youCantDeleteThisEmojiBecauseItHasRestaurant'), 403);
             }
-            if($emoji == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($emoji == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.deleted'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.deleted'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -172,11 +167,11 @@ class EmojiController extends Controller
     // Show Emoji By Id
     public function showById(IdRequest $request)
     {
-        try{
+        try {
             $emoji = $this->emojiService->show($request->id);
             $data = EmojiResource::make($emoji);
-            return $this->successResponse($data,trans('locale.emojiFound'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.emojiFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }

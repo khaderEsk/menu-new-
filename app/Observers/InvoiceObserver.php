@@ -7,6 +7,7 @@ use App\Events\NewOrder;
 use App\Events\OrderUpdated;
 use App\Http\Resources\InvoiceUserMobileResource;
 use App\Models\Invoice;
+use App\Models\Restaurant;
 use App\Notifications\ChangeStatusOrderNotification;
 use App\Services\FirebaseService;
 use App\Services\OsrmService;
@@ -33,7 +34,7 @@ class InvoiceObserver
         // --- Part 1: Your existing distance calculation logic ---
         // This part remains the same. It will now run safely in the background.
         if ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::APPROVED) {
-            $restaurant = $invoice->orders->first()?->restaurant;
+            $restaurant =Restaurant::query()->find($invoice->restaurant_id);
             $address = $invoice->address;
             if (!$restaurant || !$address || !$restaurant->latitude || !$address->latitude) {
                 Log::warning("Missing data for invoice #{$invoice->id}. Cannot calculate route.");
@@ -152,11 +153,11 @@ class InvoiceObserver
             $this->firebaseService->sendNotification($invoice->admin->fcm_token, $title, $body, []);
             $invoice->user->notify(new ChangeStatusOrderNotification(
                 title: 'تم تغير حالة الطلب',
-                body: 'اصبح طلبك' . $statusName ?? null,
+                body: 'اصبح طلبك' . $statusName,
                 status: $statusName,
-                totalEstimatedDuration: $invoice->total_estimated_duration ?? null,
-                price: $invoice->price ?? null,
-                restaurant_id: $invoice->restaurant_id ?? null,
+                totalEstimatedDuration: $invoice->total_estimated_duration,
+                price: $invoice->price,
+                restaurant_id: $invoice->restaurant_id,
             ));
         }
 

@@ -38,8 +38,6 @@ class TableUpdatedEvent implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        Log::info($this->tables);
-        log::info($this->tables);
         return $this->tables;
         // return [$this->tables];
         // return['tables' => $this->tables];

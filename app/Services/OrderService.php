@@ -284,7 +284,7 @@ class OrderService
             'restaurant_id' => $item->restaurant_id,
             'invoice_id' => $invoiceId,
             'status' => "accepted",
-            'size' => $orderData['size_id'],
+            'size' => array_key_exists('size_id', $orderData) ? $orderData['size_id'] : null,
             'en' => ['name' => $item->translate('en')->name, 'type' => $item->category->translate('en')->name],
             'ar' => ['name' => $item->translate('ar')->name, 'type' => $item->category->translate('ar')->name],
         ]);

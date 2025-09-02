@@ -85,7 +85,7 @@ class DeliveryService
         $query->with('invoices', function ($q) {
             $q->whereNot('status', 6);
         });
-        
+
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
@@ -129,7 +129,7 @@ class DeliveryService
     }
 
     // to create delivery
-    public function create(array $data, ?UploadedFile $imageFile): ?User
+    public function create(array $data,  $imageFile): ?User
     {
         // Add the required 'role' and hash the password before creation.
         $data['role'] = 1;

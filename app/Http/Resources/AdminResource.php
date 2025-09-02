@@ -116,7 +116,8 @@ class AdminResource extends JsonResource
             // 'roles' => $this->roles->pluck('name'),
             // 'permissions' => $this->permissions->pluck('name'),
             // 'restaurant' => RestaurantResource::make($this->whenLoaded('restaurant')),
-            'email' => $this->email
+            'email' => $this->email,
+            'restaurant' => new RestaurantResource($this->whenLoaded('restaurant')),
         ];
         return $data;
     }

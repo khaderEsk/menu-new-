@@ -31,31 +31,43 @@
             enabledTransports: ['ws', 'wss']
         });
         // الاستماع للقناة الخاصة
-        // window.Echo.private('orders.1')
-        //     .listen('OrderShipped', (e) => {
-        //         console.log('📦 OrderShipped event received:', e);
-        //         document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
-        //     });
+        window.Echo.private('orders.1')
+            .listen('OrderShipped', (e) => {
+                console.log('📦 OrderShipped event received:', e);
+                document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
+            });
 
-        // window.Echo.channel('orders')
-        // .listen('OrderShipped', (e) => {
-        //     console.log('📦 Public order shipped:', e);
-        // });
+        window.Echo.channel('test')
+            .listen('TestEvent', (e) => {
+                console.log('📦 teeeeeeeeeeeeeest', e);
+                document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
+            });
+
+        window.Echo.private('orders.1')
+            .listen('OrderUpdated', (e) => {
+                console.log('📦 Order updated:', e);
+                document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
+            });
+
+        window.Echo.channel('orders')
+            .listen('OrderShipped', (e) => {
+                console.log('📦 Public order shipped:', e);
+            });
 
         window.Echo.channel('message')
-        .listen('TableUpdatedEvent', (e) => {
-            console.log('📦 Public order shipped:', e);
-        });
+            .listen('TableUpdatedEvent', (e) => {
+                console.log('📦 Public order shipped:', e);
+            });
 
-        // window.Echo.channel('locationUpdated')
-        // .listen('LocationUpdated', (e) => {
-        //     console.log('📦 Public order shipped:', e);
-        // });
+        window.Echo.channel('locationUpdated')
+            .listen('LocationUpdated', (e) => {
+                console.log('📦 Public order shipped:', e);
+            });
 
-        // window.Echo.channel('restaurant46')
-        //     .listen('TestEvent', (e) => {
-        //         console.log('📦 TestEvent received:', e);
-        //     });
+        window.Echo.channel('restaurant46')
+            .listen('TestEvent', (e) => {
+                console.log('📦 TestEvent received:', e);
+            });
     </script>
 </body>
 

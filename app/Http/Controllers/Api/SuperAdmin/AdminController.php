@@ -23,21 +23,18 @@ use Throwable;
 
 class AdminController extends Controller
 {
-    public function __construct(private SuperAdminService $superAdminService)
-    {
-    }
+    public function __construct(private SuperAdminService $superAdminService) {}
 
     // Show All City Super Admins
     public function showAll(ShowAllRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user();
             $data = $request->validated();
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                $SuperAdmins = SuperAdmin::where('id','!=',1)->where('id','!=',$admin->id)->whereCityId($admin->city_id)->with('city')->with('permissions')->latest()->get();
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                $SuperAdmins = SuperAdmin::where('id', '!=', 1)->where('id', '!=', $admin->id)->whereCityId($admin->city_id)->with('city')->with('permissions')->latest()->get();
                 if (\count($SuperAdmins) == 0) {
-                    return $this->successResponse([],trans('locale.doNotHaveCitySuperAdminDataEntry'),200);
+                    return $this->successResponse([], trans('locale.doNotHaveCitySuperAdminDataEntry'), 200);
                 }
 
                 $query = SuperAdmin::query();
@@ -48,32 +45,29 @@ class AdminController extends Controller
 
                 if ($request->has('search')) {
                     $search = $request->search;
-                    $query->where('name','like', "%$search%");
+                    $query->where('name', 'like', "%$search%");
                 }
 
                 if ($request->has('active')) {
                     $query->where('is_active', $request->active);
                 }
-                if($admin->city_id != null)
-                {
-                    $restaurant = $query->with('city')->where('id','!=',1)->where('id','!=',$admin->id)->whereCityId($admin->city_id)->paginate($request->input('per_page', 25));
+                if ($admin->city_id != null) {
+                    $restaurant = $query->with('city')->where('id', '!=', 1)->where('id', '!=', $admin->id)->whereCityId($admin->city_id)->paginate($request->input('per_page', 25));
                     $data = CitySuperAdminResource::collection($restaurant);
-                    return $this->paginateSuccessResponse($data,trans('locale.restaurantFound'),200);
-                }
-                else
-                {
+                    return $this->paginateSuccessResponse($data, trans('locale.restaurantFound'), 200);
+                } else {
                     if ($request->has('city_id')) {
                         $query->where('city_id', $request->city_id);
                     }
-                    $restaurant = $query->where('id','!=',1)->where('id','!=',$admin->id)->paginate($request->input('per_page', 25));
+                    $restaurant = $query->where('id', '!=', 1)->where('id', '!=', $admin->id)->paginate($request->input('per_page', 25));
                     $data = CitySuperAdminResource::collection($restaurant);
-                    return $this->paginateSuccessResponse($data,trans('locale.restaurantFound'),200);
+                    return $this->paginateSuccessResponse($data, trans('locale.restaurantFound'), 200);
                 }
             }
 
             $dataAdmin =  $this->superAdminService->all();
             if (\count($dataAdmin) == 0) {
-                return $this->successResponse([],trans('locale.doNotHaveCitySuperAdminDataEntry'),200);
+                return $this->successResponse([], trans('locale.doNotHaveCitySuperAdminDataEntry'), 200);
             }
 
             $query = SuperAdmin::query();
@@ -84,7 +78,7 @@ class AdminController extends Controller
 
             if ($request->has('search')) {
                 $search = $request->search;
-                $query->where('name','like', "%$search%");
+                $query->where('name', 'like', "%$search%");
             }
 
             if ($request->has('active')) {
@@ -95,34 +89,31 @@ class AdminController extends Controller
                 $query->where('city_id', $request->city_id);
             }
 
-            $restaurant = $query->where('id','!=',1)->with('city')->paginate($request->input('per_page', 25));
+            $restaurant = $query->where('id', '!=', 1)->with('city')->paginate($request->input('per_page', 25));
             $data = CitySuperAdminResource::collection($restaurant);
-            return $this->paginateSuccessResponse($data,trans('locale.restaurantFound'),200);
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.restaurantFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
-
     }
 
     // Add City Super Admin
     public function create(CreateRequest $request)
     {
-        try{
+        try {
             $data = $request->validated();
             $admin = auth()->user();
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
-                    if($data['city_id'] != $admin->city_id)
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
+                    if ($data['city_id'] != $admin->city_id)
                         return $this->messageErrorResponse(trans('locale.youCantAddOtherCity'));
                 }
             }
             $superAdmin = $this->superAdminService->create($request->validated());
             $data = CitySuperAdminResource::make($superAdmin);
-            return $this->SuccessResponse($data,trans('locale.created'),200);
-        } catch(Throwable $th){
+            return $this->SuccessResponse($data, trans('locale.created'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -131,30 +122,26 @@ class AdminController extends Controller
     // Active Or DisActive City Super Admin
     public function deactivate(IdRequest $request)
     {
-        try{
-            if($request->id == 1)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+        try {
+            if ($request->id == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $admin = auth()->user();
 
             $superAdmin = $this->superAdminService->show($request->id);
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
-                    if($superAdmin->city_id != $admin->city_id)
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
+                    if ($superAdmin->city_id != $admin->city_id)
                         return $this->messageErrorResponse(trans('locale.youCantDeactivateOtherCity'));
                 }
             }
 
-            $item = $this->superAdminService->activeOrDesactive($superAdmin,$admin->id);
-            if($item == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $item = $this->superAdminService->activeOrDesactive($superAdmin, $admin->id);
+            if ($item == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse("Successfully",200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse("Successfully", 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -163,32 +150,31 @@ class AdminController extends Controller
     // Update City Super Admin Data
     public function update(UpdateRequest $request)
     {
-        try{
-            if($request->id == 1)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+        try {
+            if ($request->id == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $super = $this->superAdminService->show($request->id);
             $admin = auth()->user();
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
-                    if($super->city_id != $admin->city_id)
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
+                    if ($super->city_id != $admin->city_id)
                         return $this->messageErrorResponse(trans('locale.youCantUpdateOtherCity'));
-
                 }
             }
-            $arrAdmin = Arr::only($request->validated(),
-            ['id','name','password','user_name','city_id','restaurant_id']);
+            $arrAdmin = Arr::only(
+                $request->validated(),
+                ['id', 'name', 'password', 'user_name', 'city_id', 'restaurant_id']
+            );
 
-            $arrRole = Arr::only($request->validated(),
-            ['role','permission']);
+            $arrRole = Arr::only(
+                $request->validated(),
+                ['role', 'permission']
+            );
 
-            $citySuper = $this->superAdminService->update($arrRole,$arrAdmin);
-            if($citySuper == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $citySuper = $this->superAdminService->update($arrRole, $arrAdmin);
+            if ($citySuper == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
 
             if ($super) {
@@ -196,8 +182,8 @@ class AdminController extends Controller
             }
             $super = $this->superAdminService->show($request->id);
             $data = CitySuperAdminResource::make($super);
-            return $this->successResponse($data,trans('locale.updated'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.updated'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -206,20 +192,18 @@ class AdminController extends Controller
     // Show City Super Admin By Id
     public function showById(IdRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user();
             $superAdmin = $this->superAdminService->show($request->id);
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
-                    if($superAdmin->city_id != $admin->city_id)
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
+                    if ($superAdmin->city_id != $admin->city_id)
                         return $this->messageErrorResponse(trans('locale.youCantShowOtherCity'));
                 }
             }
             $data = CitySuperAdminResource::make($superAdmin);
-            return $this->successResponse($data,trans('locale.superAdminFoundSuccessfully'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.superAdminFoundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -228,34 +212,29 @@ class AdminController extends Controller
     // Delete
     public function delete(IdRequest $request)
     {
-        try{
+        try {
             $admin = auth()->user();
 
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
                     $super = $this->superAdminService->show($request->id);
-                    if($super->city_id != $admin->city_id)
+                    if ($super->city_id != $admin->city_id)
                         return $this->messageErrorResponse(trans('locale.youCantDeletedRestaurantOtherCity'));
                 }
             }
             $admin = auth()->user()->id;
-            if($request->id == 1)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($request->id == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            if($admin == $request->id)
-            {
-                return $this->messageErrorResponse(trans('locale.youCantDeleted'),403);
+            if ($admin == $request->id) {
+                return $this->messageErrorResponse(trans('locale.youCantDeleted'), 403);
             }
-            $data = $this->superAdminService->destroy($request->id,$admin);
-            if($data == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            $data = $this->superAdminService->destroy($request->id, $admin);
+            if ($data == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.deleted'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.deleted'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -266,12 +245,10 @@ class AdminController extends Controller
     // Show restaurant Manager
     public function showAllBoss(Request $request)
     {
-        try{
+        try {
             $admin = auth()->user();
-            if($admin->hasAnyRole(['citySuperAdmin', 'dataEntry']))
-            {
-                if($admin->city_id != null)
-                {
+            if ($admin->hasAnyRole(['citySuperAdmin', 'dataEntry'])) {
+                if ($admin->city_id != null) {
                     $paginatedRestaurants = Restaurant::whereCityId($admin->city_id)->with('admin')->paginate($request->input('per_page', 25));
                     // $superAdmin = $paginatedRestaurants->map(function ($restaurant) {
                     //     return $restaurant->admin;
@@ -298,15 +275,13 @@ class AdminController extends Controller
                         'count' => $paginatedRestaurants->count(),
                         'total_pages' => $paginatedRestaurants->lastPage(),
                     ];
-                    return response()->json(['status' => true,'data' => $data,'meta' => $meta,'message' => trans('locale.restaurantManagerFoundSuccessfully')],200);
-
+                    return response()->json(['status' => true, 'data' => $data, 'meta' => $meta, 'message' => trans('locale.restaurantManagerFoundSuccessfully')], 200);
                 }
-            }
-            else
+            } else
                 $superAdmin = $this->superAdminService->allBoss($request->input('per_page', 25));
-                $data = AdminResource::collection($superAdmin);
-                return $this->paginateSuccessResponse($data,trans('locale.restaurantManagerFoundSuccessfully'),200);
-        } catch(Throwable $th){
+            $data = AdminResource::collection($superAdmin);
+            return $this->paginateSuccessResponse($data, trans('locale.restaurantManagerFoundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -315,11 +290,11 @@ class AdminController extends Controller
     // Add restaurant Manager
     public function createBoss(CreateBossRequest $request)
     {
-        try{
+        try {
             $superAdmin = $this->superAdminService->createBoss($request->validated());
             $data = AdminResource::make($superAdmin);
-            return $this->SuccessResponse($data,trans('locale.created'),200);
-        } catch(Throwable $th){
+            return $this->SuccessResponse($data, trans('locale.created'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -328,12 +303,11 @@ class AdminController extends Controller
     // Update Restaurant Manager
     public function updateBoss(RestaurantManagerUpdateRequest $request)
     {
-        try{
+        try {
             $arrAdmin = $request->validated();
             $citySuper = $this->superAdminService->updateBoss($arrAdmin);
-            if($citySuper == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($citySuper == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $admin = $this->superAdminService->showBoss($request->id);
 
@@ -342,8 +316,8 @@ class AdminController extends Controller
             }
 
             $data = AdminResource::make($admin);
-            return $this->successResponse($data,trans('locale.updated'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.updated'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -352,11 +326,11 @@ class AdminController extends Controller
     // Show Restaurant Manager By id
     public function showByIdBoss(RestaurantManagerIdRequest $request)
     {
-        try{
+        try {
             $admin = $this->superAdminService->showBoss($request->id);
             $data = AdminResource::make($admin);
-            return $this->successResponse($data,trans('locale.superAdminFoundSuccessfully'),200);
-        } catch(Throwable $th){
+            return $this->successResponse($data, trans('locale.superAdminFoundSuccessfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -365,18 +339,16 @@ class AdminController extends Controller
     // Delete Restaurant Manager
     public function deleteBoss(RestaurantManagerIdRequest $request)
     {
-        try{
-            if($request->id == 1)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+        try {
+            if ($request->id == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $data = $this->superAdminService->destroyBoss($request->id);
-            if($data == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($data == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.deleted'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.deleted'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -385,19 +357,17 @@ class AdminController extends Controller
     // Active Or DisActive  Restaurant Manager
     public function deactivateBoss(RestaurantManagerIdRequest $request)
     {
-        try{
+        try {
             $admin = $this->superAdminService->showBoss($request->id);
-            if($request->id == 1)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($request->id == 1) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
             $item = $this->superAdminService->activeOrDesactiveBoss($admin);
-            if($item == 0)
-            {
-                return $this->messageErrorResponse(trans('locale.invalidItem'),403);
+            if ($item == 0) {
+                return $this->messageErrorResponse(trans('locale.invalidItem'), 403);
             }
-            return $this->messageSuccessResponse(trans('locale.successfully'),200);
-        } catch(Throwable $th){
+            return $this->messageSuccessResponse(trans('locale.successfully'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
