@@ -37,6 +37,12 @@
                 document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
             });
 
+        window.Echo.channel('test')
+            .listen('TestEvent', (e) => {
+                console.log('📦 teeeeeeeeeeeeeest', e);
+                document.getElementById('output').innerText = '📦 Order shipped with data: ' + JSON.stringify(e);
+            });
+
         window.Echo.private('orders.1')
             .listen('OrderUpdated', (e) => {
                 console.log('📦 Order updated:', e);

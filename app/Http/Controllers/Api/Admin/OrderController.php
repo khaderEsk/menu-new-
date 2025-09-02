@@ -242,12 +242,12 @@ class OrderController extends Controller
             $admin = $request->user();
             $validated = $request->validated();
             $newStatus = OrderStatus::fromString($validated['status']); // Convert string to Enum
-
+            $count = $validated['count'];
             // Manually find the Order from the ID in the request body.
             $order = Order::findOrFail($validated['id']);
 
             // 1. Call the single, clean service method to perform all actions.
-            $this->orderService->updateOrderStatus($order, $newStatus, $admin);
+            $this->orderService->updateOrderStatus($order, $newStatus, $admin , $count);
 
             // 2. Broadcast the table updates (this is a response-related side effect).
             $this->broadcastTableUpdates($admin->restaurant_id, $request->input('per_page', 50));
