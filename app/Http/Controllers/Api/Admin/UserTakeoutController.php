@@ -487,7 +487,7 @@ class UserTakeoutController extends Controller
             // The controller's job is done. It returns an immediate success response.
             return $this->messageSuccessResponse(trans('locale.successfully'), 200);
         } catch (\Throwable $th) {
-            Log::error('--- updateStatusOrder Controller Error ---', ['message' => $th->getMessage()]);
+            Log::error($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());
         }
     }

@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Delivery\DeliveryPriceRequest;
-use App\Http\Requests\Delivey\AddRequest;
-use App\Http\Requests\Delivey\IdRequest;
-use App\Http\Requests\Delivey\ShowAllRequest as DeliveyShowAllRequest;
-use App\Http\Requests\Delivey\UpdateRequest;
-use App\Http\Resources\DeliveryResource;
-use App\Http\Resources\DeliverySitesResource;
-use App\Http\Resources\InvoiceUserResource;
-use App\Models\DeliveryRoute;
+use Throwable;
+use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Restaurant;
-use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Models\DeliveryRoute;
 use App\Services\DeliveryService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Throwable;
-
-
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
+use App\Http\Requests\Delivey\IdRequest;
+use App\Http\Resources\DeliveryResource;
+use App\Http\Requests\Delivey\AddRequest;
+use App\Http\Resources\InvoiceUserResource;
+use App\Http\Requests\Delivey\UpdateRequest;
+use App\Http\Resources\DeliverySitesResource;
+
+
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\Delivery\DeliveryPriceRequest;
+use App\Http\Requests\Delivey\ShowAllRequest as DeliveyShowAllRequest;
 
 class DeliveryController extends Controller
 {
@@ -31,7 +32,7 @@ class DeliveryController extends Controller
 
     // Show All deliveries For Admin
     public function showAll(DeliveyShowAllRequest $request): JsonResponse
-    
+
     {
         try {
             $admin = auth()->user();
@@ -174,6 +175,7 @@ class DeliveryController extends Controller
             return $this->successResponse($data, trans('locale.created'), 201); // 201 Created is the correct status code.
 
         } catch (\Throwable $th) {
+            Log::error($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             report($th);
             return $this->messageErrorResponse('An unexpected error occurred while creating the user.');
         }

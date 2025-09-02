@@ -109,6 +109,7 @@ class OrderController extends Controller
             return $this->messageSuccessResponse(trans('locale.created'), 201); // 201 is better for creation
 
         } catch (\Throwable $th) {
+            FacadesLog::error($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             report($th);
             FacadesLog::info($th);
             return $this->messageErrorResponse('An error occurred while creating the order.');

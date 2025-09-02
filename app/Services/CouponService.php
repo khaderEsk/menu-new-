@@ -26,7 +26,6 @@ class CouponService
 
     public function create($id, $data)
     {
-        $data['code'] = mt_rand(100000, 999999);
         $data['restaurant_id'] = $id;
         $data['type'] = "منتجات";
 

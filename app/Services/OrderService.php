@@ -250,13 +250,12 @@ class OrderService
         // 6. Group the results using our reusable helper method.
         return $this->groupOrdersForReport($orders);
     }
-    public function updateOrderStatus(Order $order, OrderStatus $newStatus, Admin $currentUser, $count ): Order
+    public function updateOrderStatus(Order $order, OrderStatus $newStatus, Admin $currentUser): Order
     {
         // ✅ DATA INTEGRITY: Wrap the entire multi-step process in a transaction.
-        return DB::transaction(function () use ($order, $newStatus, $currentUser , $count) {
+        return DB::transaction(function () use ($order, $newStatus, $currentUser) {
             // 1. Update the order status.
             $order->status = $newStatus->value;
-            $order->count = $count ? $count : $order->count;
             $order->save();
 
             // 2. Handle all side-effects using clean, private helper methods.
@@ -285,7 +284,7 @@ class OrderService
             'restaurant_id' => $item->restaurant_id,
             'invoice_id' => $invoiceId,
             'status' => "accepted",
-            'size' => $orderData['size_id'],
+            'size' => array_key_exists('size_id', $orderData) ? $orderData['size_id'] : null,
             'en' => ['name' => $item->translate('en')->name, 'type' => $item->category->translate('en')->name],
             'ar' => ['name' => $item->translate('ar')->name, 'type' => $item->category->translate('ar')->name],
         ]);

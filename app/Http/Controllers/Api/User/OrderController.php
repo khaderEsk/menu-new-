@@ -50,7 +50,7 @@ class OrderController extends Controller
             // dd(request()->status);
             if (request()->has('status')) {
                 if (request()->status == "processing")
-                    $query->whereIn('status', [1, 2]);
+                    $query->where('status', 2);
 
                 elseif (request()->status == "under_delivery")
                     $query->where('status', 5);
@@ -73,6 +73,7 @@ class OrderController extends Controller
             // }
 
             $invoices = $query->latest()->paginate(request()->input('per_page', 10));
+            // dd($invoices);
             if (\count($invoices) == 0) {
                 return $this->successResponse([], trans('locale.dontHaveOrder'), 200);
             }
