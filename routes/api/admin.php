@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['logs', 'version', 'auth:sanctum', 'active', 'role:admin|superAdmin|citySuperAdmin|dataEntry|restaurantManager']], function () {
 
-    Route::get('/show_restaurants', [RestaurantController::class, 'showMyRestaurants'])->middleware('can:my_restaurants');
+    Route::get('/show_restaurants', [RestaurantController::class, 'showMyRestaurants']);
     Route::post('/update_super_admin_restaurant_id', [RestaurantController::class, 'restaurantId'])->middleware('can:restaurantId');
 });
 

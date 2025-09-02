@@ -48,6 +48,7 @@ class Controller extends BaseController
     {
         $model = \request()->model;
         $actor = ('App\Models\\' . $model)::where('user_name', $request->user_name)->first();
+        // dd($actor);
         if ($actor && Hash::check($request->password, $actor->password)) {
             $platform = $request->header('platform');
             // $token = $actor->createToken('authToken', [$model])->accessToken;

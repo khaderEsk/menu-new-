@@ -15,17 +15,19 @@ class RateResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $restaurant = Restaurant::where('id',$this->restaurant_id)->first();
-        if($restaurant->rate_format->value == 1)
-        {
+        $restaurant = Restaurant::where('id', $this['restaurant_id'])->first();
+        // dd($restaurant);
+       
+
+        if ($restaurant->rate_format->value == 1) {
             $data = [
                 'id' => $this->id,
-                'restaurant_id' => $this->restaurant_id,
-                'name' => $this->customer->name,
-                'phone' => $this->customer->phone,
-                'birthday' => $this->customer->birthday,
-                'gender' => $this->customer->gender,
-                'restaurant' => $this->restaurant->name,
+                // 'restaurant_id' => $this->restaurant_id,
+                'name' => $this->name,
+                'phone' => $this->phone,
+                'birthday' => $this->birthday,
+                'gender' => $this->gender,
+                // 'restaurant' => $this->restaurant->name,
                 'rate' => $this->rate,
                 'note' => $this->note,
                 'service' => $this->service,
@@ -35,16 +37,14 @@ class RateResource extends JsonResource
                 'sweets' => $this->sweets,
                 'games_room' => $this->games_room,
             ];
-        }
-        else
-        {
+        } else {
             $data = [
                 'id' => $this->id,
-                'restaurant_id' => $this->restaurant_id,
-                'name' => $this->customer->name,
-                'phone' => $this->customer->phone,
-                'birthday' => $this->customer->birthday,
-                'gender' => $this->customer->gender,
+                // 'restaurant_id' => $this->restaurant_id,
+                'name' => $this->name,
+                'phone' => $this->phone,
+                'birthday' => $this->birthday,
+                'gender' => $this->gender,
                 'restaurant' => $this->restaurant->name,
                 'rate' => $this->rate,
                 'note' => $this->note,

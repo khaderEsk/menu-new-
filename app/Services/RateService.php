@@ -44,20 +44,21 @@ class RateService
     }
 
     // to create rate
-    public function create($id,$data)
+    public function create($id, $data)
     {
-        $data['customer_id'] = $id;
-        $arrRate = Arr::only($data, ['rate', 'note','restaurant_id','customer_id','service','arakel','foods','drinks','sweets','games_room']);
+        $data['user_id'] = $id;
+        $arrRate = Arr::only($data, ['rate', 'note', 'restaurant_id', 'user_id', 'service', 'arakel', 'foods', 'drinks', 'sweets', 'games_room']);
         $arrCustomer = Arr::only($data, ['name', 'gender', 'phone', 'birthday']);
-
         $rate = Rate::create($arrRate);
-        $customer = Customer::whereId($id)->update($arrCustomer);
-
-        return $rate;
+        // dd($rate);
+        // $customer = Customer::whereId($id)->update($arrCustomer);
+        $allData = array_merge($rate->toArray(), $arrCustomer);
+        // dd($allData);
+        return $allData;
     }
 
     // to update  rate
-    public function update($id,$data)
+    public function update($id, $data)
     {
         $rate = Rate::whereSuperAdminId($id)->whereId($data['id'])->update($data);
         return $rate;
@@ -82,29 +83,26 @@ class RateService
     // }
 
     // to delete a rate
-    public function destroy(string $id,$admin)
+    public function destroy(string $id, $admin)
     {
         return Rate::whereSuperAdminId($admin)->whereId($id)->forceDelete();
     }
 
-    public function activeOrDesactive($data,$admin)
+    public function activeOrDesactive($data, $admin)
     {
-        if($data['is_active'] == 1)
-        {
+        if ($data['is_active'] == 1) {
             $rate = Rate::whereSuperAdminId($admin)->whereId($data['id'])->update([
                 'is_active' => 0,
             ]);
-        }
-        else
-        {
-             $rate = Rate::whereSuperAdminId($admin)->whereId($data['id'])->update([
+        } else {
+            $rate = Rate::whereSuperAdminId($admin)->whereId($data['id'])->update([
                 'is_active' => 1,
             ]);
         }
         return $rate;
     }
 
-    public function search($where,$num)
+    public function search($where, $num)
     {
         $rates = Rate::where($where)->latest()->paginate($num);
         return $rates;

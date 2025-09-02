@@ -68,7 +68,7 @@ class User extends Authenticatable implements HasMedia
 
     public function invoices(): HasMany
     {
-        return $this->hasMany(Invoice::class , 'delivery_id');
+        return $this->hasMany(Invoice::class, 'delivery_id');
     }
 
     public function addresses(): HasMany
@@ -87,5 +87,10 @@ class User extends Authenticatable implements HasMedia
     public function coupons()
     {
         return $this->belongsToMany(Coupon::class, 'user_coupons')->withPivot('used', 'used_at')->withTimestamps();
+    }
+
+    public function rates(): HasMany
+    {
+        return $this->hasMany(Rate::class . 'user_id');
     }
 }

@@ -19,8 +19,15 @@ return new class extends Migration
             $table->id();
             $table->integer('rate');
             $table->longText('note')->nullable();
-            $table->foreignIdFor(Customer::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(User::class)->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Restaurant::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('service')->default(0);
+            $table->string('arakel')->default(0);
+            $table->string('foods')->default(0);
+            $table->string('drinks')->default(0);
+            $table->string('sweets')->default(0);
+            $table->string('games_room')->default(0);
+
             $table->softDeletes();
             $table->timestamps();
         });

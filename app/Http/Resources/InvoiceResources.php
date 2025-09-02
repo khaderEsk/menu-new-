@@ -38,6 +38,8 @@ class InvoiceResources extends JsonResource
 
 
 
+        
+
         // بناء المصفوفة النهائية
         $data = [
             'id' => $this->id,
@@ -48,7 +50,7 @@ class InvoiceResources extends JsonResource
             'total' => $this->total,
             'status' => ucfirst(str_replace('_', ' ', strtolower($this->status->name))),
             'discount' => $formattedDiscount,
-            'table_id' => $this->table_id,
+            'table_id' => (int)$this->table_id,
             'admin_id' => $this->admin_id ?? null,
             'admin_name' => $this->admin->name ?? null,
             'number_table' => $this->table->number_table ?? null,

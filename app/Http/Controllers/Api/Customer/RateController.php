@@ -129,7 +129,6 @@ class RateController extends Controller
             // -------------------------------------------------------------------------
             $restaurant = Restaurant::whereId($customer->restaurant_id)->first();
             $admin = Admin::whereRestaurantId($customer->restaurant_id)->get();
-
             if ($restaurant->rate_format->value == 1) {
                 if ($data['service'] == 1 || $data['arakel'] == 1 || $data['foods'] == 1 || $data['drinks'] == 1 || $data['sweets'] == 1 || $data['games_room'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
@@ -146,13 +145,14 @@ class RateController extends Controller
                         }
                     }
                     $customer->notify(new RateNotification(
-                        title:'Bad Rate',
-                        body:'now Rate',
+                        title: 'Bad Rate',
+                        body: 'now Rate',
                         restaurant_id: $data['restaurant_id'],
                         phone: $data['phone'],
-                        rate:'bad', 
+                        rate: 'bad',
                         note: $data['note']
                     ));
+
                     // Notification::create([
                     //     'restaurant_id' => $data['restaurant_id'],
                     //     'title' => 'Bad Rate',
@@ -165,7 +165,9 @@ class RateController extends Controller
                 }
             }
             // Check Type Of Rate
+
             if ($restaurant->rate_format->value == 0) {
+
                 if ($data['rate'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
                     $admin = Admin::whereRestaurantId($customer->restaurant_id)->get();
@@ -205,9 +207,11 @@ class RateController extends Controller
                     $rate = 'perfect';
                 }
             }
+
             $rate = $this->rateService->create($id, $data);
-            $data = RateResource::make($rate);
-            return $this->successResponse($data, trans('locale.created'), 200);
+
+            return $rate;
+            // return $this->successResponse($data, trans('locale.created'), 200);
         } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
