@@ -14,7 +14,7 @@ class Rate extends Model
     protected $fillable = [
         'rate',
         'note',
-        'customer_id',
+        'user_id',
         'restaurant_id',
         'service',
         'arakel',
@@ -38,6 +38,7 @@ class Rate extends Model
         'drinks' => 'int',
         'sweets' => 'int',
         'games_room' => 'int',
+        // 'id'=>'int'
     ];
     // public function ScopeOrder($query)
     // {
@@ -51,6 +52,6 @@ class Rate extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

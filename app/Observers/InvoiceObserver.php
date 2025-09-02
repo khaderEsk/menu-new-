@@ -102,7 +102,8 @@ class InvoiceObserver
             'delivery',
             'deliveryRoute',
             'orders',
-            'address'
+            'address',
+            'admin'
         ])->find($invoice->id);
 
 
@@ -148,7 +149,7 @@ class InvoiceObserver
             $statusName = ucfirst(str_replace('_', ' ', strtolower($invoice->status->name)));
             $body = "Your order #{$invoice->num} is now {$statusName}.";
             $this->firebaseService->sendNotification($invoice->user->fcm_token, $title, $body, []);
-
+            $this->firebaseService->sendNotification($invoice->admin->fcm_token, $title, $body, []);
             $invoice->user->notify(new ChangeStatusOrderNotification(
                 title: 'تم تغير حالة الطلب',
                 body: 'اصبح طلبك' . $statusName ?? null,
