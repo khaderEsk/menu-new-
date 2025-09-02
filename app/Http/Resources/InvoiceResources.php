@@ -38,6 +38,7 @@ class InvoiceResources extends JsonResource
 
 
 
+        
 
         // بناء المصفوفة النهائية
         $data = [
