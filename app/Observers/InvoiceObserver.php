@@ -34,7 +34,7 @@ class InvoiceObserver
         // --- Part 1: Your existing distance calculation logic ---
         // This part remains the same. It will now run safely in the background.
         if ($invoice->wasChanged('status') && $invoice->status == InvoiceStatus::APPROVED) {
-            $restaurant =Restaurant::query()->find($invoice->restaurant_id);
+            $restaurant = Restaurant::query()->find($invoice->restaurant_id);
             $address = $invoice->address;
             if (!$restaurant || !$address || !$restaurant->latitude || !$address->latitude) {
                 Log::warning("Missing data for invoice #{$invoice->id}. Cannot calculate route.");
@@ -154,7 +154,7 @@ class InvoiceObserver
                 title: 'تم تغير حالة الطلب',
                 body: 'اصبح طلبك' . $statusName,
                 status: $statusName,
-                totalEstimatedDuration: $invoice->total_estimated_duration,
+                totalEstimatedDuration: $invoice->total_estimated_duration ?? 100,
                 price: $invoice->price,
                 restaurant_id: $invoice->restaurant_id,
             ));
@@ -198,10 +198,16 @@ class InvoiceObserver
     {
         if ($invoice->delivery_id) {
             $deliveryInvoices = Invoice::with('orders')
-                ->whereIn('status', [InvoiceStatus::WAITING->value, InvoiceStatus::APPROVED->value, InvoiceStatus::PROCESSING->value, InvoiceStatus::UNDER_DELIVERY->value])
-                ->where('restaurant_id', $invoice->restaurant_id)
-                ->where('delivery_id', $invoice->delivery_id)
-                ->get();
+            ->whereIn('status', [InvoiceStatus::PROCESSING->value, InvoiceStatus::UNDER_DELIVERY->value , InvoiceStatus::COMPLETED->value])
+            ->where('restaurant_id', $invoice->restaurant_id)
+            ->where('delivery_id', $invoice->delivery_id)
+            ->get();
+
+            // $deliveryInvoices = Invoice::with('orders')
+            //     ->where('status', $invoice->status)
+            //     ->where('restaurant_id', $invoice->restaurant_id)
+            //     ->where('delivery_id', $invoice->delivery_id)
+            //     ->get();
 
             event(new OrderUpdated($deliveryInvoices));
         }

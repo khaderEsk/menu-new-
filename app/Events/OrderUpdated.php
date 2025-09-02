@@ -16,6 +16,7 @@ class OrderUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $orders;
+    public $status;
     /**
      * Create a new event instance.
      */
@@ -45,7 +46,7 @@ class OrderUpdated implements ShouldBroadcast
         // elseif ($firstTable->status == 'Paid' || $firstTable->status == 'Received')
         //     $status = "accepted";
         // else
-        $status = $firstTable->status->value;
+        $this->status = $firstTable->status->value;
         $channelName = 'all-orders.' . 'processing' . '.' . $firstTable->delivery_id;
         Log::info($channelName);
         return new Channel($channelName);
@@ -53,7 +54,15 @@ class OrderUpdated implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        $payload = ['orders' => $this->orders];
+        $status = $this->status;
+        Log::info($status);
+        $ordersOfSameStatus = $this->orders->filter(function ($order) use ($status) {
+            return $order->status->value === $status;
+        });
+
+        Log::info($ordersOfSameStatus);
+
+        $payload = ['orders' => $ordersOfSameStatus];
         return $payload;
     }
 }

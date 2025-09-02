@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Services\FirebaseService;
 use App\Services\GraphHopperService;
 use App\Services\OsrmService;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class OrderController extends Controller
@@ -50,13 +51,14 @@ class OrderController extends Controller
             // dd(request()->status);
             if (request()->has('status')) {
                 if (request()->status == "processing")
-                    $query->where('status', 2);
+                    $query->where('status', 3);
 
                 elseif (request()->status == "under_delivery")
                     $query->where('status', 5);
 
-                elseif (request()->status == "delivered")
-                    $query->whereIn('status', 6);
+                elseif (request()->status == "delivered") {
+                    $query->where('status', 6);
+                }
             }
 
             if (request()->has('search'))
@@ -87,6 +89,7 @@ class OrderController extends Controller
             // $data = InvoiceUserResource::collection($invoices);
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
         } catch (Throwable $th) {
+            Log::info($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }

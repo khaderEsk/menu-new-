@@ -15,8 +15,10 @@ class InvoiceUserMobileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-            if ($this->status ==  InvoiceStatus::APPROVED || $this->status ==  InvoiceStatus::PROCESSING)
+            if ($this->status ==  InvoiceStatus::PROCESSING)
                 $status = "processing";
+            elseif($this->status == InvoiceStatus::APPROVED)
+                $status = "Approved";
             elseif($this->status == InvoiceStatus::UNDER_DELIVERY)
                 $status = "under delivery";
             elseif($this->status == InvoiceStatus::COMPLETED)

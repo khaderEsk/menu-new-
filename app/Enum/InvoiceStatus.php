@@ -11,7 +11,7 @@ enum InvoiceStatus: int
     case UNDER_DELIVERY = 5;
     case COMPLETED = 6;
 
-    
+
     /**
      * This is the "state machine" logic.
      * It defines all valid transitions from one status to another.
@@ -21,7 +21,7 @@ enum InvoiceStatus: int
         return match ($this) {
             self::WAITING        => in_array($nextState, [self::APPROVED, self::REJECTED]),
             self::APPROVED       => in_array($nextState, [self::PROCESSING]),
-            self::PROCESSING     => in_array($nextState, [self::UNDER_DELIVERY]), 
+            self::PROCESSING     => in_array($nextState, [self::UNDER_DELIVERY]),
             self::UNDER_DELIVERY => in_array($nextState, [self::COMPLETED]),
             self::REJECTED, self::COMPLETED => false,
         };
