@@ -19,6 +19,7 @@ class NotificationController extends Controller
 {
     public function __construct(private NotificationService $notificationService) {}
 
+    // --- Show All Notification  ---
     public function showAll(Request $request)
     {
         try {
@@ -31,14 +32,13 @@ class NotificationController extends Controller
                         : $query->whereNull('read_at');    // غير مقروء
                 })
                 ->get();
-
             return $this->returnData($notifications, trans('locale.notificationsFound'));
         } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
     }
-
+        // -- Read Notification By Id and 
     public function readNotification($id)
     {
         try {

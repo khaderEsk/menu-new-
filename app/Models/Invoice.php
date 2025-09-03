@@ -36,6 +36,7 @@ class Invoice extends Model
         'address_id',
         'delivery_price',
         'discount',
+        'admin_id'
     ];
     protected $casts = [
         'status' => InvoiceStatus::class,
