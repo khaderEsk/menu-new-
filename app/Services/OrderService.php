@@ -250,12 +250,13 @@ class OrderService
         // 6. Group the results using our reusable helper method.
         return $this->groupOrdersForReport($orders);
     }
-    public function updateOrderStatus(Order $order, OrderStatus $newStatus, Admin $currentUser): Order
+    public function updateOrderStatus(Order $order, OrderStatus $newStatus, Admin $currentUser, int $count): Order
     {
         // ✅ DATA INTEGRITY: Wrap the entire multi-step process in a transaction.
-        return DB::transaction(function () use ($order, $newStatus, $currentUser) {
+        return DB::transaction(function () use ($order, $newStatus, $currentUser, $count) {
             // 1. Update the order status.
             $order->status = $newStatus->value;
+            $order->count = $count ?? $order->count;
             $order->save();
 
             // 2. Handle all side-effects using clean, private helper methods.
