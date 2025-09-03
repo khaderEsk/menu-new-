@@ -198,17 +198,17 @@ class InvoiceObserver
     private function sendDeliveryDriverUpdates(Invoice $invoice): void
     {
         if ($invoice->delivery_id) {
-            $deliveryInvoices = Invoice::with('orders')
-            ->whereIn('status', [InvoiceStatus::PROCESSING->value, InvoiceStatus::UNDER_DELIVERY->value , InvoiceStatus::COMPLETED->value])
-            ->where('restaurant_id', $invoice->restaurant_id)
-            ->where('delivery_id', $invoice->delivery_id)
-            ->get();
-
             // $deliveryInvoices = Invoice::with('orders')
-            //     ->where('status', $invoice->status)
+            //     ->whereIn('status', [InvoiceStatus::PROCESSING->value, InvoiceStatus::UNDER_DELIVERY->value, InvoiceStatus::COMPLETED->value])
             //     ->where('restaurant_id', $invoice->restaurant_id)
             //     ->where('delivery_id', $invoice->delivery_id)
             //     ->get();
+
+            $deliveryInvoices = Invoice::with('orders')
+                ->where('status', InvoiceStatus::PROCESSING->value)
+                ->where('restaurant_id', $invoice->restaurant_id)
+                ->where('delivery_id', $invoice->delivery_id)
+                ->get();
 
             event(new OrderUpdated($deliveryInvoices));
         }

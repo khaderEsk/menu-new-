@@ -55,7 +55,6 @@ class OrderUpdated implements ShouldBroadcast
     public function broadcastWith()
     {
         $status = $this->status;
-        Log::info($status);
         $ordersOfSameStatus = $this->orders->filter(function ($order) use ($status) {
             return $order->status->value === $status;
         });
