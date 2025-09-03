@@ -211,6 +211,7 @@ class InvoiceObserver
                 ->get();
 
             event(new OrderUpdated($deliveryInvoices));
+            //
         }
     }
 }
