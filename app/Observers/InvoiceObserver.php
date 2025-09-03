@@ -212,6 +212,7 @@ class InvoiceObserver
 
             event(new OrderUpdated($deliveryInvoices));
             //
+            //
         }
     }
 }
