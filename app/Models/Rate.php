@@ -14,7 +14,7 @@ class Rate extends Model
     protected $fillable = [
         'rate',
         'note',
-        'user_id',
+        'customer_id',
         'restaurant_id',
         'service',
         'arakel',

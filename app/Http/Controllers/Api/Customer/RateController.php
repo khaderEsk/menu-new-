@@ -207,7 +207,6 @@ class RateController extends Controller
                     $rate = 'perfect';
                 }
             }
-
             $rate = $this->rateService->create($id, $data);
 
             return $rate;
