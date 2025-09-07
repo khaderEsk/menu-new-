@@ -14,13 +14,11 @@ use Throwable;
 
 class RateController extends Controller
 {
-    public function __construct(private RateService $rateService)
-    {
-    }
+    public function __construct(private RateService $rateService) {}
     // Show All Rates For Admin
     public function showAll(ShowRequest $request)
     {
-        try{
+        try {
             $restaurant_id = auth()->user()->restaurant_id;
             $query = Rate::query();
             $query->where('restaurant_id', $restaurant_id);
@@ -31,19 +29,16 @@ class RateController extends Controller
                 });
             }
 
-            if ($request->has('type') )
-            {
+            if ($request->has('type')) {
                 if ($request->type === 'person') {
                     $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name','!=', null);
+                        $q->where('name', '!=', null);
                     });
-                }
-                else{
+                } else {
                     $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name','=', null);
+                        $q->where('name', '=', null);
                     });
                 }
-
             }
 
             // if ($request->has('from_age')) {
@@ -53,42 +48,32 @@ class RateController extends Controller
             // }
 
             if ($request->has('from_age') || $request->has('to_age')) {
-                if($request->has('from_age') && $request->has('to_age'))
-                {
+                if ($request->has('from_age') && $request->has('to_age')) {
                     $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('birthday', '>=', $request->from_age)->where('birthday', '<=', $request->to_age);
                     });
-                }
-                else if ($request->has('from_age'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('from_age')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('birthday', '>=', $request->from_age);
                     });
-                }
-                else if ($request->has('to_age'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('to_age')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->where('birthday', '<=', $request->to_age);
                     });
                 }
             }
 
             if ($request->has('from_date') || $request->has('to_date')) {
-                if($request->has('from_date') && $request->has('to_date'))
-                {
+                if ($request->has('from_date') && $request->has('to_date')) {
                     $query->whereHas('customer', function ($q) use ($request) {
                         $q->whereDate('created_at', '>=', $request->from_date)->whereDate('created_at', '<=', $request->to_date);
                     });
-                }
-                else if ($request->has('from_date'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('from_date')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->whereDate('created_at', '>=', $request->from_date);
                     });
-                }
-                else if ($request->has('to_date'))
-                {
-                $query->whereHas('customer', function ($q) use ($request) {
+                } else if ($request->has('to_date')) {
+                    $query->whereHas('customer', function ($q) use ($request) {
                         $q->whereDate('created_at', '<=', $request->to_date);
                     });
                 }
@@ -102,9 +87,8 @@ class RateController extends Controller
 
             // return response()->json($reviews);
             $data = RateResource::collection($rates);
-            return $this->paginateSuccessResponse($data,trans('locale.rateFound'),200);
-
-        } catch(Throwable $th){
+            return $this->paginateSuccessResponse($data, trans('locale.rateFound'), 200);
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
@@ -113,20 +97,19 @@ class RateController extends Controller
     // Export Rates To Excel
     public function export(ShowRequest $request)
     {
-        try{
-            return Excel::download(new RateExport($request),'rate.xlsx');
-        //     return Excel::download(new RateExport($request),'rate.xlsx',null, [
-        //         'Content-Type' => 'application/xlsx',
-        //         'Cache-Control' => 'max-age=0',
-        //         'Access-Control-Allow-Origin' => '*',
-        //         'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-        //         'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-        //     ]
-        // );
-        } catch(Throwable $th){
+        try {
+            return Excel::download(new RateExport($request), 'rate.xlsx');
+            //     return Excel::download(new RateExport($request),'rate.xlsx',null, [
+            //         'Content-Type' => 'application/xlsx',
+            //         'Cache-Control' => 'max-age=0',
+            //         'Access-Control-Allow-Origin' => '*',
+            //         'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+            //         'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+            //     ]
+            // );
+        } catch (Throwable $th) {
             $message = $th->getMessage();
             return $this->messageErrorResponse($message);
         }
-
     }
 }
