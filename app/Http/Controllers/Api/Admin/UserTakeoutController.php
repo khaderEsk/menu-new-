@@ -52,6 +52,7 @@ class UserTakeoutController extends Controller
             if (\count($user) == 0) {
                 return $this->successResponse([], trans('locale.dontHaveUser'), 200);
             }
+            $user->load('latestAddress');
             $data = DeliveryResource::collection($user);
             return $this->paginateSuccessResponse($data, trans('locale.foundSuccessfully'), 200);
         } catch (Throwable $th) {

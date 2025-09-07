@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\User;
 use App\Notifications\GeneralNotification;
+use App\Services\FirebaseService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,24 +24,27 @@ class SendNotificationToAllUsers implements ShouldQueue
     protected $from_date;
     protected $to_date;
     protected $restaurant_id;
+    protected $image;
     public function __construct(
         string $title,
         string $from_date,
         string $to_date,
-        string $restaurant_id
+        string $restaurant_id,
+        $image,
     ) {
         $this->from_date = Carbon::parse($from_date)->toDateTimeString();
         $this->to_date = Carbon::parse($to_date)->toDateTimeString();
         $this->title = $title;
         $this->restaurant_id = $restaurant_id;
+        $this->image = $image;
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(FirebaseService $firebase): void
     {
-        User::where('restaurant_id', $this->restaurant_id)->chunk(200, function ($users) {
+        User::where('restaurant_id', $this->restaurant_id)->chunk(200, function ($users) use ($firebase) {
             foreach ($users as $user) {
                 $user->notify(new GeneralNotification(
                     title: $this->title,
@@ -48,6 +52,13 @@ class SendNotificationToAllUsers implements ShouldQueue
                     to_date: $this->to_date,
                     restaurant_id: $this->restaurant_id
                 ));
+
+                if ($user->fcm_token != null)
+                    $firebase->sendNotification(
+                        $user->fcm_token,
+                        $this->title,
+                        data: ['image' => $this->image],
+                    );
             }
         });
         Log::info('بيانات الإشعار:', [

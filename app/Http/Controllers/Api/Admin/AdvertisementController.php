@@ -38,6 +38,7 @@ class AdvertisementController extends Controller
     // Add Advertisement
     public function create(AddRequest $request)
     {
+        $randomFileName = null;
         try {
             $restaurant_id = auth()->user()->restaurant_id;
             $advertisement = $this->advertisementService->create($restaurant_id, $request->validated());
@@ -52,7 +53,8 @@ class AdvertisementController extends Controller
                 $request->input('title'), // استخدم input() بدلاً من الوصول المباشر
                 $request->input('from_date'),
                 $request->input('to_date'),
-                $restaurant_id
+                $restaurant_id,
+                $randomFileName,
             );
             return $this->successResponse($data, trans('locale.created'), 200);
         } catch (Throwable $th) {

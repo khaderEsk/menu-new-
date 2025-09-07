@@ -15,7 +15,7 @@ class FirebaseService
         $this->messaging = $messaging;
     }
 
-    public function sendNotification($token, $title, $body, $data = [])
+    public function sendNotification($token, $title, $body = null, $data = [])
     {
         if (empty($token)) {
             Log::info('Attempted to send notification to an empty token.');

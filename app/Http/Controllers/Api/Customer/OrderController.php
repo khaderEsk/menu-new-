@@ -170,6 +170,8 @@ class OrderController extends Controller
     // Add order
     public function create(CustomerAddRequest $request)
     {
+        Log::info($request->validated());
+
         $customer = auth()->user();
         if ($customer->hasRole('customer')) {
             $customer_id = $customer->id;
@@ -435,21 +437,21 @@ class OrderController extends Controller
                         'name_ar' => $name_ar,
                     ];
 
-                    for ($i = 0; $i < count($employee); $i++) {
-                        $firstElement = $employee->get($i);
-                        if ($firstElement->fcm_token) {
-                            try {
-                                // محاولة إرسال الإشعار
-                                $this->firebaseService->sendNotification($firstElement->fcm_token, $title, $body, $data2);
-                            } catch (\Kreait\Firebase\Exception\Messaging\InvalidMessage $e) {
-                                // تسجيل الخطأ إذا كان token غير صالح
-                                Log::warning("FCM token غير صالح للموظف رقم " . ($i + 1) . ": {$firstElement->fcm_token} - الخطأ: " . $e->getMessage());
-                            } catch (\Exception $e) {
-                                // تسجيل أي خطأ آخر
-                                Log::error("خطأ في إرسال الإشعار للموظف رقم " . ($i + 1) . ": {$firstElement->fcm_token} - الخطأ: " . $e->getMessage());
-                            }
-                        }
-                    }
+                    // for ($i = 0; $i < count($employee); $i++) {
+                    //     $firstElement = $employee->get($i);
+                    //     if ($firstElement->fcm_token) {
+                    //         try {
+                    //             // محاولة إرسال الإشعار
+                    //             $this->firebaseService->sendNotification($firstElement->fcm_token, $title, $body, $data2);
+                    //         } catch (\Kreait\Firebase\Exception\Messaging\InvalidMessage $e) {
+                    //             // تسجيل الخطأ إذا كان token غير صالح
+                    //             Log::warning("FCM token غير صالح للموظف رقم " . ($i + 1) . ": {$firstElement->fcm_token} - الخطأ: " . $e->getMessage());
+                    //         } catch (\Exception $e) {
+                    //             // تسجيل أي خطأ آخر
+                    //             Log::error("خطأ في إرسال الإشعار للموظف رقم " . ($i + 1) . ": {$firstElement->fcm_token} - الخطأ: " . $e->getMessage());
+                    //         }
+                    //     }
+                    // }
                 }
                 $n = Invoice::where('restaurant_id', $customer->restaurant_id)->max('num') ?? 0;
                 $num = $n + 1;
@@ -482,7 +484,7 @@ class OrderController extends Controller
                     Log::error("Failed to send FCM notification: " . $e->getMessage());
                 }
                 // $this->firebaseService->sendNotification($invoice->admin->fcm_token, $title, $body, $data2);
-                $$restaurant = Restaurant::whereId($customer->restaurant_id)->first();
+                $restaurant = Restaurant::whereId($customer->restaurant_id)->first();
                 $consumer_spending = $sum * $restaurant->consumer_spending / 100;
                 $local_administration = $sum * $restaurant->local_administration / 100;
                 $reconstruction = $sum * $restaurant->reconstruction / 100;
@@ -514,7 +516,7 @@ class OrderController extends Controller
                     // التحقق من وجود العنوان في الاستجابة
                     if (isset($data['address'])) {
                         $city = $data['address']['city'] ?? null;
-                        $region = $data['address']['state'] ?? null;
+                        $region = $data['address']['reigion'] ?? null;
                         $street = $data['address']['road'] ?? null;
                         $neighborhood = $data['address']['suburb'] ?? null;
 
@@ -525,12 +527,12 @@ class OrderController extends Controller
                         $addressParts = array_filter($addressParts, fn($value) => !is_null($value));
 
                         // دمج الأجزاء المتاحة في السلسلة
-                        $r = implode(' - ', $addressParts);
+                        // $r = implode(' - ', $addressParts);
 
-                        // $r = $city .' - '. $street .' - '. $neighborhood;
+                        $r = $city . ' - ' . $street . ' - ' . $neighborhood;
                         // $address = Address::create([
-                        //     'city' => $region ?? null,
-                        //     'region' => $r ?? null,
+                        //     'city' => $city ?? null,
+                        //     'region' => $region ?? null,
                         //     'url' => $data['url'] ?? null,
                         //     'user_id' => $customer->id,
                         //     'latitude' => $request->latitude,
@@ -549,10 +551,10 @@ class OrderController extends Controller
                     if ($request->has('friend_address') && $request->friend_address !== null)
                         $address = Address::whereRegion($data['friend_address'])->first();
 
-                    elseif ($request->has('address') && $request->address !== null)
+                    elseif ($request->has('address') && $request->address !== null) {
                         $address = Address::whereId($data['address'])->first();
-
-                    elseif ($request->has('isDelivery') && $request->isDelivery == false)
+                        Log::info("dsfsdfdsfsdf");
+                    } elseif ($request->has('isDelivery') && $request->isDelivery == false)
                         $address = Address::create();
                 }
 
@@ -596,7 +598,6 @@ class OrderController extends Controller
                 } else {
                     //$p = $p + $request->delivery_price;
                     $t = $t + $request->delivery_price;
-
                     $invoice->update([
                         'status' => InvoiceStatus::WAITING->value,
                         'price' => round($p, 0),
@@ -605,7 +606,7 @@ class OrderController extends Controller
                         'local_administration' => 0,
                         'reconstruction' => 0,
                         'total' => round($t, 0),
-                        'address_id' => $address->id,
+                        'address_id' => $request->address,
                     ]);
                 }
 

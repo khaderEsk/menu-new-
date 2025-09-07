@@ -38,6 +38,7 @@ class DeliveryResource extends JsonResource
             'restaurant_latitude' => $restaurant->latitude ?? null,
             'distance' => $this->when(isset($this->distance), $this->distance),
             'invoice' => InvoiceUserResource::collection($this->whenLoaded('invoices')),
+            'address' => new AddressResource($this->whenLoaded('latestAddress')),
         ];
 
         // This logic remains the same.
