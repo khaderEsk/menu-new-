@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class DeliveryService
@@ -131,6 +132,7 @@ class DeliveryService
     // to create delivery
     public function create(array $data,  $imageFile): ?User
     {
+        Log::info($data);
         // Add the required 'role' and hash the password before creation.
         $data['role'] = 1;
         $data['password'] = Hash::make($data['password']);
@@ -160,7 +162,7 @@ class DeliveryService
     }
 
     // to update delivery
-    public function update(User $delivery, array $data, ?UploadedFile $imageFile): ?User
+    public function update(User $delivery, array $data, $imageFile): ?User
     {
         // If a new password is provided and it's not empty, hash it.
         // Otherwise, remove it from the data array to avoid overwriting the existing password.

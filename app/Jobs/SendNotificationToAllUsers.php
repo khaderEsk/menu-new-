@@ -44,23 +44,25 @@ class SendNotificationToAllUsers implements ShouldQueue
      */
     public function handle(FirebaseService $firebase): void
     {
-        User::where('restaurant_id', $this->restaurant_id)->chunk(200, function ($users) use ($firebase) {
-            foreach ($users as $user) {
-                $user->notify(new GeneralNotification(
-                    title: $this->title,
-                    from_date: $this->from_date,
-                    to_date: $this->to_date,
-                    restaurant_id: $this->restaurant_id
-                ));
+        User::where('restaurant_id', $this->restaurant_id)
+            ->where('role', 0)
+            ->chunk(200, function ($users) use ($firebase) {
+                foreach ($users as $user) {
+                    $user->notify(new GeneralNotification(
+                        title: $this->title,
+                        from_date: $this->from_date,
+                        to_date: $this->to_date,
+                        restaurant_id: $this->restaurant_id
+                    ));
 
-                if ($user->fcm_token != null)
-                    $firebase->sendNotification(
-                        $user->fcm_token,
-                        $this->title,
-                        data: ['image' => $this->image],
-                    );
-            }
-        });
+                    if ($user->fcm_token != null)
+                        $firebase->sendNotification(
+                            $user->fcm_token,
+                            $this->title,
+                            data: ['image' => $this->image],
+                        );
+                }
+            });
         Log::info('بيانات الإشعار:', [
             'title' => $this->title,
             'from_date' => $this->from_date,

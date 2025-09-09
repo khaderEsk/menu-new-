@@ -28,6 +28,7 @@ class Item extends Model implements HasMedia, TranslatableContract
         'restaurant_id',
         'is_panorama',
         'item_id',
+        'currency',
     ];
 
     protected $hidden = [
@@ -44,7 +45,7 @@ class Item extends Model implements HasMedia, TranslatableContract
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => floatval($value),
+            get: fn($value) => floatval($value),
         );
     }
 
@@ -96,4 +97,3 @@ class Item extends Model implements HasMedia, TranslatableContract
         return $this->hasOne(NutritionFact::class);
     }
 }
-    

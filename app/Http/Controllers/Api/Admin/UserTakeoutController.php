@@ -476,8 +476,6 @@ class UserTakeoutController extends Controller
                 $invoice->delivery_id = $request->delivery_id;
             }
             $invoice->save();
-            // event(new InvoiceStatusUpdated($invoice));
-            Log::info($invoice);
 
             // 3. Update the status of related orders. This is a fast operation.
             $orderStatus = $this->getOrderStatusFromInvoiceStatus($status);
@@ -486,7 +484,9 @@ class UserTakeoutController extends Controller
             }
 
             // The controller's job is done. It returns an immediate success response.
-            return $this->messageSuccessResponse(trans('locale.successfully'), 200);
+            $response= $this->messageSuccessResponse(trans('locale.successfully'), 200);
+            Log::info($response);
+            return $response;   
         } catch (\Throwable $th) {
             Log::error($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());

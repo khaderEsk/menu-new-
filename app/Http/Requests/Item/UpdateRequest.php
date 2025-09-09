@@ -67,11 +67,11 @@ class UpdateRequest extends FormRequest
             'nutrition' => ['nullable', 'required_if:is_nutrition,1'],
             'nutrition.amount' => ['numeric', 'required_if:is_nutrition,1'],
             'nutrition.unit' => [Rule::in(['g', 'ml', 'kg', 'L']), 'required_if:is_nutrition,1'],
-            'nutrition.kcal' => ['nullable','numeric'],
-            'nutrition.protein' => ['nullable','numeric'],
-            'nutrition.fat' => ['nullable','numeric'],
-            'nutrition.carbs' => ['nullable','numeric'],
-
+            'nutrition.kcal' => ['nullable', 'numeric'],
+            'nutrition.protein' => ['nullable', 'numeric'],
+            'nutrition.fat' => ['nullable', 'numeric'],
+            'nutrition.carbs' => ['nullable', 'numeric'],
+            'currency' => ['nullable', 'string'],
         ];
     }
 }

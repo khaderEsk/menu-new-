@@ -16,6 +16,7 @@ use App\Services\ItemService;
 use App\Services\NutritionFactService;
 use App\Services\SizeService;
 use App\Services\ToppingService;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ItemController extends Controller
@@ -88,7 +89,7 @@ class ItemController extends Controller
     // Add Item
     public function create(StoreRequest $request)
     {
-
+        Log::info($request->validated());
         try {
             $sizeImages = $request->file('sizes');
             $item = $this->itemService->create($request->validated(), $sizeImages);

@@ -71,7 +71,7 @@ class StoreRequest extends FormRequest
             'nutrition.protein' => ['nullable', 'numeric'],
             'nutrition.fat' => ['nullable', 'numeric'],
             'nutrition.carbs' => ['nullable', 'numeric'],
-
+            'currency' => ['nullable', 'string'],
         ];
     }
 }

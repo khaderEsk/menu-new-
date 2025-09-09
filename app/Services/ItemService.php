@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\Item;
 use App\Models\ItemTranslation;
 use App\Traits\ImageTrait;
+use Illuminate\Support\Facades\Log;
 
 class ItemService
 {
@@ -56,6 +57,7 @@ class ItemService
             'category_id' => $data['category_id'],
             'restaurant_id' => $admin->restaurant_id,
             'is_panorama' => $data['is_panorama'],
+            'currency' => $data['currency'],
         ];
         $item = Item::create($arr);
         $this->uploadSingleImage($item, 'image', 'item');
@@ -71,7 +73,7 @@ class ItemService
     // to update item
     public function update($data, $sizeImages)
     {
-
+        Log::info($data);
         $admin = auth()->user();
         $item = Item::whereId($data['id'])->first();
         // return Max Index In Master Category For Admin
@@ -89,11 +91,13 @@ class ItemService
         if ($item->id !=  $data['id'])
             return response()->json(['status' => false, 'message' => "you can't update"], 200);
 
-        Item::whereId($data['id'])->update([
+
+        $item->update([
             'price' => $data['price'] ?? null,
             'index' => $data['maxIndex'],
             'category_id' => $data['category_id'],
             'is_panorama' => $data['is_panorama'],
+            'currency' => array_key_exists('currency', $data) ? $data['currency'] : $item->currency,
         ]);
         foreach (['en', 'ar'] as $lang) {
             $category = ItemTranslation::where('locale', $lang)->whereItemId($data['id'])->update([

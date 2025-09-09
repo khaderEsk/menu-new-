@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('index');
             $table->boolean('is_active')->default(1);
             $table->boolean('is_panorama')->default(0);
+            $table->string('currency')->default("$")->nullable();
             $table->foreignIdFor(Category::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Restaurant::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->softDeletes();

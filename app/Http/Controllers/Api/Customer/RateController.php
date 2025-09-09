@@ -144,6 +144,7 @@ class RateController extends Controller
                             }
                         }
                     }
+
                     $customer->notify(new RateNotification(
                         title: 'Bad Rate',
                         body: 'now Rate',

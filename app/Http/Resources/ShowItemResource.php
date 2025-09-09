@@ -36,8 +36,9 @@ class ShowItemResource extends JsonResource
             'sizes' => SizeResource::collection($this->sizes),
             'components' => ComponentResource::collection($this->components),
             'toppings' => ToppingResource::collection($this->toppings),
-            'nutrition'=>NutritionResource::make($this->nutrition),
+            'nutrition' => NutritionResource::make($this->nutrition),
             // 'translations' => $this->getTranslationsArray(),
+            'currency' => $this->currency,
         ];
 
         return $data;
