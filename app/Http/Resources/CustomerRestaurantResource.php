@@ -15,11 +15,11 @@ class CustomerRestaurantResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if(app()->getLocale() == 'ar')
-            $font =$this->FontAr->name;
+        if (app()->getLocale() == 'ar')
+            $font = $this->FontAr->name;
         else
-            $font =$this->FontEn->name;
-        if($this->is_active === null)
+            $font = $this->FontEn->name;
+        if ($this->is_active === null)
             $this->is_active = 1;
 
         $lan = request()->header('language');
@@ -118,12 +118,12 @@ class CustomerRestaurantResource extends JsonResource
             'share_item_whatsapp' => $this->share_item_whatsapp ?? null,
             'admins' => AdminResource::collection($this->whenLoaded('admins')),
             'translations' => $this->getTranslationsArray(),
+            'link' => 'http://localhost:5173/' . $this->name
         ];
-        if($this->message_in_home_page)
+        if ($this->message_in_home_page)
             $data['message_in_home_page'] = $this->message_in_home_page;
-        if($this->is_takeout == 1)
-            $data['qr_takeout'] = env('APP_URL')."/".str_replace('public', 'storage', $this->qr_takeout);
-
+        if ($this->is_takeout == 1)
+            $data['qr_takeout'] = env('APP_URL') . "/" . str_replace('public', 'storage', $this->qr_takeout);
         return $data;
     }
 }

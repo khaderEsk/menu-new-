@@ -84,7 +84,7 @@ class RestaurantResource extends JsonResource
             'birthday_message' => $this->birthday_message ?? null,
             'image_or_color' => $this->image_or_color ?? null,
             'background_image_home_page' => $this->getFirstMediaUrl('background_image_home_page'),
-            'background_image_category' => $this->getFirstMediaUrl('background_image_category') ,
+            'background_image_category' => $this->getFirstMediaUrl('background_image_category'),
             'background_image_sub' => $this->getFirstMediaUrl('background_image_sub') ?? null,
             'background_image_item' => $this->getFirstMediaUrl('background_image_item') ?? null,
             'rate_opacity' => $this->rate_opacity ?? null,
@@ -117,13 +117,15 @@ class RestaurantResource extends JsonResource
             'admin_id' => $this->admin_id,
             'admins' => AdminResource::collection($this->whenLoaded('admins')),
             'translations' => $this->getTranslationsArray(),
+            'link' => 'http://localhost:5173/' . $this->name,
+            'app_links' => new AppLinksResource($this->whenLoaded('links')),
         ];
 
-        if($this->is_table == 1)
+        if ($this->is_table == 1)
             $data['available_tables'] = $this->available_tables ?? null;
 
-        if($this->is_takeout == 1)
-            $data['qr_takeout'] = env('APP_URL')."/".str_replace('public', 'storage', $this->qr_takeout);
+        if ($this->is_takeout == 1)
+            $data['qr_takeout'] = env('APP_URL') . "/" . str_replace('public', 'storage', $this->qr_takeout);
 
         return $data;
     }

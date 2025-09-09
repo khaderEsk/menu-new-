@@ -17,16 +17,16 @@ class RateResource extends JsonResource
     {
         $restaurant = Restaurant::where('id', $this['restaurant_id'])->first();
         // dd($restaurant);
-       
+
 
         if ($restaurant->rate_format->value == 1) {
             $data = [
                 'id' => $this->id,
                 // 'restaurant_id' => $this->restaurant_id,
-                'name' => $this->name,
-                'phone' => $this->phone,
-                'birthday' => $this->birthday,
-                'gender' => $this->gender,
+                'name' => $this->customer->name,
+                'phone' => $this->customer->phone,
+                'birthday' => $this->customer->birthday,
+                'gender' => $this->customer->gender,
                 // 'restaurant' => $this->restaurant->name,
                 'rate' => $this->rate,
                 'note' => $this->note,
@@ -36,6 +36,7 @@ class RateResource extends JsonResource
                 'drinks' => $this->drinks,
                 'sweets' => $this->sweets,
                 'games_room' => $this->games_room,
+                'type' => $this->type,
             ];
         } else {
             $data = [
@@ -48,6 +49,7 @@ class RateResource extends JsonResource
                 'restaurant' => $this->restaurant->name,
                 'rate' => $this->rate,
                 'note' => $this->note,
+                'type' => $this->type
             ];
         }
 

@@ -47,7 +47,7 @@ class RateService
     public function create($id, $data)
     {
         $data['customer_id'] = $id;
-        $arrRate = Arr::only($data, ['rate', 'note', 'restaurant_id', 'customer_id', 'service', 'arakel', 'foods', 'drinks', 'sweets', 'games_room']);
+        $arrRate = Arr::only($data, ['rate', 'note', 'restaurant_id', 'customer_id', 'service', 'arakel', 'foods', 'drinks', 'sweets', 'games_room','type']);
         $arrCustomer = Arr::only($data, ['name', 'gender', 'phone', 'birthday']);
         $rate = Rate::create($arrRate);
         // dd($rate);

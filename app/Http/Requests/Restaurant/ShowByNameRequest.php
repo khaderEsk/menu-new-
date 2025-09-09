@@ -23,8 +23,8 @@ class ShowByNameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'restaurant_name' => [Rule::exists('restaurants','name_url')->whereNull('deleted_at'),'required_without:id'],
-            'id' => [Rule::exists('restaurants','id')->whereNull('deleted_at'),'required_without:restaurant_name'],
+            'restaurant_name' => [Rule::exists('restaurants', 'name_url')->whereNull('deleted_at'), 'required_without:id'],
+            'id' => [Rule::exists('restaurants', 'id')->whereNull('deleted_at'), 'required_without:restaurant_name'],
             'qr_code' => ['nullable'],
         ];
     }

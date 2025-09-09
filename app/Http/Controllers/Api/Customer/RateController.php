@@ -38,13 +38,9 @@ class RateController extends Controller
 
             if ($request->has('type')) {
                 if ($request->type === 'person') {
-                    $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name', '!=', null);
-                    });
+                    $query->where('type', 'person');
                 } else {
-                    $query->whereHas('customer', function ($q) use ($request) {
-                        $q->where('name', '=', null);
-                    });
+                    $query->where('type', 'anonymous');
                 }
             }
 
@@ -144,7 +140,6 @@ class RateController extends Controller
                             }
                         }
                     }
-
                     $customer->notify(new RateNotification(
                         title: 'Bad Rate',
                         body: 'now Rate',

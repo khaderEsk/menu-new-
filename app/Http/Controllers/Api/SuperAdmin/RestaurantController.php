@@ -14,6 +14,7 @@ use App\Http\Requests\Restaurant\UpdateRequest;
 use App\Http\Resources\RestaurantResource;
 use App\Http\Resources\ShowContractsResource;
 use App\Models\Admin;
+use App\Models\AppLink;
 use App\Models\CitySuperAdmin;
 use App\Models\IpQr;
 use App\Models\Restaurant;
@@ -119,6 +120,7 @@ class RestaurantController extends Controller
     // Add Restaurant Function
     public function create(AddRequest $request)
     {
+
         try {
             $data = $request->validated();
             $admin = auth()->user();
@@ -192,7 +194,14 @@ class RestaurantController extends Controller
             $arrRestaurant['restaurant_url'] = "https://menu.le.sy/" . $arrRestaurant['name_url'];
             $arrRestaurant['restaurant_id'] = $restaurant['id'];
             $qr = $this->qrService->create($arrRestaurant);
-            $rest = Restaurant::whereId($restaurant->id)->first();
+
+            /**تخزين روابط التطبيقات */
+            $linkKeys = ['user_link', 'delivery_link', 'admin_link'];
+            $linksData = Arr::only($data, $linkKeys);
+            $linksData['restaurant_id'] = $restaurant->id;
+            AppLink::query()->create($linksData);
+
+            $rest = Restaurant::with(['links'])->whereId($restaurant->id)->first();
             // $arrAdmin = Arr::only($request->validated(),
             // ['name_admin','user_name','password','mobile','fcm_token']);
             // $restaurant = $this->restaurantService->createAdmin($restaurant->id,$arrAdmin);
@@ -220,6 +229,7 @@ class RestaurantController extends Controller
                 $rest->qr_takeout = $qrCodePath;
                 $rest->save();
             }
+
             // /---------------------------------------------------------------------------/
             $data = RestaurantResource::make($rest);
             return $this->successResponse($data, trans('locale.created'), 200);

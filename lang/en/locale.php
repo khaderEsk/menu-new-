@@ -135,6 +135,7 @@ return [
     'UserNotFound' => 'user not Found',
     'requestCompleted' => 'You must wait until the requests are completed.',
     'invalidTable' => 'The table is reserved.',
-    'delivery' => 'The driver delivers an order that cannot be relied upon.'
+    'delivery' => 'The driver delivers an order that cannot be relied upon.',
+    'youCannotAssignDriver' => 'You Cannot Assign Driver Because Order Doesnt Accepted Yet'
 
 ];

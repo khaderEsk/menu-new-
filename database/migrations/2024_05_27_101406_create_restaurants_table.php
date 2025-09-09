@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('message_good')->nullable();
             $table->string('message_perfect')->nullable();
             $table->string('color')->default('Color(0xffffffff)');
-          	$table->string('background_color')->default('Color(0xffffffff)');
+            $table->string('background_color')->default('Color(0xffffffff)');
             $table->boolean('is_news')->default(1);
             $table->boolean('is_rate')->default(1);
             $table->boolean('is_active')->default(1);

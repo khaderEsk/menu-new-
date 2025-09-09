@@ -93,6 +93,7 @@ class Restaurant extends Model implements HasMedia, TranslatableContract
         'price_km',
         'price_type',
         'share_item_whatsapp',
+        'links_id',
     ];
 
     protected $translatedAttributes = [
@@ -112,17 +113,17 @@ class Restaurant extends Model implements HasMedia, TranslatableContract
 
     public function getMessageBadAttribute($key)
     {
-        if(is_null($key))
+        if (is_null($key))
             return "";
     }
     public function getMessageGoodAttribute($key)
     {
-        if(is_null($key))
+        if (is_null($key))
             return "";
     }
     public function getMessagePerfectAttribute($key)
     {
-        if(is_null($key))
+        if (is_null($key))
             return "";
     }
     public function admins(): HasMany
@@ -207,12 +208,12 @@ class Restaurant extends Model implements HasMedia, TranslatableContract
 
     public function fontEn()
     {
-        return $this->belongsTo(Font::class,'font_id_en');
+        return $this->belongsTo(Font::class, 'font_id_en');
     }
 
     public function fontAr()
     {
-        return $this->belongsTo(Font::class,'font_id_ar');
+        return $this->belongsTo(Font::class, 'font_id_ar');
     }
 
     public function employeeTable(): HasMany
@@ -252,5 +253,10 @@ class Restaurant extends Model implements HasMedia, TranslatableContract
     public function fontTypeItemAr()
     {
         return $this->belongsTo(Font::class, 'font_type_item_ar');
+    }
+
+    public function links(): HasOne
+    {
+        return $this->hasOne(AppLink::class, 'restaurant_id');
     }
 }

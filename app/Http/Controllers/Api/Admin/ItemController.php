@@ -89,7 +89,6 @@ class ItemController extends Controller
     // Add Item
     public function create(StoreRequest $request)
     {
-        Log::info($request->validated());
         try {
             $sizeImages = $request->file('sizes');
             $item = $this->itemService->create($request->validated(), $sizeImages);

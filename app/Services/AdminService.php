@@ -11,6 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Admin\UpdateRestaurantRequest;
+use App\Models\AppLink;
 use Illuminate\Support\Str;
 
 class AdminService
@@ -65,8 +66,13 @@ class AdminService
                 // 3. Centralized Media Handling
                 // An array of all possible media collections to process.
                 $mediaCollections = [
-                    'cover', 'logo', 'logo_home_page', 'background_image_home_page',
-                    'background_image_category', 'background_image_sub', 'background_image_item'
+                    'cover',
+                    'logo',
+                    'logo_home_page',
+                    'background_image_home_page',
+                    'background_image_category',
+                    'background_image_sub',
+                    'background_image_item'
                 ];
 
                 foreach ($mediaCollections as $collection) {
@@ -74,6 +80,11 @@ class AdminService
                     $this->handleMediaUpload($request, $restaurant, $collection);
                 }
             });
+
+            $linkKeys = ['user_link', 'delivery_link', 'admin_link'];
+            $linksData = Arr::only($request->validated(), $linkKeys);
+            $linksData['restaurant_id'] = $restaurant->id;
+            AppLink::query()->update($linksData);
         } catch (\Throwable $e) {
             // If anything inside the transaction fails, log the error and return null.
             report($e);
@@ -98,9 +109,14 @@ class AdminService
     public function getSuperAdminProfile(int $id)
     {
         return \App\Models\SuperAdmin::with([
-            'restaurant.emoji', 'restaurant.FontEn', 'restaurant.FontAr',
-            'restaurant.fontTypeWelcome', 'restaurant.fontTypeCategoryEn',
-            'restaurant.fontTypeCategoryAr', 'restaurant.fontTypeItemEn', 'restaurant.fontTypeItemAr'
+            'restaurant.emoji',
+            'restaurant.FontEn',
+            'restaurant.FontAr',
+            'restaurant.fontTypeWelcome',
+            'restaurant.fontTypeCategoryEn',
+            'restaurant.fontTypeCategoryAr',
+            'restaurant.fontTypeItemEn',
+            'restaurant.fontTypeItemAr'
         ])->findOrFail($id);
     }
 

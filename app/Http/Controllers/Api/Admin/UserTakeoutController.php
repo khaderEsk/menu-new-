@@ -209,7 +209,7 @@ class UserTakeoutController extends Controller
         try {
             $orders = Order::whereInvoiceId($request->invoice_id)->whereIn('status', ['accepted', 'preparation', 'done'])->get();
             if ($orders->isEmpty())
-                return $this->messageErrorResponse(trans('locale.youCannotSendTheRequestBecause'), 400);
+                return $this->messageErrorResponse(trans('locale.youCannotAssignDriver'), 400);
             $invoice = Invoice::whereId($request->invoice_id)->update([
                 'delivery_id' => $request->delivery_id,
                 'receipt_at' => now(),
@@ -484,9 +484,9 @@ class UserTakeoutController extends Controller
             }
 
             // The controller's job is done. It returns an immediate success response.
-            $response= $this->messageSuccessResponse(trans('locale.successfully'), 200);
+            $response = $this->messageSuccessResponse(trans('locale.successfully'), 200);
             Log::info($response);
-            return $response;   
+            return $response;
         } catch (\Throwable $th) {
             Log::error($th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine());
             return $this->messageErrorResponse('An error occurred: ' . $th->getMessage());

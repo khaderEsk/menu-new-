@@ -20,7 +20,7 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
     public function query()
     {
         $admin = auth()->user();
-        if($admin->hasAnyRole(['admin','employee','restaurantManager']))
+        if ($admin->hasAnyRole(['admin', 'employee', 'restaurantManager']))
             $query = Rate::query()->with('customer')->where('restaurant_id', $admin->restaurant_id);
         else
             $query = Rate::query()->with('customer');
@@ -32,17 +32,11 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
         }
 
 
-        if ($this->request->has('type') )
-        {
+        if ($this->request->has('type')) {
             if ($this->request->type === 'person') {
-                $query->whereHas('customer', function ($q) {
-                    $q->where('name','!=', null);
-                });
-            }
-            else{
-                $query->whereHas('customer', function ($q) {
-                    $q->where('name','=', null);
-                });
+                $query->where('type', 'person');
+            } else {
+                $query->where('type', 'anonymous');
             }
         }
 
@@ -53,21 +47,16 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
         }
 
         if ($this->request->has('from_date') || $this->request->has('to_date')) {
-            if($this->request->has('from_date') && $this->request->has('to_date'))
-            {
+            if ($this->request->has('from_date') && $this->request->has('to_date')) {
                 $query->whereHas('customer', function ($q) {
                     $q->where('created_at', '>=', $this->request->from_date)->where('created_at', '<=', $this->request->to_date);
                 });
-            }
-            else if ($this->request->has('from_date'))
-            {
-            $query->whereHas('customer', function ($q) {
+            } else if ($this->request->has('from_date')) {
+                $query->whereHas('customer', function ($q) {
                     $q->where('created_at', '>=', $this->request->from_date);
                 });
-            }
-            else if ($this->request->has('to_date'))
-            {
-            $query->whereHas('customer', function ($q) {
+            } else if ($this->request->has('to_date')) {
+                $query->whereHas('customer', function ($q) {
                     $q->where('created_at', '<=', $this->request->to_date);
                 });
             }
@@ -86,9 +75,8 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         $admin = auth()->user();
-        $restaurant = Restaurant::where('id',$admin->restaurant_id)->first();
-        if($restaurant->rate_format->value == 1)
-        {
+        $restaurant = Restaurant::where('id', $admin->restaurant_id)->first();
+        if ($restaurant->rate_format->value == 1) {
             return [
                 // 'ID',
                 'Rate',
@@ -104,9 +92,7 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
                 // 'Customer ID',
                 // 'Restaurant ID',
             ];
-        }
-        else
-        {
+        } else {
             return [
                 // 'ID',
                 'Rate',
@@ -122,9 +108,8 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
     public function map($review): array
     {
         $admin = auth()->user();
-        $restaurant = Restaurant::where('id',$admin->restaurant_id)->first();
-        if($restaurant->rate_format->value == 1)
-        {
+        $restaurant = Restaurant::where('id', $admin->restaurant_id)->first();
+        if ($restaurant->rate_format->value == 1) {
             return [
                 // $review->id,
                 $review->rate,
@@ -140,9 +125,7 @@ class RateExport implements FromQuery, WithHeadings, WithMapping
                 $review->sweets,
                 $review->games_room,
             ];
-        }
-        else
-        {
+        } else {
             return [
                 // $review->id,
                 $review->rate,
