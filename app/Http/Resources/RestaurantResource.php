@@ -119,6 +119,9 @@ class RestaurantResource extends JsonResource
             'translations' => $this->getTranslationsArray(),
             'link' => 'http://localhost:5173/' . $this->name,
             'app_links' => new AppLinksResource($this->whenLoaded('links')),
+            'user_link' => $this->links?->user_link,
+            'delivery_link' => $this->links?->delivery_link,
+            'admin_link' => $this->links?->admin_link
         ];
 
         if ($this->is_table == 1)

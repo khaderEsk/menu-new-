@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\Admin;
+use App\Models\AppLink;
 use App\Models\RestaurantTranslation;
 use App\Models\Restaurant;
 use App\Models\SuperAdmin;
+use Illuminate\Support\Arr;
 
 class RestaurantService
 {
@@ -25,7 +27,7 @@ class RestaurantService
 
     public function allRestaurantManager($admin)
     {
-        $restaurants = Restaurant::where('admin_id',$admin)->latest()->get();
+        $restaurants = Restaurant::where('admin_id', $admin)->latest()->get();
         return $restaurants;
     }
     // to show paginate Restaurant active
@@ -70,7 +72,7 @@ class RestaurantService
     }
 
     // to update  Restaurant
-    public function update($id, $arrRestaurant, $arrRestaurantTranslation)
+    public function update($id, $arrRestaurant, $arrRestaurantTranslation, $data)
     {
         foreach (['en', 'ar'] as $lang) {
             RestaurantTranslation::where('locale', $lang)->whereRestaurantId($arrRestaurantTranslation['id'])->update([
@@ -79,7 +81,22 @@ class RestaurantService
             ]);
         }
 
-        $restaurant = Restaurant::whereId($arrRestaurant['id'])->update($arrRestaurant);
+
+
+        $restaurant = Restaurant::query()->findOrFail($arrRestaurant['id']);
+        $links = $restaurant->links;
+
+        $linkKeys = ['user_link', 'delivery_link', 'admin_link'];
+        $linksData = Arr::only($data, $linkKeys);
+        $linksData['restaurant_id'] = $restaurant->id;
+
+        $restaurant = $restaurant->update($arrRestaurant);
+        if ($links != null) {
+            $links->update($linksData);
+        } else {
+            AppLink::query()->create($linksData);
+        }
+
         // $restaurant = Restaurant::whereId($arrRestaurant['id'])->get();
         return $restaurant;
     }
@@ -98,8 +115,8 @@ class RestaurantService
             $Restaurant = Restaurant::whereId($data['id'])->first();
 
         if (\array_key_exists('restaurant_name', $data))
-        $Restaurant = Restaurant::whereNameUrl($data['restaurant_name'])->first();
-    
+            $Restaurant = Restaurant::whereNameUrl($data['restaurant_name'])->first();
+
         return $Restaurant;
     }
 

@@ -47,14 +47,29 @@ class RateService
     public function create($id, $data)
     {
         $data['customer_id'] = $id;
-        $arrRate = Arr::only($data, ['rate', 'note', 'restaurant_id', 'customer_id', 'service', 'arakel', 'foods', 'drinks', 'sweets', 'games_room','type']);
-        $arrCustomer = Arr::only($data, ['name', 'gender', 'phone', 'birthday']);
+        $arrRate = Arr::only($data, [
+            'rate',
+            'note',
+            'restaurant_id',
+            'customer_id',
+            'service',
+            'arakel',
+            'foods',
+            'drinks',
+            'sweets',
+            'games_room',
+            'type',
+            'name',
+            'age',
+            'phone',
+            'gender'
+        ]);
+        // $arrCustomer = Arr::only($data, ['name', 'gender', 'phone', 'birthday', 'age']);
         $rate = Rate::create($arrRate);
-        // dd($rate);
         // $customer = Customer::whereId($id)->update($arrCustomer);
-        $allData = array_merge($rate->toArray(), $arrCustomer);
+        // $allData = array_merge($rate->toArray(), $arrCustomer);
         // dd($allData);
-        return $allData;
+        return $rate;
     }
 
     // to update  rate

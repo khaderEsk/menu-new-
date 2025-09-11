@@ -82,7 +82,7 @@ class RateController extends Controller
             }
 
             $rates = $query->latest()->paginate($request->input('per_page', 25));
-
+            
             // return response()->json($reviews);
             $data = RateResource::collection($rates);
             return $this->paginateSuccessResponse($data, trans('locale.rateFound'), 200);

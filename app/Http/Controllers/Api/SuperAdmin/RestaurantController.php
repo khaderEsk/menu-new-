@@ -28,6 +28,7 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as FacadesQrCode;
 use Throwable;
 
@@ -338,7 +339,7 @@ class RestaurantController extends Controller
                 ['id', 'name_en', 'name_ar', 'note_en', 'note_ar']
             );
 
-            $restaurant_update = $this->restaurantService->update($id, $arrRestaurant, $arrRestaurantTranslation);
+            $restaurant_update = $this->restaurantService->update($id, $arrRestaurant, $arrRestaurantTranslation, $data);
             $restaurant = Restaurant::whereId($data['id'])->first();
 
             if ($request->hasFile('background_image_home_page')) {
@@ -469,7 +470,6 @@ class RestaurantController extends Controller
                     $firstElement->tokens()->delete();
                 }
             }
-
             $data = RestaurantResource::make($restaurant);
             return $this->successResponse($data, trans('locale.updated'), 200);
         } catch (Throwable $th) {

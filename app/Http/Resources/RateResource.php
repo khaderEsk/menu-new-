@@ -23,10 +23,10 @@ class RateResource extends JsonResource
             $data = [
                 'id' => $this->id,
                 // 'restaurant_id' => $this->restaurant_id,
-                'name' => $this->customer->name,
-                'phone' => $this->customer->phone,
+                'name' => $this->name,
+                'phone' => $this->phone,
                 'birthday' => $this->customer->birthday,
-                'gender' => $this->customer->gender,
+                'gender' => $this->gender,
                 // 'restaurant' => $this->restaurant->name,
                 'rate' => $this->rate,
                 'note' => $this->note,

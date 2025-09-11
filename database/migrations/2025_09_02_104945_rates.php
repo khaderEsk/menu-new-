@@ -27,7 +27,8 @@ return new class extends Migration
             $table->string('drinks')->default(0);
             $table->string('sweets')->default(0);
             $table->string('games_room')->default(0);
-
+            $table->string('name')->nullable();
+            $table->string('phone')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

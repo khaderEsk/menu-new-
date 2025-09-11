@@ -23,6 +23,10 @@ class Rate extends Model
         'sweets',
         'games_room',
         'type',
+        'name',
+        'age',
+        'phone',
+        'gender'
     ];
 
     protected $hidden = [

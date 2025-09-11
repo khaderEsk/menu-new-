@@ -28,7 +28,7 @@ class AddRequest extends FormRequest
             'type' => ['required', 'in:person,anonymous'],
             'name' => ['required_if:type,person'],
             'phone' => ['required_if:type,person'],
-            'gender' => ['required_if:type,person'],
+            'gender' => ['required_if:type,person', 'in:male,female'],
             'birthday' => ['nullable', 'required_if:type,person', 'numeric'],
             'service' => ['nullable', 'numeric', 'min:0', 'max:3'],
             'arakel' => ['nullable', 'numeric', 'min:0', 'max:3'],
@@ -36,6 +36,7 @@ class AddRequest extends FormRequest
             'drinks' => ['nullable', 'numeric', 'min:0', 'max:3'],
             'sweets' => ['nullable', 'numeric', 'min:0', 'max:3'],
             'games_room' => ['nullable', 'numeric', 'min:0', 'max:3'],
+            'age' => ['nullable', 'required_if:type,person', 'integer'],
             // 'restaurant_id' => ['required',Rule::exists('restaurants','id')->whereNull('deleted_at')],
         ];
     }

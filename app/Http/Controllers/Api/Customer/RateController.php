@@ -120,6 +120,7 @@ class RateController extends Controller
                 $avg = $sum / $num;
                 $data['rate'] = round($avg, 0);
             }
+
             // $admin = Admin::whereRestaurantId($data['restaurant_id'])->first();
             // Check Type Of Rate
             // -------------------------------------------------------------------------
@@ -128,26 +129,30 @@ class RateController extends Controller
             if ($restaurant->rate_format->value == 1) {
                 if ($data['service'] == 1 || $data['arakel'] == 1 || $data['foods'] == 1 || $data['drinks'] == 1 || $data['sweets'] == 1 || $data['games_room'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
-                    $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
-                        . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
-                        ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
+                    if ($data['type'] == 'person') {
+                        $bodyFire = 'Bad Rate : name : ' . $data['name'] . ' , Phone : ' . $data['phone']
+                            . ' , service : ' . $data['service'] . ' , arakel : ' . $data['arakel'] . ' , foods : ' . $data['foods'] . ' , drinks : ' . $data['drinks'] . ' , sweets : ' . $data['sweets'] . ' , games_room : ' . $data['games_room'] .
+                            ' , Gender : ' . $data['gender'] . ' , Birthday : ' . $data['birthday'];
+                    } else {
+                        $bodyFire = 'Bad Rate from anonymous';
+                    }
                     for ($i = 0; $i < count($admin); $i++) {
                         $firstElement = $admin->get($i);
                         if ($firstElement) {
-                            if ($firstElement->fcm_token && $data['name'] != '') {
+                            if ($firstElement->fcm_token) {
                                 // $this->SendNotification($firstElement->fcm_token, $data);
                                 $this->firebaseService->sendNotification($firstElement->fcm_token, 'Bad Rate', $bodyFire, []);
                             }
                         }
                     }
-                    $customer->notify(new RateNotification(
-                        title: 'Bad Rate',
-                        body: 'now Rate',
-                        restaurant_id: $data['restaurant_id'],
-                        phone: $data['phone'],
-                        rate: 'bad',
-                        note: $data['note']
-                    ));
+                    // $customer->notify(new RateNotification(
+                    //     title: 'Bad Rate',
+                    //     body: 'now Rate',
+                    //     restaurant_id: $data['restaurant_id'],
+                    //     phone: $data['phone'],
+                    //     rate: 'bad',
+                    //     note: $data['note']
+                    // ));
 
                     // Notification::create([
                     //     'restaurant_id' => $data['restaurant_id'],
@@ -163,7 +168,6 @@ class RateController extends Controller
             // Check Type Of Rate
 
             if ($restaurant->rate_format->value == 0) {
-
                 if ($data['rate'] == 1) {
                     // If Rate Bad And Rate Owner known => Send Notification To Admin Application
                     $admin = Admin::whereRestaurantId($customer->restaurant_id)->get();
@@ -204,7 +208,6 @@ class RateController extends Controller
                 }
             }
             $rate = $this->rateService->create($id, $data);
-
             return $rate;
             // return $this->successResponse($data, trans('locale.created'), 200);
         } catch (Throwable $th) {
