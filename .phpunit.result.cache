@@ -1,0 +1,1 @@
+{"version":1,"defects":{"Tests\\Feature\\Admin\\AdminUpdateTest::it_successfully_updates_admin_profile":8,"Tests\\Feature\\Admin\\AdminUpdateTest::it_fails_validation_if_username_is_taken":8},"times":{"Tests\\Feature\\Admin\\AdminUpdateTest::it_successfully_updates_admin_profile":0.087,"Tests\\Feature\\Admin\\AdminUpdateTest::it_fails_validation_if_username_is_taken":0.027}}
